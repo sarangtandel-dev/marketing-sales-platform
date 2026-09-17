@@ -7,7 +7,8 @@ Google Business Profile verification running in the background for 1-3 weeks.
 
 Prerequisites on the agency side (done once, not per client): Webflow agency workspace with the
 master template, GTM master container export, Make Core account with the router blueprint, Looker
-Studio master report, Bitwarden, the UTM builder Sheet template, and this playbook.
+Studio master report, Bitwarden, the UTM builder Sheet template, and this playbook. The source
+files for all of these are in [`templates/`](../templates/README.md).
 
 ## Step 0 — Accounts, ownership and legal (day 1, runs in parallel with everything)
 

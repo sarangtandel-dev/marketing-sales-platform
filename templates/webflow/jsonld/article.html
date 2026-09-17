@@ -1,0 +1,15 @@
+<!-- Blog post template page: Page settings > Custom code > Head. Use Webflow CMS field bindings
+     (the purple "+ Add field" button) in place of the {{...}} values. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{CMS: Post title}}",
+  "image": "{{CMS: Main image URL}}",
+  "datePublished": "{{CMS: Published on, ISO}}",
+  "dateModified": "{{CMS: Updated on, ISO}}",
+  "author": { "@type": "Organization", "name": "{{BRAND_NAME}}" },
+  "publisher": { "@type": "Organization", "name": "{{BRAND_NAME}}", "logo": { "@type": "ImageObject", "url": "https://{{DOMAIN}}/{{LOGO_PATH}}" } },
+  "mainEntityOfPage": "https://{{DOMAIN}}/blog/{{CMS: Slug}}"
+}
+</script>

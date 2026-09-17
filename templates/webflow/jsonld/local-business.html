@@ -1,0 +1,27 @@
+<!-- Home page only: Page settings > Custom code > Head. Change @type to the closest subtype
+     (Plumber, Dentist, Electrician, RealEstateAgent, Restaurant, ...). -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{{LOCAL_BUSINESS_SUBTYPE}}",
+  "name": "{{BRAND_NAME}}",
+  "image": "https://{{DOMAIN}}/{{HERO_IMAGE_PATH}}",
+  "url": "https://{{DOMAIN}}/",
+  "telephone": "{{PHONE_E164}}",
+  "priceRange": "{{PRICE_RANGE}}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{STREET}}",
+    "addressLocality": "{{CITY}}",
+    "addressRegion": "{{STATE}}",
+    "postalCode": "{{PINCODE}}",
+    "addressCountry": "{{COUNTRY_CODE}}"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": {{LAT}}, "longitude": {{LNG}} },
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "{{OPENS}}", "closes": "{{CLOSES}}" }
+  ],
+  "areaServed": "{{CITY}}",
+  "hasMap": "{{GBP_URL}}"
+}
+</script>

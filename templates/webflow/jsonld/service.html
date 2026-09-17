@@ -1,0 +1,13 @@
+<!-- Each service page: Page settings > Custom code > Head. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "{{SERVICE_NAME}}",
+  "serviceType": "{{SERVICE_TYPE}}",
+  "provider": { "@type": "{{LOCAL_BUSINESS_SUBTYPE}}", "name": "{{BRAND_NAME}}", "url": "https://{{DOMAIN}}/" },
+  "areaServed": { "@type": "City", "name": "{{CITY}}" },
+  "description": "{{ONE_SENTENCE_DESCRIPTION}}",
+  "url": "https://{{DOMAIN}}/services/{{SERVICE_SLUG}}"
+}
+</script>

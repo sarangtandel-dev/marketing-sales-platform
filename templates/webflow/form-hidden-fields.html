@@ -1,0 +1,30 @@
+<!-- Paste inside every Webflow lead form via an Embed element (Add > Embed).
+     Field names must match appendix B section 4 exactly. The persistence snippet fills them.
+     Set form_type per form: contact | quote | booking | newsletter.
+     Form settings: redirect URL = /thank-you?type=<form_type>, reCAPTCHA on. -->
+<input type="hidden" name="form_type" value="quote">
+<input type="hidden" name="utm_source_first" value="">
+<input type="hidden" name="utm_medium_first" value="">
+<input type="hidden" name="utm_campaign_first" value="">
+<input type="hidden" name="utm_content_first" value="">
+<input type="hidden" name="utm_term_first" value="">
+<input type="hidden" name="utm_source_last" value="">
+<input type="hidden" name="utm_medium_last" value="">
+<input type="hidden" name="utm_campaign_last" value="">
+<input type="hidden" name="utm_content_last" value="">
+<input type="hidden" name="utm_term_last" value="">
+<input type="hidden" name="gclid" value="">
+<input type="hidden" name="fbclid" value="">
+<input type="hidden" name="landing_page" value="">
+<input type="hidden" name="referrer" value="">
+<input type="hidden" name="ga_client_id" value="">
+<input type="hidden" name="page_url" value="">
+<input type="hidden" name="first_seen_at" value="">
+<!-- Honeypot: keep visually hidden with CSS (.hp{position:absolute;left:-9999px}), never display:none
+     (some bots skip display:none fields). The Make router drops any submission where this is non-empty. -->
+<div class="hp" aria-hidden="true"><input type="text" name="hp_company" tabindex="-1" autocomplete="off"></div>
+
+<!-- Visible consent fields (build these as normal Webflow checkboxes, shown here for the exact names):
+<label><input type="checkbox" name="consent_marketing"> I agree to receive helpful emails. Unsubscribe any time.</label>
+<label><input type="checkbox" name="consent_whatsapp"> You may contact me on WhatsApp.</label>
+-->

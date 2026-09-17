@@ -29,6 +29,13 @@ the seam, once concrete triggers fire.
 | [appendix-a-naming-and-utm.md](appendix-a-naming-and-utm.md) | Naming conventions, UTM taxonomy, pipeline stages, account ownership matrix |
 | [appendix-b-tracking-spec.md](appendix-b-tracking-spec.md) | dataLayer events, GA4 setup, hidden form fields, HubSpot property budget, Sheet columns |
 
+## Template kit
+
+[`../templates/`](../templates/README.md) holds the agency masters the playbook presupposes: the
+Webflow persistence snippet and hidden-field block, JSON-LD, the GTM container export, Make scenario
+build specs, Brevo automations and email copy, Sheet headers, the Looker report spec, the privacy
+policy template and the client intake form.
+
 ## The one-line architecture
 
 ```

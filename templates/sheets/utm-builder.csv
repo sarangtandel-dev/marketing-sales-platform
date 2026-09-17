@@ -1,0 +1,4 @@
+base_url,utm_source,utm_medium,utm_campaign,utm_content,utm_term,final_url
+https://client.example/services/plumbing,google,cpc,202609-quote-monsoon-offer,,{keyword},"=A2&""?utm_source=""&B2&""&utm_medium=""&C2&""&utm_campaign=""&D2&IF(E2<>"""",""&utm_content=""&E2,"""")&IF(F2<>"""",""&utm_term=""&F2,"""")"
+https://client.example/,instagram,paid_social,202609-quote-monsoon-offer,carousel-a,,"=A3&""?utm_source=""&B3&""&utm_medium=""&C3&""&utm_campaign=""&D3&IF(E3<>"""",""&utm_content=""&E3,"""")&IF(F3<>"""",""&utm_term=""&F3,"""")"
+https://client.example/,print,offline,202610-brand-shopfront,qr-shopfront,,"=A4&""?utm_source=""&B4&""&utm_medium=""&C4&""&utm_campaign=""&D4&IF(E4<>"""",""&utm_content=""&E4,"""")&IF(F4<>"""",""&utm_term=""&F4,"""")"

@@ -1,0 +1,34 @@
+# Make's responsibilities need a new home
+
+Status: ready-for-agent
+Source: file audit, 2026-09-17
+
+## Problem
+
+Removing Make (ADR-0002) leaves these jobs without an owner:
+
+- the honeypot/spam check (`form-hidden-fields.html:24`)
+- the raw lead audit log in Google Sheets (`docs/appendix-b-tracking-spec.md` §9)
+- the intent webhook (`container-spec.md:59-82`)
+- syncing deal stage and meeting data into Brevo (`templates/brevo/automations.md:20,36,40,44`)
+- sending WhatsApp messages (`automations.md:45`)
+
+reCAPTCHA is also referenced; the new stack would use Turnstile, checked in the Worker.
+
+## To decide
+
+- Where each job goes: the Worker, Worker storage, or Brevo.
+- The retention period for any lead data we store (ADR-0011).
+
+## Comments
+
+2026-09-17, Round 2:
+- The spam check (honeypot plus Turnstile) moves into the Worker.
+- The raw lead audit log becomes the Worker's Lead Log (ADR-0013). Owner alerts are sent from the Lead Log path.
+
+Still open:
+- the intent webhook
+- deal-stage and meeting sync into Brevo (Module 2)
+- sending WhatsApp messages
+
+2026-09-17, milestones (ADR-0039): The spam check and Lead Log are M1 (ADR-0013). The intent webhook is replaced by `contact_click` events (ADR-0022). Deal-stage and meeting sync is Module 2. WhatsApp sending is DESIGNED.

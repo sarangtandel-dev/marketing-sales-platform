@@ -1,0 +1,14 @@
+{
+  "name": "@msp/tracking",
+  "private": true,
+  "type": "module",
+  "description": "The site tracking script: attribution without personal data, consent-gated, the only event source for GTM (ADR-0022). Test seam 3.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^30.0.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.1.1"
+  }
+}

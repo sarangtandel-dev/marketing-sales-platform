@@ -19,7 +19,7 @@ How to work on the Module 1 code. The design lives in `CONTEXT.md` and `docs/adr
 | `tooling` | Tests for repo tooling, such as the secrets scan |
 | `clients/<slug>/` | One Client's files (ADR-0024): `site/site-definition.json`, `design/theme.json` for the Theme, and `facts.yaml` (M0's single facts file). `pnpm test` validates every Client's facts file |
 
-The tracking script (test seam 3) gets its home in ticket 27.
+| `packages/tracking` | The tracking script: consent-gated attribution with no personal data, and the only source of tracking events. Test seam 3 |
 
 ## Building a site
 

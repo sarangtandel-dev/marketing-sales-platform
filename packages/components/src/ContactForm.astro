@@ -125,6 +125,9 @@ const fieldId = (name: string) => `${form.id}-${name}`;
 
 <script>
   type Turnstile = { reset: (el?: Element) => void; remove: (el?: Element) => void };
+  // The tracking script (@msp/tracking); absent or consent-less means no attribution.
+  type Msp = { attribution(): Record<string, unknown> | null; markKnownContact(): void };
+  const msp = () => (window as unknown as { msp?: Msp }).msp;
   const turnstile = () => (window as unknown as { turnstile?: Turnstile }).turnstile;
 
   for (const form of document.querySelectorAll<HTMLFormElement>("form[data-msp-form]")) {
@@ -159,6 +162,7 @@ const fieldId = (name: string) => `${form.id}-${name}`;
               channel: box.dataset.optInChannel,
               version: box.dataset.optInVersion,
             })),
+            attribution: msp()?.attribution() ?? undefined,
             honeypot: String(data.get("website") ?? ""),
             turnstile_token: String(data.get("cf-turnstile-response") ?? ""),
             page_url: location.href,
@@ -172,6 +176,7 @@ const fieldId = (name: string) => `${form.id}-${name}`;
 
       const widget = form.querySelector(".cf-turnstile") ?? undefined;
       if (ok) {
+        msp()?.markKnownContact();
         turnstile()?.remove(widget);
         form.replaceChildren(Object.assign(document.createElement("p"), {
           className: "text-lg",

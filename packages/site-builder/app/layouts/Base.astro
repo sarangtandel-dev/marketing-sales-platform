@@ -35,5 +35,8 @@ const url = new URL(pagePath(page, lang), site.meta.site_url).href;
     <footer class="mx-auto max-w-5xl px-4 py-8 text-sm text-muted">
       {t(site.footer.text, lang)}
     </footer>
+    <script>
+      import "@msp/tracking";
+    </script>
   </body>
 </html>

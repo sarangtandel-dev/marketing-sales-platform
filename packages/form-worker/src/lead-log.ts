@@ -16,8 +16,9 @@ export async function storeLead(db: D1Database, s: Submission, now: Date): Promi
   }));
   await db
     .prepare(
-      `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, opt_ins, language, page_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, opt_ins, attribution,
+         language, page_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (submission_token) DO NOTHING`,
     )
     .bind(
@@ -29,6 +30,7 @@ export async function storeLead(db: D1Database, s: Submission, now: Date): Promi
       s.cta_type ?? null,
       JSON.stringify(s.fields),
       JSON.stringify(optIns),
+      s.attribution ? JSON.stringify(s.attribution) : null,
       s.language ?? null,
       s.page_url ?? null,
     )

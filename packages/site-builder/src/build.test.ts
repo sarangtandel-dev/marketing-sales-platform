@@ -68,6 +68,15 @@ describe("building a valid site", () => {
     expect(robots).not.toMatch(/Disallow:\s*\/\s*$/m);
   });
 
+  it("includes the tracking script on every page", () => {
+    const scripts = readdirSync(out, { recursive: true, encoding: "utf8" })
+      .filter((f) => f.endsWith(".js") || f.endsWith(".html"))
+      .map((f) => read(f))
+      .join("\n");
+    expect(scripts).toContain("msp_first_touch");
+    for (const file of htmlFiles(out)) expect(read(file), file).toMatch(/<script[^>]*type="module"/);
+  });
+
   it("never marks production output noindex", () => {
     for (const file of htmlFiles(out)) expect(read(file), file).not.toMatch(/noindex/i);
   });

@@ -5,6 +5,7 @@
   "description": "Builds a Client's static site from its site definition and Theme (Astro + Tailwind). Test seam 1.",
   "dependencies": {
     "@msp/components": "workspace:*",
+    "@msp/tracking": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "ajv": "^8.20.0",
     "astro": "^7.3.5",

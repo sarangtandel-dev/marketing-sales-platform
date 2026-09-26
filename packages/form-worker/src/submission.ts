@@ -9,12 +9,28 @@ export type Submission = {
   honeypot: string;
   turnstile_token: string;
   opt_ins: OptIn[];
+  attribution?: Attribution;
   page_url?: string;
   language?: string;
 };
 
 // A Marketing Opt-in the Visitor ticked. M0 offers email only (ADR-0021).
 export type OptIn = { channel: "email"; version: string };
+
+// Sent by the tracking script only when the Visitor gave consent (ADR-0022).
+export type Attribution = { first_touch: unknown; last_touch: unknown; ga_client_id: string | null };
+const MAX_ATTRIBUTION_BYTES = 4096;
+
+function parseAttribution(value: unknown): Attribution | null | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "object" || Array.isArray(value)) return null;
+  const { first_touch = null, last_touch = null, ga_client_id = null } = value as Record<string, unknown>;
+  const isTouch = (t: unknown) => t === null || (typeof t === "object" && !Array.isArray(t));
+  if (!isTouch(first_touch) || !isTouch(last_touch)) return null;
+  if (ga_client_id !== null && !isString(ga_client_id, 100)) return null;
+  const attribution = { first_touch, last_touch, ga_client_id: ga_client_id as string | null };
+  return JSON.stringify(attribution).length <= MAX_ATTRIBUTION_BYTES ? attribution : null;
+}
 
 export const MAX_BODY_BYTES = 64 * 1024;
 const MAX_FIELDS = 30;
@@ -42,6 +58,7 @@ export function parseSubmission(raw: string): Submission | null {
     honeypot,
     turnstile_token,
     opt_ins = [],
+    attribution: rawAttribution,
     page_url,
     language,
   } = data;
@@ -64,6 +81,9 @@ export function parseSubmission(raw: string): Submission | null {
     if (!optIns.some((x) => x.channel === o.channel)) optIns.push({ channel: "email", version: o.version });
   }
 
+  const attribution = parseAttribution(rawAttribution);
+  if (attribution === null) return null;
+
   return {
     form_id,
     form_type,
@@ -73,6 +93,7 @@ export function parseSubmission(raw: string): Submission | null {
     honeypot: (honeypot as string | undefined) ?? "",
     turnstile_token,
     opt_ins: optIns,
+    attribution,
     page_url,
     language,
   };

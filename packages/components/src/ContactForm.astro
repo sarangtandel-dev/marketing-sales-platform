@@ -126,7 +126,11 @@ const fieldId = (name: string) => `${form.id}-${name}`;
 <script>
   type Turnstile = { reset: (el?: Element) => void; remove: (el?: Element) => void };
   // The tracking script (@msp/tracking); absent or consent-less means no attribution.
-  type Msp = { attribution(): Record<string, unknown> | null; markKnownContact(): void };
+  type Msp = {
+    attribution(): Record<string, unknown> | null;
+    markKnownContact(): void;
+    event(name: string, params: Record<string, unknown>): void;
+  };
   const msp = () => (window as unknown as { msp?: Msp }).msp;
   const turnstile = () => (window as unknown as { turnstile?: Turnstile }).turnstile;
 
@@ -135,6 +139,10 @@ const fieldId = (name: string) => `${form.id}-${name}`;
     let submissionToken = crypto.randomUUID();
     const status = form.querySelector<HTMLElement>("[data-form-status]")!;
     const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+    const identity = { form_id: form.dataset.formId, form_type: form.dataset.formType };
+
+    // form_start: the first time the Visitor interacts with this form on this page.
+    form.addEventListener("focusin", () => msp()?.event("form_start", identity), { once: true });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -176,6 +184,8 @@ const fieldId = (name: string) => `${form.id}-${name}`;
 
       const widget = form.querySelector(".cf-turnstile") ?? undefined;
       if (ok) {
+        // Only once the Worker has confirmed the Lead Log write (issue 07).
+        msp()?.event("generate_lead", identity);
         msp()?.markKnownContact();
         turnstile()?.remove(widget);
         form.replaceChildren(Object.assign(document.createElement("p"), {

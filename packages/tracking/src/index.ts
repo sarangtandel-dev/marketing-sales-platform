@@ -1,5 +1,6 @@
 import { currentTouch, directTouch, type Touch, withoutClickIds } from "./attribution.ts";
 import { type ConsentState, watchConsent } from "./consent.ts";
+import { listenForClicks, pushEvent } from "./events.ts";
 
 // The site tracking script (ADR-0022). It stores nothing until Consent Mode says
 // analytics_storage is granted; click IDs also need ad_storage (ADR-0020).
@@ -85,8 +86,15 @@ function gaClientId(): string | undefined {
   return match?.[1];
 }
 
-// Used by site components (the contact form, and events in ticket 29).
+const dataLayer = (window as unknown as { dataLayer: { push: (item: unknown) => void } }).dataLayer;
+listenForClicks(document, dataLayer);
+
+// Used by site components (the contact form).
 const api = {
+  // Pushes a listed event with only its listed parameters (see events.ts).
+  event(name: string, params: Record<string, unknown>) {
+    pushEvent(dataLayer, name, params);
+  },
   // Attribution to send with a form submission; null without consent.
   attribution(): Record<string, unknown> | null {
     if (!consent().analytics) return null;

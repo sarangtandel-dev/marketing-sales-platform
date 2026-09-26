@@ -28,10 +28,22 @@ describe("GTM container", () => {
     for (const tag of container.tag) expect(tag.consentSettings?.consentStatus, tag.name).toBe("NEEDED");
   });
 
+  it("sends every tracking event to GA4 with exactly the parameters the site pushes", async () => {
+    const { EVENTS } = await import("./events.ts");
+    const ga4 = container.tag.filter((t) => t.type === "gaawe") as (Tag & { parameter: { key: string; value?: string; list?: { map: { key: string; value: string }[] }[] }[] })[];
+    const sent = Object.fromEntries(
+      ga4.map((t) => [
+        t.parameter.find((p) => p.key === "eventName")!.value,
+        (t.parameter.find((p) => p.key === "eventSettingsTable")?.list ?? []).map((row) => row.map.find((m) => m.key === "parameter")!.value),
+      ]),
+    );
+    expect(sent).toEqual(Object.fromEntries(Object.entries(EVENTS).map(([k, v]) => [k, [...v]])));
+  });
+
   it("defines every variable its tags use", () => {
     const names = new Set(container.variable.map((v) => v.name));
-    const used = JSON.stringify(container.tag).match(/{{([^}]+)}}/g) ?? [];
-    const builtIns = new Set(["Page URL", "Event"]);
+    const used = JSON.stringify([container.tag, container.trigger]).match(/{{([^}]+)}}/g) ?? [];
+    const builtIns = new Set(["Page URL", "Event", "_event"]);
     for (const ref of used) {
       const name = ref.slice(2, -2);
       expect(names.has(name) || builtIns.has(name), name).toBe(true);

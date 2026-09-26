@@ -21,6 +21,8 @@ export type PageOptions = {
   cookie?: string;
   html?: string;
   consent?: { analytics_storage?: "granted" | "denied"; ad_storage?: "granted" | "denied" };
+  // window.mspConfig, as the site layout writes it (the GTM container ID).
+  config?: { gtm?: string | null };
 };
 
 export type Page = {
@@ -45,6 +47,7 @@ export function openPage(opts: PageOptions): Page {
   // choice the Visitor already made on an earlier page.
   const gtag = (...args: unknown[]) => (window as unknown as { dataLayer: unknown[] }).dataLayer.push(args);
   window.eval("window.dataLayer = window.dataLayer || [];");
+  if (opts.config) window.eval(`window.mspConfig = ${JSON.stringify(opts.config)};`);
   gtag("consent", "default", { analytics_storage: "denied", ad_storage: "denied" });
   if (opts.consent) gtag("consent", "update", opts.consent);
 

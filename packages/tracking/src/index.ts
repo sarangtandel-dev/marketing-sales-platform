@@ -39,8 +39,28 @@ const url = new URL(location.href);
 // Computed once per page view, stored only if and when consent allows.
 const pageTouch = currentTouch(url, document.referrer, now());
 
+// Consent Mode basic (ADR-0020): GTM, and so every Google tag, loads only after
+// analytics consent. The container ID comes from the site definition via window.mspConfig.
+let gtmLoaded = false;
+function loadGtm() {
+  const id = (window as unknown as { mspConfig?: { gtm?: string | null } }).mspConfig?.gtm;
+  if (gtmLoaded || !id) return;
+  gtmLoaded = true;
+  const dataLayer = (window as unknown as { dataLayer: unknown[] }).dataLayer;
+  dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(id)}`;
+  document.head.appendChild(script);
+}
+
+function forget() {
+  for (const key of Object.values(KEYS)) localStorage.removeItem(key);
+}
+
 function store(consent: ConsentState) {
   if (!consent.analytics) return;
+  loadGtm();
   const at = now();
   const touch = pageTouch && (consent.ads ? pageTouch : withoutClickIds(pageTouch));
   if (!read<Touch>(KEYS.first, at)) write(KEYS.first, touch ?? directTouch(url, at), at);
@@ -48,7 +68,16 @@ function store(consent: ConsentState) {
   else if (!read<Touch>(KEYS.last, at)) write(KEYS.last, directTouch(url, at), at);
 }
 
-const consent = watchConsent(window as never, store);
+// Withdrawing analytics consent deletes what we stored. The starting state is "denied"
+// until the consent tool restores a returning Visitor's choice, so only a change from
+// granted to denied counts as a withdrawal.
+let analyticsGranted = false;
+const consent = watchConsent(window as never, (state) => {
+  if (analyticsGranted && !state.analytics) forget();
+  analyticsGranted = state.analytics;
+  store(state);
+});
+analyticsGranted = consent().analytics;
 store(consent());
 
 function gaClientId(): string | undefined {

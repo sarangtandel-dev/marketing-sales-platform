@@ -1,0 +1,51 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-09-27 00:00:00",
+  "containerVersion": {
+    "path": "accounts/0/containers/0/versions/0",
+    "accountId": "0",
+    "containerId": "0",
+    "containerVersionId": "0",
+    "name": "msp site container (template)",
+    "description": "Source of truth for every Client's GTM container (ADR-0022). Import into the Client's container, then set the GA4 measurement ID variable. GTM only listens to events the site pushes; it has no click or form triggers of its own. GTM itself loads only after analytics consent (Consent Mode basic, ADR-0020).",
+    "container": {
+      "path": "accounts/0/containers/0",
+      "accountId": "0",
+      "containerId": "0",
+      "name": "msp site container",
+      "publicId": "GTM-XXXXXXX",
+      "usageContext": ["WEB"]
+    },
+    "tag": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "1",
+        "name": "Google tag - GA4",
+        "type": "googtag",
+        "parameter": [{ "type": "TEMPLATE", "key": "tagId", "value": "{{GA4 measurement ID}}" }],
+        "firingTriggerId": ["2147479573"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "consentSettings": {
+          "consentStatus": "NEEDED",
+          "consentType": { "type": "LIST", "list": [{ "type": "TEMPLATE", "value": "analytics_storage" }] }
+        }
+      }
+    ],
+    "trigger": [],
+    "variable": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "1",
+        "name": "GA4 measurement ID",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "G-XXXXXXXXXX" }]
+      }
+    ],
+    "builtInVariable": [
+      { "accountId": "0", "containerId": "0", "type": "PAGE_URL", "name": "Page URL" },
+      { "accountId": "0", "containerId": "0", "type": "EVENT", "name": "Event" }
+    ]
+  }
+}

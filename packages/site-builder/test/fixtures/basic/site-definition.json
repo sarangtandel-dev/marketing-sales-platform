@@ -252,6 +252,13 @@
       "en": "© Fixture Co"
     }
   },
-  "tracking": {},
+  "tracking": {
+    "gtm": "GTM-FIXTURE1",
+    "ga4": "G-FIXTURE1",
+    "consent_tool": {
+      "provider": "cookieyes",
+      "id": "fixture0000cookieyes"
+    }
+  },
   "redirects": []
 }

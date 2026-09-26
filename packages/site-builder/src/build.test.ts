@@ -77,6 +77,31 @@ describe("building a valid site", () => {
     for (const file of htmlFiles(out)) expect(read(file), file).toMatch(/<script[^>]*type="module"/);
   });
 
+  it("sets every Consent Mode default to denied before any other script runs", () => {
+    const home = read("index.html");
+    const head = home.slice(0, home.indexOf("</head>"));
+    const firstScript = head.match(/<script[^>]*>([^]*?)<\/script>/)?.[1] ?? "";
+    expect(firstScript).toContain('gtag("consent", "default"');
+    for (const key of ["ad_storage", "analytics_storage", "ad_user_data", "ad_personalization"]) {
+      expect(firstScript).toMatch(new RegExp(`${key}: "denied"`));
+    }
+  });
+
+  it("loads the configured consent tool, and never GTM directly", () => {
+    const home = read("index.html");
+    expect(home).toContain('src="https://cdn-cookieyes.com/client_data/fixture0000cookieyes/script.js"');
+    expect(home.indexOf("cdn-cookieyes.com")).toBeGreaterThan(home.indexOf('gtag("consent", "default"'));
+    expect(home).not.toMatch(/<script[^>]*src="[^"]*googletagmanager\.com/);
+    expect(home).toContain('"gtm":"GTM-FIXTURE1"');
+  });
+
+  it("takes tracking IDs only from the site definition", () => {
+    const components = join(import.meta.dirname, "../../components/src");
+    for (const file of readdirSync(components)) {
+      expect(readFileSync(join(components, file), "utf8"), file).not.toMatch(/GTM-[A-Z0-9]+|G-[A-Z0-9]{6,}/);
+    }
+  });
+
   it("never marks production output noindex", () => {
     for (const file of htmlFiles(out)) expect(read(file), file).not.toMatch(/noindex/i);
   });

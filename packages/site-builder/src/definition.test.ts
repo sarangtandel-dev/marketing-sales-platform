@@ -138,6 +138,24 @@ describe("validateSiteDefinition", () => {
     });
   });
 
+  it("only accepts consent tools we've integrated", () => {
+    const s = site();
+    s.tracking.consent_tool = { provider: "homegrown", id: "x" };
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/tracking/consent_tool/provider",
+      message: expect.stringContaining("cookieyes"),
+    });
+  });
+
+  it("requires a consent tool whenever GTM is configured", () => {
+    const s = site();
+    delete s.tracking.consent_tool;
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/tracking",
+      message: expect.stringContaining("consent_tool"),
+    });
+  });
+
   it("rejects a CTA Type outside ADR-0023's list", () => {
     const s = site();
     s.ctas[0].type = "buy_now";

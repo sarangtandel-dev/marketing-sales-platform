@@ -16,10 +16,9 @@ How to work on the Module 1 code. The design lives in `CONTEXT.md` and `docs/adr
 | `packages/components` | Shared section components with Section Variants, styled only by Theme tokens |
 | `packages/knowledge-base` | Facts: the schema and validator for a Client's facts file (ADR-0007, ADR-0024) |
 | `packages/form-worker` | The Cloudflare Worker for form submissions. Test seam 2 |
+| `packages/tracking` | The tracking script: consent-gated attribution with no personal data, and the only source of tracking events. Test seam 3 |
 | `tooling` | Tests for repo tooling, such as the secrets scan |
 | `clients/<slug>/` | One Client's files (ADR-0024): `site/site-definition.json`, `design/theme.json` for the Theme, and `facts.yaml` (M0's single facts file). `pnpm test` validates every Client's facts file |
-
-| `packages/tracking` | The tracking script: consent-gated attribution with no personal data, and the only source of tracking events. Test seam 3 |
 
 ## Building a site
 

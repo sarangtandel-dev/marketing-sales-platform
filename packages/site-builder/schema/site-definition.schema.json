@@ -319,8 +319,24 @@
           "pattern": "^G-[A-Z0-9]+$"
         },
         "consent_tool": {
-          "type": "string",
-          "minLength": 1
+          "description": "The certified consent tool (ADR-0020). Only integrated providers are allowed; see the M0 note in ADR-0020.",
+          "type": "object",
+          "required": [
+            "provider",
+            "id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "enum": [
+                "cookieyes"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          }
         }
       }
     },

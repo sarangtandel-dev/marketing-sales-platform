@@ -73,7 +73,7 @@ export type SiteDefinition = {
   forms: Form[];
   navigation: { page: string; label: Text }[];
   footer: { text: Text };
-  tracking: { gtm?: string; ga4?: string; consent_tool?: string };
+  tracking: { gtm?: string; ga4?: string; consent_tool?: { provider: "cookieyes"; id: string } };
   redirects?: { from: string; to: string }[];
 };
 
@@ -194,6 +194,10 @@ function referenceIssues(site: SiteDefinition): Issue[] {
     }),
   );
   site.forms.forEach((form, f) => need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`));
+  // Google tags only ever load after consent (ADR-0020), so GTM needs a consent tool.
+  if (site.tracking.gtm && !site.tracking.consent_tool) {
+    issues.push({ path: "/tracking", message: "needs consent_tool because gtm is set (ADR-0020)" });
+  }
   if (site.forms.length && !site.meta.turnstile_site_key) {
     issues.push({ path: "/meta", message: "needs turnstile_site_key because the site has forms (ADR-0028)" });
   }

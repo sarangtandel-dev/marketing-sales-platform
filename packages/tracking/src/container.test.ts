@@ -37,7 +37,18 @@ describe("GTM container", () => {
         (t.parameter.find((p) => p.key === "eventSettingsTable")?.list ?? []).map((row) => row.map.find((m) => m.key === "parameter")!.value),
       ]),
     );
-    expect(sent).toEqual(Object.fromEntries(Object.entries(EVENTS).map(([k, v]) => [k, [...v]])));
+    expect(sent).toEqual(Object.fromEntries(Object.entries(EVENTS).map(([k, v]) => [k, [...v, "page_location"]])));
+  });
+
+  it("gives GA4 the redacted page_location, never the raw URL (ADR-0022)", () => {
+    const google = container.tag.find((t) => t.type === "googtag") as unknown as {
+      parameter: { key: string; list?: { map: { key: string; value: string }[] }[] }[];
+    };
+    const settings = google.parameter.find((p) => p.key === "configSettingsTable")?.list ?? [];
+    expect(settings.map((r) => Object.fromEntries(r.map.map((m) => [m.key, m.value])))).toContainEqual({
+      parameter: "page_location",
+      parameterValue: "{{DLV - page_location}}",
+    });
   });
 
   it("defines every variable its tags use", () => {

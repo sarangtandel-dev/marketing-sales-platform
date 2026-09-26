@@ -10,14 +10,24 @@ export type Touch = {
   content?: string;
   term?: string;
   click_ids?: Record<string, string>;
+  // The referring host (never its path or query), when the Visitor came from another site.
+  referrer?: string;
   landing_page: string;
   at: string;
 };
 
 const UTM = ["source", "medium", "campaign", "content", "term"] as const;
 const EMAIL = /[^\s@]+@[^\s@]+/;
-const PHONE = /\+?\d[\d\s().-]{6,}\d/;
-const looksPersonal = (v: string) => EMAIL.test(v) || PHONE.test(v);
+// A run of digits and phone punctuation with 10+ digits, or 8+ after a "+". Dates such as
+// "2026-03-01" or "20260927" have 8 digits and no "+", so campaign names keep them.
+function looksLikePhone(v: string): boolean {
+  for (const run of v.match(/\+?\d[\d\s().-]*\d/g) ?? []) {
+    const digits = run.replace(/\D/g, "").length;
+    if (digits >= 10 || (run.startsWith("+") && digits >= 8)) return true;
+  }
+  return false;
+}
+export const looksPersonal = (v: string) => EMAIL.test(v) || looksLikePhone(v);
 
 // "www.google.co.in" → "google"; "t.co" stays "t.co" because it's listed whole.
 function siteName(host: string): string {
@@ -27,6 +37,15 @@ function siteName(host: string): string {
   const secondLevel = new Set(["co", "com", "org", "net", "gov", "ac", "edu"]);
   const i = parts.length >= 3 && secondLevel.has(parts[parts.length - 2]) ? parts.length - 3 : parts.length - 2;
   return parts[Math.max(i, 0)];
+}
+
+function referrerHost(referrer: string, ownHost: string): string | null {
+  try {
+    const host = new URL(referrer).hostname;
+    return host && host !== ownHost ? host : null;
+  } catch {
+    return null;
+  }
 }
 
 function fromReferrer(referrer: string, ownHost: string): { source: string; medium: string } | null {
@@ -67,6 +86,8 @@ export function currentTouch(url: URL, referrer: string, now: Date): Touch | nul
     landing_page: url.pathname,
     at: now.toISOString(),
   };
+  const host = referrerHost(referrer, url.hostname);
+  if (host) touch.referrer = host;
   if (utm.campaign) touch.campaign = utm.campaign;
   if (utm.content) touch.content = utm.content;
   if (utm.term) touch.term = utm.term;
@@ -84,4 +105,17 @@ export const directTouch = (url: URL, now: Date): Touch => ({
 export function withoutClickIds(touch: Touch): Touch {
   const { click_ids: _, ...rest } = touch;
   return rest;
+}
+
+// The page URL for GA4 (ADR-0022): the path plus only UTMs that don't look personal and,
+// with advertising consent, click IDs. Everything else in the query is dropped.
+export function redactedPageUrl(url: URL, withClickIds: boolean): string {
+  const kept = new URLSearchParams();
+  for (const [key, value] of url.searchParams) {
+    const isUtm = UTM.some((k) => key === `utm_${k}`);
+    const isClickId = key in CLICK_IDS;
+    if ((isUtm && !looksPersonal(value)) || (isClickId && withClickIds)) kept.append(key, value);
+  }
+  const query = kept.toString();
+  return `${url.origin}${url.pathname}${query ? `?${query}` : ""}`;
 }

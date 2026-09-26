@@ -1,4 +1,4 @@
-import { currentTouch, directTouch, type Touch, withoutClickIds } from "./attribution.ts";
+import { currentTouch, directTouch, redactedPageUrl, type Touch, withoutClickIds } from "./attribution.ts";
 import { type ConsentState, watchConsent } from "./consent.ts";
 import { listenForClicks, pushEvent } from "./events.ts";
 
@@ -26,6 +26,16 @@ function read<T>(key: string, now: Date): T | undefined {
   }
 }
 
+// Replaces a stored value but keeps its original expiry.
+function rewrite<T>(key: string, value: T) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(key) ?? "null") as Stored<T> | null;
+    if (stored) localStorage.setItem(key, JSON.stringify({ value, expires: stored.expires }));
+  } catch {
+    // best-effort, like write()
+  }
+}
+
 function write<T>(key: string, value: T, now: Date) {
   const stored: Stored<T> = { value, expires: new Date(now.getTime() + RETENTION_DAYS * DAY).toISOString() };
   try {
@@ -43,11 +53,13 @@ const pageTouch = currentTouch(url, document.referrer, now());
 // Consent Mode basic (ADR-0020): GTM, and so every Google tag, loads only after
 // analytics consent. The container ID comes from the site definition via window.mspConfig.
 let gtmLoaded = false;
-function loadGtm() {
+function loadGtm(consent: ConsentState) {
   const id = (window as unknown as { mspConfig?: { gtm?: string | null } }).mspConfig?.gtm;
   if (gtmLoaded || !id) return;
   gtmLoaded = true;
   const dataLayer = (window as unknown as { dataLayer: unknown[] }).dataLayer;
+  // GA4 reads page_location from here instead of the raw URL (see gtm/container.json).
+  dataLayer.push({ page_location: redactedPageUrl(url, consent.ads) });
   dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
   const script = document.createElement("script");
   script.async = true;
@@ -59,9 +71,18 @@ function forget() {
   for (const key of Object.values(KEYS)) localStorage.removeItem(key);
 }
 
+// Without advertising consent, stored touches keep everything except their click IDs.
+function stripClickIds() {
+  const at = now();
+  for (const key of [KEYS.first, KEYS.last]) {
+    const touch = read<Touch>(key, at);
+    if (touch?.click_ids) rewrite(key, withoutClickIds(touch));
+  }
+}
+
 function store(consent: ConsentState) {
   if (!consent.analytics) return;
-  loadGtm();
+  loadGtm(consent);
   const at = now();
   const touch = pageTouch && (consent.ads ? pageTouch : withoutClickIds(pageTouch));
   if (!read<Touch>(KEYS.first, at)) write(KEYS.first, touch ?? directTouch(url, at), at);
@@ -73,12 +94,16 @@ function store(consent: ConsentState) {
 // until the consent tool restores a returning Visitor's choice, so only a change from
 // granted to denied counts as a withdrawal.
 let analyticsGranted = false;
+let adsGranted = false;
 const consent = watchConsent(window as never, (state) => {
   if (analyticsGranted && !state.analytics) forget();
+  else if (adsGranted && !state.ads) stripClickIds();
   analyticsGranted = state.analytics;
+  adsGranted = state.ads;
   store(state);
 });
 analyticsGranted = consent().analytics;
+adsGranted = consent().ads;
 store(consent());
 
 function gaClientId(): string | undefined {
@@ -97,11 +122,13 @@ const api = {
   },
   // Attribution to send with a form submission; null without consent.
   attribution(): Record<string, unknown> | null {
-    if (!consent().analytics) return null;
+    const { analytics, ads } = consent();
+    if (!analytics) return null;
     const at = now();
+    const shareable = (t: Touch | undefined) => (t ? (ads ? t : withoutClickIds(t)) : null);
     return {
-      first_touch: read<Touch>(KEYS.first, at) ?? null,
-      last_touch: read<Touch>(KEYS.last, at) ?? null,
+      first_touch: shareable(read<Touch>(KEYS.first, at)),
+      last_touch: shareable(read<Touch>(KEYS.last, at)),
       ga_client_id: gaClientId() ?? null,
     };
   },

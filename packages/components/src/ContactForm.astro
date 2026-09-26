@@ -1,8 +1,6 @@
 ---
 // Contact form section. Variant: "stacked" (one field per row).
-// Posts JSON to the form Worker (ADR-0013); success is shown only when the Worker
-// confirms the Lead Log write. A retry reuses the same submission token, so the
-// Worker maps it to the same lead ID instead of creating a second Lead.
+// Its browser behaviour is in contact-form.client.ts.
 interface Props {
   variant: "stacked";
   level: 1 | 2;
@@ -126,82 +124,7 @@ const fieldId = (name: string) => `${form.id}-${name}`;
 <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <script>
-  type Turnstile = { reset: (el?: Element) => void; remove: (el?: Element) => void };
-  // The tracking script (@msp/tracking); absent or consent-less means no attribution.
-  type Msp = {
-    attribution(): Record<string, unknown> | null;
-    markKnownContact(): void;
-    event(name: string, params: Record<string, unknown>): void;
-  };
-  const msp = () => (window as unknown as { msp?: Msp }).msp;
-  const turnstile = () => (window as unknown as { turnstile?: Turnstile }).turnstile;
+  import { wireContactForm } from "./contact-form.client.ts";
 
-  for (const form of document.querySelectorAll<HTMLFormElement>("form[data-msp-form]")) {
-    // One token per attempt at this enquiry; kept across retries so the Worker de-duplicates.
-    let submissionToken = crypto.randomUUID();
-    const status = form.querySelector<HTMLElement>("[data-form-status]")!;
-    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
-    const identity = { form_id: form.dataset.formId, form_type: form.dataset.formType };
-
-    // form_start: the first time the Visitor interacts with this form on this page.
-    form.addEventListener("focusin", () => msp()?.event("form_start", identity), { once: true });
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const fields: Record<string, string> = {};
-      for (const [name, value] of data) {
-        if (name === "website" || name === "cf-turnstile-response" || name.startsWith("opt_in_")) continue;
-        if (typeof value === "string" && value !== "") fields[name] = value;
-      }
-
-      button.disabled = true;
-      status.textContent = "";
-      let ok = false;
-      try {
-        const res = await fetch(form.action, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            form_id: form.dataset.formId,
-            form_type: form.dataset.formType,
-            submission_token: submissionToken,
-            fields,
-            // Only ticked opt-ins are sent, each with the version of the wording shown.
-            opt_ins: [...form.querySelectorAll<HTMLInputElement>("input[data-opt-in-channel]:checked")].map((box) => ({
-              channel: box.dataset.optInChannel,
-              version: box.dataset.optInVersion,
-            })),
-            attribution: msp()?.attribution() ?? undefined,
-            honeypot: String(data.get("website") ?? ""),
-            turnstile_token: String(data.get("cf-turnstile-response") ?? ""),
-            page_url: location.href,
-            language: form.dataset.language,
-          }),
-        });
-        ok = res.ok && (await res.json()).ok === true;
-      } catch {
-        ok = false;
-      }
-
-      const widget = form.querySelector(".cf-turnstile") ?? undefined;
-      if (ok) {
-        // Only once the Worker has confirmed the Lead Log write (issue 07).
-        msp()?.event("generate_lead", identity);
-        msp()?.markKnownContact();
-        turnstile()?.remove(widget);
-        form.replaceChildren(Object.assign(document.createElement("p"), {
-          className: "text-lg",
-          textContent: form.dataset.success ?? "",
-        }));
-        form.setAttribute("role", "status");
-        submissionToken = crypto.randomUUID();
-        return;
-      }
-      status.textContent = form.dataset.error ?? "";
-      button.disabled = false;
-      // Turnstile tokens are single-use, so each retry needs a fresh one.
-      turnstile()?.reset(widget);
-    });
-  }
+  for (const form of document.querySelectorAll<HTMLFormElement>("form[data-msp-form]")) wireContactForm(form, window);
 </script>

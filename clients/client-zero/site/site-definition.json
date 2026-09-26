@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "client": "client-zero",
+    "site_url": "https://client-zero.pages.dev",
+    "theme": "../design/theme.json",
+    "default_language": "en",
+    "languages": ["en"],
+    "version": "0.1.0"
+  },
+  "pages": [
+    {
+      "id": "home",
+      "type": "home",
+      "slug": { "en": "" },
+      "seo": {
+        "title": { "en": "Coming soon" },
+        "description": { "en": "Our new website is on its way." }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": { "en": "Our new website is on its way" },
+            "body": { "en": "Placeholder page for Client #0 until ticket 33 adds the real site definition." }
+          }
+        }
+      ]
+    },
+    {
+      "id": "not-found",
+      "type": "not-found",
+      "slug": { "en": "404" },
+      "seo": {
+        "title": { "en": "Page not found" },
+        "description": { "en": "This page doesn't exist." }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": { "heading": { "en": "We couldn't find that page" } },
+          "ctas": ["home"]
+        }
+      ]
+    }
+  ],
+  "ctas": [
+    { "id": "home", "type": "visit", "label": { "en": "Go to the home page" }, "target": { "page": "home" } }
+  ],
+  "forms": [],
+  "navigation": [{ "page": "home", "label": { "en": "Home" } }],
+  "footer": { "text": { "en": "Client #0" } },
+  "tracking": {},
+  "redirects": []
+}

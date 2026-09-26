@@ -16,8 +16,38 @@ How to work on the Module 1 code. The design lives in `CONTEXT.md` and `docs/adr
 | `packages/components` | Shared section components with Section Variants, styled only by Theme tokens |
 | `packages/form-worker` | The Cloudflare Worker for form submissions. Test seam 2 |
 | `tooling` | Tests for repo tooling, such as the secrets scan |
+| `clients/<slug>/` | One Client's files (ADR-0024): `site/site-definition.json`, and `design/theme.json` for the Theme |
 
 The tracking script (test seam 3) gets its home in ticket 27.
+
+## Building a site
+
+```bash
+pnpm build:site clients/client-zero/site dist/client-zero
+```
+
+- The build validates the site definition and its Theme first. Any problem stops the build before anything is written, with the JSON path and the rule broken.
+- Every site needs exactly one page of type `not-found`, which becomes `404.html`.
+- The schemas are in `packages/site-builder/schema/`.
+- Section components and their Section Variants are listed in `packages/components/src/catalog.ts`. A site definition can only use what's listed there.
+
+## Deploying
+
+The `Deploy` workflow runs on every push:
+- It builds each Client whose files changed. A change to `packages/` or the lockfile rebuilds every Client.
+- It uploads each one with `wrangler pages deploy` to a Pages project named after the Client's slug.
+- Every branch, `main` included, deploys as a **preview**. Previews are noindex. The projects' production branch is `live`, and only the launch (ticket 36) deploys to it.
+
+**One-time setup, done by a person:**
+
+1. In Cloudflare, create an API token with the **Cloudflare Pages: Edit** permission only, scoped to our account.
+2. Add two GitHub repository secrets: `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` (from the Cloudflare dashboard).
+3. Create each Client's Pages project once, with `live` as its production branch:
+   ```bash
+   pnpm exec wrangler pages project create client-zero --production-branch live
+   ```
+
+Until the secrets exist, the workflow deploys nothing and says so in the run.
 
 ## Tool choices
 

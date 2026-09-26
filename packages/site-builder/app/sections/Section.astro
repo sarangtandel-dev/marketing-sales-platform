@@ -1,0 +1,24 @@
+---
+import Hero from "@msp/components/Hero.astro";
+import type { Section } from "../../src/definition.ts";
+import { ctaById, ctaHref, t } from "../lib/site";
+
+// Maps each catalogued component name to its implementation.
+const components = { hero: Hero } as const;
+
+interface Props {
+  section: Section;
+  lang: string;
+}
+
+const { section, lang } = Astro.props;
+const Component = components[section.component as keyof typeof components];
+const text = Object.fromEntries(Object.entries(section.text ?? {}).map(([key, value]) => [key, t(value, lang)]));
+const ctas = (section.ctas ?? []).map(ctaById).map((cta) => ({
+  id: cta.id,
+  type: cta.type,
+  label: t(cta.label, lang),
+  href: ctaHref(cta, lang),
+}));
+---
+<Component variant={section.variant} text={text} ctas={ctas} />

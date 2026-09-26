@@ -1,0 +1,10 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../sections/Section.astro";
+import { defaultLanguage, isNotFound, site } from "../lib/site";
+
+const page = site.pages.find(isNotFound)!;
+---
+<Base page={page} lang={defaultLanguage} canonical={false}>
+  {page.sections.map((section) => <Section section={section} lang={defaultLanguage} />)}
+</Base>

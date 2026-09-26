@@ -4,14 +4,16 @@
   "type": "module",
   "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
     "test": "vitest run",
-    "secrets:scan": "gitleaks git --redact --no-banner ."
+    "secrets:scan": "gitleaks git --redact --no-banner .",
+    "build:site": "node packages/site-builder/src/cli.ts"
   },
   "devDependencies": {
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.2",
+    "wrangler": "^4.141.0"
   }
 }

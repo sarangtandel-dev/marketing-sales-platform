@@ -1,0 +1,39 @@
+---
+import "msp:theme.css";
+import type { Page } from "../../src/definition.ts";
+import { pageById, pagePath, site, t } from "../lib/site";
+
+interface Props {
+  page: Page;
+  lang: string;
+  canonical?: boolean;
+}
+
+const { page, lang, canonical = true } = Astro.props;
+const url = new URL(pagePath(page, lang), site.meta.site_url).href;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t(page.seo.title, lang)}</title>
+    <meta name="description" content={t(page.seo.description, lang)} />
+    {canonical && <link rel="canonical" href={url} />}
+  </head>
+  <body class="bg-surface text-on-surface font-body antialiased">
+    <header class="border-b border-on-surface/10">
+      <nav class="mx-auto flex max-w-5xl gap-6 px-4 py-4">
+        {site.navigation.map((item) => (
+          <a class="hover:text-primary" href={pagePath(pageById(item.page), lang)}>{t(item.label, lang)}</a>
+        ))}
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="mx-auto max-w-5xl px-4 py-8 text-sm text-muted">
+      {t(site.footer.text, lang)}
+    </footer>
+  </body>
+</html>

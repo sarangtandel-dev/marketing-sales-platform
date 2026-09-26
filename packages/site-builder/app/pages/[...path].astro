@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../sections/Section.astro";
+import { languages, pagePath, publicPages } from "../lib/site";
+
+export function getStaticPaths() {
+  return languages.flatMap((lang) =>
+    publicPages().map((page) => ({
+      params: { path: pagePath(page, lang).slice(1, -1) || undefined },
+      props: { page, lang },
+    })),
+  );
+}
+
+const { page, lang } = Astro.props;
+---
+<Base page={page} lang={lang}>
+  {page.sections.map((section) => <Section section={section} lang={lang} />)}
+</Base>

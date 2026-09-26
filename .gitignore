@@ -9,3 +9,5 @@ node_modules/
 dist/
 .astro/
 .wrangler/
+.build/
+.playwright-mcp/

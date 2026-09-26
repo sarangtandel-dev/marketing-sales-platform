@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "primary": "#1d4ed8",
+    "on-primary": "#ffffff",
+    "surface": "#ffffff",
+    "on-surface": "#111827",
+    "muted": "#4b5563"
+  },
+  "type": {
+    "body": "system-ui, sans-serif",
+    "heading": "Georgia, serif"
+  },
+  "spacing": { "section": "5rem" },
+  "radius": { "card": "0.75rem" },
+  "shadows": { "card": "0 1px 3px rgb(0 0 0 / 0.1)" }
+}

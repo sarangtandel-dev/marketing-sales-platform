@@ -1,0 +1,152 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "client": "fixture-basic",
+    "site_url": "https://example.test",
+    "theme": "theme.json",
+    "default_language": "en",
+    "languages": [
+      "en"
+    ],
+    "version": "0.1.0"
+  },
+  "pages": [
+    {
+      "id": "home",
+      "type": "home",
+      "slug": {
+        "en": ""
+      },
+      "seo": {
+        "title": {
+          "en": "Fixture Co — Home"
+        },
+        "description": {
+          "en": "A fixture site used by the site builder tests."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": {
+              "en": "We build fixture sites"
+            },
+            "body": {
+              "en": "Built from a site definition."
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "slug": {
+        "en": "about"
+      },
+      "seo": {
+        "title": {
+          "en": "About Fixture Co"
+        },
+        "description": {
+          "en": "About the fixture company."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "split",
+          "text": {
+            "heading": {
+              "en": "About us"
+            },
+            "body": {
+              "en": "A second page."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "not-found",
+      "type": "not-found",
+      "slug": {
+        "en": "404"
+      },
+      "seo": {
+        "title": {
+          "en": "Page not found"
+        },
+        "description": {
+          "en": "This page doesn't exist."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": {
+              "en": "We couldn't find that page"
+            },
+            "body": {
+              "en": "Try the home page instead."
+            }
+          },
+          "ctas": [
+            "home"
+          ]
+        }
+      ]
+    }
+  ],
+  "ctas": [
+    {
+      "id": "contact",
+      "type": "consultation_request",
+      "label": {
+        "en": "Book a consultation"
+      },
+      "target": {
+        "page": "about"
+      }
+    },
+    {
+      "id": "home",
+      "type": "visit",
+      "label": {
+        "en": "Go to the home page"
+      },
+      "target": {
+        "page": "home"
+      }
+    }
+  ],
+  "forms": [],
+  "navigation": [
+    {
+      "page": "home",
+      "label": {
+        "en": "Home"
+      }
+    },
+    {
+      "page": "about",
+      "label": {
+        "en": "About"
+      }
+    }
+  ],
+  "footer": {
+    "text": {
+      "en": "© Fixture Co"
+    }
+  },
+  "tracking": {},
+  "redirects": []
+}

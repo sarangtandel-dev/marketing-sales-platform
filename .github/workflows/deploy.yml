@@ -1,0 +1,67 @@
+name: Deploy
+
+# Builds each Client whose files changed and uploads it to that Client's Pages
+# project (one project per Client, named by its slug; ADR-0003). Every branch,
+# including main, deploys as a preview: the projects' production branch is
+# `live`, which only the launch (ticket 36) deploys to. Previews are noindex.
+
+on:
+  push:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - name: Skip when Cloudflare isn't configured
+        if: env.HAS_CLOUDFLARE != 'true'
+        run: echo "::notice::CLOUDFLARE_API_TOKEN isn't set, so nothing is deployed. See docs/development.md."
+      - uses: actions/checkout@v7
+        if: env.HAS_CLOUDFLARE == 'true'
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        if: env.HAS_CLOUDFLARE == 'true'
+      - uses: actions/setup-node@v7
+        if: env.HAS_CLOUDFLARE == 'true'
+        with:
+          node-version: 24
+          cache: pnpm
+      - if: env.HAS_CLOUDFLARE == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Work out which Clients changed
+        id: changed
+        if: env.HAS_CLOUDFLARE == 'true'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          all=$(ls clients)
+          # A new branch, or a change to shared code or the lockfile, rebuilds every Client.
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null \
+            || git diff --name-only "$BEFORE" HEAD | grep -qE '^(packages/|pnpm-lock\.yaml$|\.github/workflows/deploy\.yml$)'; then
+            clients="$all"
+          else
+            clients=$(git diff --name-only "$BEFORE" HEAD | sed -n 's|^clients/\([^/]*\)/.*|\1|p' | sort -u)
+          fi
+          clients=$(printf '%s\n' "$clients" | tr '\n' ' ' | xargs)
+          echo "clients=$clients" >> "$GITHUB_OUTPUT"
+          echo "Clients to deploy: ${clients:-none}"
+      - name: Build and deploy
+        if: env.HAS_CLOUDFLARE == 'true' && steps.changed.outputs.clients != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.ref_name }}
+          CLIENTS: ${{ steps.changed.outputs.clients }}
+        run: |
+          for client in $CLIENTS; do
+            [ -f "clients/$client/site/site-definition.json" ] || continue
+            pnpm build:site "clients/$client/site" "dist/$client"
+            pnpm exec wrangler pages deploy "dist/$client" --project-name="$client" --branch="$BRANCH" --commit-dirty=true
+          done

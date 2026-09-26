@@ -9,7 +9,7 @@ Status: ready-for-agent
 Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 
 - [x] The workspace has separate packages for the site build, the components and the Worker, plus one command that runs every package's tests
-- [ ] CI runs on every push and pull request and passes with the empty suites
+- [x] CI runs on every push and pull request and passes with the empty suites
 - [x] The secrets scan is chosen against the spec's criteria (works offline, maintained rules, allow-list), and the choice is written down
 - [x] A commit containing a fake API key is rejected by the pre-commit hook and by CI
 - [x] Turnstile's published test keys pass the scan
@@ -25,4 +25,4 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
   - the Turnstile test keys and an ordinary commit pass
   - with the hook swapped for one that lets everything through, the "blocks" tests fail
 - **Allow-list:** gitleaks' default rules don't flag the Turnstile test keys (they're low-entropy), so the allow-list is only a safeguard against future rule changes.
-- **Still to check:** the CI criterion can only be ticked after the first push runs the workflow on GitHub.
+- **CI:** the first run on GitHub (36269982502, commit 39914d0) passed both jobs, Tests and Secrets scan, on 2026-09-27.

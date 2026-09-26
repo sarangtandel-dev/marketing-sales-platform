@@ -2,5 +2,12 @@
   "name": "@msp/components",
   "private": true,
   "type": "module",
-  "description": "Shared section components with Section Variants, styled only by Theme tokens."
+  "description": "Shared section components with Section Variants, styled only by Theme tokens.",
+  "devDependencies": {
+    "astro": "^7.3.5"
+  },
+  "exports": {
+    "./catalog": "./src/catalog.ts",
+    "./*.astro": "./src/*.astro"
+  }
 }

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://msp.local/schema/theme.schema.json",
+  "title": "Theme: a Client's design tokens (ADR-0019)",
+  "type": "object",
+  "required": ["colors", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "colors": { "$ref": "#/$defs/group" },
+    "type": { "$ref": "#/$defs/group" },
+    "spacing": { "$ref": "#/$defs/group" },
+    "radius": { "$ref": "#/$defs/group" },
+    "shadows": { "$ref": "#/$defs/group" }
+  },
+  "$defs": {
+    "group": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  }
+}

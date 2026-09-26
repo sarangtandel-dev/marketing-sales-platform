@@ -13,8 +13,13 @@
       "migrations_dir": "migrations"
     }
   ],
+  // The owner alert (ADR-0013). ALERT_TO must be a verified Email Routing destination
+  // address before launch; ALERT_FROM must be on a domain with Email Routing enabled.
+  "send_email": [{ "name": "OWNER_ALERT", "destination_address": "owner@example.com" }],
   "vars": {
-    "ALLOWED_ORIGINS": "https://client-zero.pages.dev"
+    "ALLOWED_ORIGINS": "https://client-zero.pages.dev",
+    "ALERT_FROM": "alerts@example.com",
+    "ALERT_TO": "owner@example.com"
   }
   // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY
 }

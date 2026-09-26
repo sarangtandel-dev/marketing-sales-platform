@@ -2,7 +2,8 @@ import type { Submission } from "./submission.ts";
 
 // Writes a Lead to the Lead Log. A resubmission with the same submission token gets
 // the lead ID of the first write instead of a new row (the lead ID is the idempotency key).
-export async function storeLead(db: D1Database, s: Submission, now: Date): Promise<string> {
+// `created` is false for such a resubmission, so follow-up work runs once per Lead.
+export async function storeLead(db: D1Database, s: Submission, now: Date): Promise<{ id: string; created: boolean }> {
   const id = crypto.randomUUID();
   await db
     .prepare(
@@ -27,5 +28,9 @@ export async function storeLead(db: D1Database, s: Submission, now: Date): Promi
     .bind(s.submission_token)
     .first<{ id: string }>();
   if (!row) throw new Error("Lead Log write not found after insert");
-  return row.id;
+  return { id: row.id, created: row.id === id };
+}
+
+export async function recordAlert(db: D1Database, id: string, sent: boolean): Promise<void> {
+  await db.prepare("UPDATE leads SET alert_status = ? WHERE id = ?").bind(sent ? "sent" : "failed", id).run();
 }

@@ -1,12 +1,14 @@
+import { sendOwnerAlert } from "./alert.ts";
 import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, json } from "./http.ts";
-import { storeLead } from "./lead-log.ts";
+import { recordAlert, storeLead } from "./lead-log.ts";
+import type { Submission } from "./submission.ts";
 import { MAX_BODY_BYTES, parseSubmission } from "./submission.ts";
 import { verifyTurnstile } from "./turnstile.ts";
 
 // The form Worker (ADR-0013): spam checks, then the Lead Log write, and only then success.
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname !== "/lead") return json({ ok: false, error: "not_found" }, 404);
 
@@ -32,13 +34,21 @@ export default {
     if (!human) return json({ ok: false, error: "rejected" }, 400, cors);
 
     // 2. Store first. 3. Only then reply with success.
-    let leadId: string;
+    const now = new Date();
+    let lead: { id: string; created: boolean };
     try {
-      leadId = await storeLead(env.LEAD_LOG, submission, new Date());
+      lead = await storeLead(env.LEAD_LOG, submission, now);
     } catch (err) {
       console.error("Lead Log write failed", err);
       return json({ ok: false, error: "unavailable" }, 503, cors);
     }
-    return json({ ok: true, lead_id: leadId }, 200, cors);
+    // 4. After the reply: work that must never hold up or change the Visitor's success.
+    if (lead.created) ctx.waitUntil(afterReply(env, lead.id, submission, now));
+    return json({ ok: true, lead_id: lead.id }, 200, cors);
   },
 } satisfies ExportedHandler<Env>;
+
+async function afterReply(env: Env, leadId: string, submission: Submission, receivedAt: Date) {
+  const sent = await sendOwnerAlert(env, leadId, submission, receivedAt);
+  await recordAlert(env.LEAD_LOG, leadId, sent);
+}

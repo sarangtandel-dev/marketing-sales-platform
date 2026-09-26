@@ -35,39 +35,79 @@ export const fakeTurnstile: Outbound = async (request) => {
   return Response.json({ success, "error-codes": success ? [] : ["invalid-input-response"] });
 };
 
+// Stands in for the send_email binding (Cloudflare Email Routing). Each send() is
+// forwarded through a service binding to the test's recorder, which can make it fail.
+const FAKE_MAILER = `
+export default function (env) {
+  return {
+    async send(message) {
+      const res = await env.RECORDER.fetch("https://mailer.fake/send", { method: "POST", body: JSON.stringify(message) });
+      if (!res.ok) throw Object.assign(new Error("send failed"), { code: "E_FAKE" });
+      return { messageId: "fake-" + crypto.randomUUID() };
+    },
+  };
+}`;
+
+export type SentEmail = { from: string; to: string; subject: string; text: string };
+
 export type Harness = {
   mf: Miniflare;
   post: (body: unknown, init?: { origin?: string }) => Promise<Response>;
   rows: (sql?: string) => Promise<Record<string, unknown>[]>;
   requests: Request[];
+  emails: SentEmail[];
+  // Waits for background work (ctx.waitUntil) to reach a state the check accepts.
+  eventually: <T>(check: () => Promise<T | undefined | false>, timeoutMs?: number) => Promise<T>;
   dispose: () => Promise<void>;
 };
 
 export async function startWorker(
-  opts: { outbound?: Record<string, Outbound>; bindings?: Record<string, string> } = {},
+  opts: { outbound?: Record<string, Outbound>; bindings?: Record<string, string>; mailerFails?: boolean } = {},
 ): Promise<Harness> {
+  const emails: SentEmail[] = [];
+  const recorder = async (request: { json(): Promise<unknown> }) => {
+    if (opts.mailerFails) return new Response("down", { status: 500 }) as never;
+    emails.push((await request.json()) as SentEmail);
+    return new Response("ok") as never;
+  };
   const handlers: Record<string, Outbound> = {
     "challenges.cloudflare.com": fakeTurnstile,
     ...opts.outbound,
   };
   const requests: Request[] = [];
+  const outboundService = async (request: { url: string; clone(): unknown }) => {
+    requests.push(request.clone() as Request);
+    const handler = handlers[new URL(request.url).hostname];
+    if (!handler) return new Response(`no fake for ${request.url}`, { status: 599 }) as never;
+    return (await handler(request as unknown as Request)) as never;
+  };
 
   const mf = new Miniflare({
-    modules: true,
-    script: await bundleWorker(),
-    compatibilityDate: COMPATIBILITY_DATE,
-    d1Databases: ["LEAD_LOG"],
-    bindings: {
-      TURNSTILE_SECRET_KEY: "test-secret",
-      ALLOWED_ORIGINS: "https://example.test",
-      ...opts.bindings,
-    },
-    outboundService: async (request) => {
-      requests.push(request.clone() as unknown as Request);
-      const handler = handlers[new URL(request.url).hostname];
-      if (!handler) return new Response(`no fake for ${request.url}`, { status: 599 });
-      return (await handler(request as unknown as Request)) as never;
-    },
+    workers: [
+      {
+        name: "form-worker",
+        modules: true,
+        script: await bundleWorker(),
+        compatibilityDate: COMPATIBILITY_DATE,
+        d1Databases: ["LEAD_LOG"],
+        bindings: {
+          TURNSTILE_SECRET_KEY: "test-secret",
+          ALLOWED_ORIGINS: "https://example.test",
+          ALERT_FROM: "alerts@agency.test",
+          ALERT_TO: "owner@agency.test",
+          ...opts.bindings,
+        },
+        wrappedBindings: { OWNER_ALERT: "fake-mailer" },
+        outboundService,
+      },
+      {
+        // Wrapped-binding workers can't set a compatibility date or an outbound service.
+        name: "fake-mailer",
+        modules: true,
+        script: FAKE_MAILER,
+        serviceBindings: { RECORDER: recorder },
+      },
+    ],
   });
 
   const db = await mf.getD1Database("LEAD_LOG");
@@ -89,6 +129,16 @@ export async function startWorker(
       }) as unknown as Promise<Response>,
     rows: async (sql = "SELECT * FROM leads ORDER BY created_at") =>
       (await db.prepare(sql).all()).results as Record<string, unknown>[],
+    emails,
+    eventually: async (check, timeoutMs = 5000) => {
+      const deadline = Date.now() + timeoutMs;
+      for (;;) {
+        const value = await check();
+        if (value) return value as never;
+        if (Date.now() > deadline) throw new Error("condition not reached in time");
+        await new Promise((r) => setTimeout(r, 25));
+      }
+    },
     dispose: () => mf.dispose(),
   };
 }

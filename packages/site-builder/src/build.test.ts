@@ -105,6 +105,14 @@ describe("forms", () => {
     expect(contact()).toMatch(/aria-hidden="true"[^>]*>[^]*?name="website"/);
   });
 
+  it("offers the email marketing opt-in as an unticked checkbox with its wording version", () => {
+    const box = contact().match(/<input[^>]*name="opt_in_email"[^>]*>/)?.[0] ?? "";
+    expect(box).toContain('type="checkbox"');
+    expect(box).toContain('data-opt-in-version="email-2026-09-27"');
+    expect(box).not.toMatch(/\schecked/);
+    expect(contact()).toContain("Send me occasional emails about our work.");
+  });
+
   it("links the privacy notice next to the submit button", () => {
     expect(contact()).toMatch(/<a[^>]*href="\/about\/"[^>]*>How we use your details<\/a>/);
   });

@@ -37,6 +37,7 @@ export type Form = {
   error: Text;
   privacy_page: string;
   privacy_notice: Text;
+  opt_ins?: { channel: "email"; version: string; label: Text }[];
 };
 
 export type Page = {

@@ -19,6 +19,7 @@ const PENDING_GRACE_MINUTES = 2;
 const plusMinutes = (d: Date, m: number) => new Date(d.getTime() + m * 60_000).toISOString();
 
 type Row = LeadForBrevo & { delivery_attempts: number; delivery_log: string };
+type RawRow = Omit<Row, "fields" | "opt_ins"> & { fields: string; opt_ins: string | null };
 
 export async function attemptDelivery(env: Env, id: string, now: Date): Promise<void> {
   const db = env.LEAD_LOG;
@@ -34,19 +35,21 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
 
   const raw = await db
     .prepare(
-      "SELECT id, form_id, form_type, fields, page_url, created_at, delivery_attempts, delivery_log FROM leads WHERE id = ?",
+      `SELECT id, form_id, form_type, fields, opt_ins, page_url, created_at, delivery_attempts, delivery_log
+       FROM leads WHERE id = ?`,
     )
     .bind(id)
-    .first<Omit<Row, "fields"> & { fields: string }>();
+    .first<RawRow>();
   if (!raw) return;
-  const row: Row = { ...raw, fields: JSON.parse(raw.fields) };
+  const row: Row = { ...raw, fields: JSON.parse(raw.fields), opt_ins: JSON.parse(raw.opt_ins ?? "[]") };
 
   if (!row.fields.email) {
     await db.prepare("UPDATE leads SET delivery_status = 'skipped', next_attempt_at = NULL WHERE id = ?").bind(id).run();
     return;
   }
 
-  const result = await upsertContact(env.BREVO_API_KEY, row);
+  const listId = Number(env.BREVO_MARKETING_LIST_ID) || undefined;
+  const result = await upsertContact(env.BREVO_API_KEY, row, listId);
   const attempts = row.delivery_attempts + 1;
   const log = [...JSON.parse(row.delivery_log), { at: now.toISOString(), ok: result.ok, detail: result.detail }];
 

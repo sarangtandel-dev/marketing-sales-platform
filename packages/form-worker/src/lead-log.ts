@@ -5,20 +5,30 @@ import type { Submission } from "./submission.ts";
 // `created` is false for such a resubmission, so follow-up work runs once per Lead.
 export async function storeLead(db: D1Database, s: Submission, now: Date): Promise<{ id: string; created: boolean }> {
   const id = crypto.randomUUID();
+  const receivedAt = now.toISOString();
+  // The consent record for each Marketing Opt-in (ADR-0021).
+  const optIns = s.opt_ins.map((o) => ({
+    channel: o.channel,
+    wording_version: o.version,
+    given_at: receivedAt,
+    page_url: s.page_url ?? null,
+    form_id: s.form_id,
+  }));
   await db
     .prepare(
-      `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, language, page_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, opt_ins, language, page_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (submission_token) DO NOTHING`,
     )
     .bind(
       id,
       s.submission_token,
-      now.toISOString(),
+      receivedAt,
       s.form_id,
       s.form_type,
       s.cta_type ?? null,
       JSON.stringify(s.fields),
+      JSON.stringify(optIns),
       s.language ?? null,
       s.page_url ?? null,
     )

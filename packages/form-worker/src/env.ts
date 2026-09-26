@@ -10,4 +10,6 @@ export type Env = {
   ALERT_FROM: string;
   ALERT_TO: string;
   BREVO_API_KEY: string;
+  // Brevo list that email Marketing Opt-ins join. Unset: opt-ins are recorded but no list is joined.
+  BREVO_MARKETING_LIST_ID?: string;
 };

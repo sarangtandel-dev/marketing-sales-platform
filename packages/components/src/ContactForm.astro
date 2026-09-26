@@ -20,6 +20,7 @@ interface Props {
       autocomplete?: string;
       options?: { value: string; label: string }[];
     }[];
+    optIns: { channel: string; version: string; label: string }[];
     submit: string;
     success: string;
     error: string;
@@ -84,6 +85,19 @@ const fieldId = (name: string) => `${form.id}-${name}`;
         </div>
       ))}
 
+      {form.optIns.map((optIn) => (
+        <label class="flex items-start gap-3 text-sm">
+          <input
+            class="mt-1"
+            type="checkbox"
+            name={`opt_in_${optIn.channel}`}
+            data-opt-in-channel={optIn.channel}
+            data-opt-in-version={optIn.version}
+          />
+          <span>{optIn.label}</span>
+        </label>
+      ))}
+
       <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <label for={fieldId("website")}>Website</label>
         <input id={fieldId("website")} name="website" type="text" tabindex="-1" autocomplete="off" />
@@ -124,7 +138,7 @@ const fieldId = (name: string) => `${form.id}-${name}`;
       const data = new FormData(form);
       const fields: Record<string, string> = {};
       for (const [name, value] of data) {
-        if (name === "website" || name === "cf-turnstile-response") continue;
+        if (name === "website" || name === "cf-turnstile-response" || name.startsWith("opt_in_")) continue;
         if (typeof value === "string" && value !== "") fields[name] = value;
       }
 
@@ -140,6 +154,11 @@ const fieldId = (name: string) => `${form.id}-${name}`;
             form_type: form.dataset.formType,
             submission_token: submissionToken,
             fields,
+            // Only ticked opt-ins are sent, each with the version of the wording shown.
+            opt_ins: [...form.querySelectorAll<HTMLInputElement>("input[data-opt-in-channel]:checked")].map((box) => ({
+              channel: box.dataset.optInChannel,
+              version: box.dataset.optInVersion,
+            })),
             honeypot: String(data.get("website") ?? ""),
             turnstile_token: String(data.get("cf-turnstile-response") ?? ""),
             page_url: location.href,

@@ -124,6 +124,20 @@ describe("validateSiteDefinition", () => {
     });
   });
 
+  it("only offers email marketing opt-ins in M0, each with a wording version", () => {
+    const s = site();
+    s.forms[0].opt_ins = [{ channel: "sms", version: "v1", label: { en: "Texts" } }];
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/forms/0/opt_ins/0/channel",
+      message: expect.stringContaining("email"),
+    });
+    s.forms[0].opt_ins = [{ channel: "email", label: { en: "Emails" } }];
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/forms/0/opt_ins/0",
+      message: expect.stringContaining("version"),
+    });
+  });
+
   it("rejects a CTA Type outside ADR-0023's list", () => {
     const s = site();
     s.ctas[0].type = "buy_now";

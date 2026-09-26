@@ -59,6 +59,7 @@ The Worker upserts each Lead as a Brevo contact, keyed by email. Before the firs
 - **Create these contact attributes in Brevo (type text):**
   - `LEAD_ID`, `FORM_ID`, `FORM_TYPE`, `PAGE_URL` and `LEAD_RECEIVED_AT`
   - one attribute per form field other than `email`, named after the field in capitals (`name` → `NAME`, `company_size` → `COMPANY_SIZE`)
+- **For email Marketing Opt-ins, also create:** `EMAIL_OPT_IN` (boolean), and `EMAIL_OPT_IN_VERSION`, `EMAIL_OPT_IN_AT`, `EMAIL_OPT_IN_PAGE` and `EMAIL_OPT_IN_FORM` (text). Then create the marketing list and set its ID as the Worker var `BREVO_MARKETING_LIST_ID`. Only contacts who ticked the opt-in join it.
 - **Set the Worker secret:** `pnpm exec wrangler secret put BREVO_API_KEY`.
 - **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours.
 

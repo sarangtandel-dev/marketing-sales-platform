@@ -8,9 +8,13 @@ export type Submission = {
   fields: Record<string, string>;
   honeypot: string;
   turnstile_token: string;
+  opt_ins: OptIn[];
   page_url?: string;
   language?: string;
 };
+
+// A Marketing Opt-in the Visitor ticked. M0 offers email only (ADR-0021).
+export type OptIn = { channel: "email"; version: string };
 
 export const MAX_BODY_BYTES = 64 * 1024;
 const MAX_FIELDS = 30;
@@ -29,8 +33,18 @@ export function parseSubmission(raw: string): Submission | null {
   }
   if (typeof data !== "object" || data === null) return null;
 
-  const { form_id, form_type, cta_type, submission_token, fields, honeypot, turnstile_token, page_url, language } =
-    data;
+  const {
+    form_id,
+    form_type,
+    cta_type,
+    submission_token,
+    fields,
+    honeypot,
+    turnstile_token,
+    opt_ins = [],
+    page_url,
+    language,
+  } = data;
   if (!isString(form_id) || !form_id || !isString(form_type) || !form_type) return null;
   if (cta_type !== undefined && !isString(cta_type)) return null;
   if (!isString(submission_token) || !TOKEN.test(submission_token)) return null;
@@ -43,6 +57,13 @@ export function parseSubmission(raw: string): Submission | null {
   if (entries.length > MAX_FIELDS) return null;
   if (!entries.every(([k, v]) => isString(k, 100) && isString(v, MAX_FIELD_LENGTH))) return null;
 
+  if (!Array.isArray(opt_ins) || opt_ins.length > 5) return null;
+  const optIns: OptIn[] = [];
+  for (const o of opt_ins as { channel?: unknown; version?: unknown }[]) {
+    if (o?.channel !== "email" || !isString(o.version, 100) || !o.version) return null;
+    if (!optIns.some((x) => x.channel === o.channel)) optIns.push({ channel: "email", version: o.version });
+  }
+
   return {
     form_id,
     form_type,
@@ -51,6 +72,7 @@ export function parseSubmission(raw: string): Submission | null {
     fields: fields as Record<string, string>,
     honeypot: (honeypot as string | undefined) ?? "",
     turnstile_token,
+    opt_ins: optIns,
     page_url,
     language,
   };

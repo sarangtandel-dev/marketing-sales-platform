@@ -42,6 +42,7 @@ export function formProps(id: string, lang: string) {
       autocomplete: f.autocomplete,
       options: f.options?.map((o) => ({ value: o.value, label: t(o.label, lang) })),
     })),
+    optIns: (form.opt_ins ?? []).map((o) => ({ channel: o.channel, version: o.version, label: t(o.label, lang) })),
     submit: t(form.submit, lang),
     success: t(form.success, lang),
     error: t(form.error, lang),

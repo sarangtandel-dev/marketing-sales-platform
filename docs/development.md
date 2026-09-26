@@ -14,9 +14,10 @@ How to work on the Module 1 code. The design lives in `CONTEXT.md` and `docs/adr
 |---|---|
 | `packages/site-builder` | Builds a Client's static site from its site definition and Theme. Test seam 1 |
 | `packages/components` | Shared section components with Section Variants, styled only by Theme tokens |
+| `packages/knowledge-base` | Facts: the schema and validator for a Client's facts file (ADR-0007, ADR-0024) |
 | `packages/form-worker` | The Cloudflare Worker for form submissions. Test seam 2 |
 | `tooling` | Tests for repo tooling, such as the secrets scan |
-| `clients/<slug>/` | One Client's files (ADR-0024): `site/site-definition.json`, and `design/theme.json` for the Theme |
+| `clients/<slug>/` | One Client's files (ADR-0024): `site/site-definition.json`, `design/theme.json` for the Theme, and `facts.yaml` (M0's single facts file). `pnpm test` validates every Client's facts file |
 
 The tracking script (test seam 3) gets its home in ticket 27.
 

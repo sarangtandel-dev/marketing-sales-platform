@@ -1,0 +1,49 @@
+# Client #0 facts file (M0; ADR-0007, ADR-0039).
+#
+# Every claim on our site must match a Fact here before launch (the launch checklist).
+# Each Fact needs a Source and a Verification Status:
+#   source.type: person (who said it; a business role, e.g. "Founder"),
+#                url (a public page, with the date we read it),
+#                document (a reference to the document; the file itself never goes in git)
+#   status:      client-stated | publicly-verified | document-verified | unverified | rejected
+# High-risk Claims (licences, certifications, awards, years in business, rankings,
+# outcomes) need publicly-verified or document-verified.
+#
+# No personal data beyond business roles, and no secrets: this file is in git (ADR-0016).
+# Fact IDs are stable and never reused, even after a Fact is removed.
+#
+# The entries below are placeholders for the team to replace. They are all
+# `unverified`, so none of them can support a claim until someone fills them in.
+
+facts:
+  - id: business-name
+    kind: business-name
+    value: "TO FILL: our trading name"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: business-description
+    kind: description
+    value:
+      en: "TO FILL: one or two sentences on what we do and for whom"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: offering-websites
+    kind: offering
+    value:
+      en: "TO FILL: a service we offer"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: contact-email
+    kind: contact-email
+    value: "TO FILL: our business enquiries address"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: contact-phone
+    kind: contact-phone
+    value: "TO FILL: our business phone number, in E.164 format"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified

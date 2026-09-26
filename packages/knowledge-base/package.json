@@ -1,0 +1,13 @@
+{
+  "name": "@msp/knowledge-base",
+  "private": true,
+  "type": "module",
+  "description": "The Client Knowledge Base: Facts with Source and Verification Status (ADR-0001, ADR-0007, ADR-0024).",
+  "exports": {
+    ".": "./src/facts.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "yaml": "^2.9.1"
+  }
+}

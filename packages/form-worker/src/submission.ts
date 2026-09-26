@@ -10,6 +10,7 @@ export type Submission = {
   turnstile_token: string;
   opt_ins: OptIn[];
   attribution?: Attribution;
+  consent?: { analytics: boolean; ads: boolean };
   page_url?: string;
   language?: string;
 };
@@ -59,6 +60,7 @@ export function parseSubmission(raw: string): Submission | null {
     turnstile_token,
     opt_ins = [],
     attribution: rawAttribution,
+    consent,
     page_url,
     language,
   } = data;
@@ -84,6 +86,14 @@ export function parseSubmission(raw: string): Submission | null {
   const attribution = parseAttribution(rawAttribution);
   if (attribution === null) return null;
 
+  // The Visitor's Consent state when they submitted (ADR-0036's Lead record).
+  if (consent !== undefined) {
+    const c = consent as Record<string, unknown> | null;
+    if (!c || typeof c.analytics !== "boolean" || typeof c.ads !== "boolean" || Object.keys(c).length !== 2) {
+      return null;
+    }
+  }
+
   return {
     form_id,
     form_type,
@@ -94,7 +104,9 @@ export function parseSubmission(raw: string): Submission | null {
     turnstile_token,
     opt_ins: optIns,
     attribution,
-    page_url,
+    consent: consent as Submission["consent"],
+    // Never the query string or fragment: they can carry click IDs or personal data.
+    page_url: page_url?.split(/[?#]/)[0],
     language,
   };
 }

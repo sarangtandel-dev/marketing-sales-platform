@@ -2,7 +2,19 @@ export function allowedOrigin(request: Request, allowed: string): string | null 
   const origin = request.headers.get("origin");
   if (!origin) return null; // server-to-server calls (monitoring) send no Origin
   const list = allowed.split(",").map((o) => o.trim()).filter(Boolean);
-  return list.includes(origin) ? origin : false;
+  return list.some((entry) => originMatches(entry, origin)) ? origin : false;
+}
+
+// An entry is an exact origin, or "https://*.<host>" for any single-label subdomain of it
+// (a Pages project's branch previews, e.g. https://*.client-zero.pages.dev).
+function originMatches(entry: string, origin: string): boolean {
+  const wildcard = entry.match(/^(https?):\/\/\*\.(.+)$/);
+  if (!wildcard) return entry === origin;
+  const [, scheme, host] = wildcard;
+  const prefix = `${scheme}://`;
+  if (!origin.startsWith(prefix) || !origin.endsWith(`.${host}`)) return false;
+  const label = origin.slice(prefix.length, origin.length - host.length - 1);
+  return /^[a-z0-9-]+$/i.test(label);
 }
 
 export function corsHeaders(origin: string | null): Record<string, string> {

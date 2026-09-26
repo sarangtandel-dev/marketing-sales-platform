@@ -4,9 +4,11 @@ import { type Harness, startWorker, submission } from "../test/harness.ts";
 let w: Harness;
 afterEach(() => w.dispose());
 
+// The alert's final status; undefined while it's still unsent or mid-send.
 const alertStatus = async (h: Harness) => {
   const [row] = await h.rows();
-  return (row?.alert_status as string | null) ?? undefined;
+  const status = row?.alert_status as string | null;
+  return status && status !== "sending" ? status : undefined;
 };
 
 describe("owner alert", () => {

@@ -1,12 +1,11 @@
-import { sendOwnerAlert } from "./alert.ts";
+import { alertsDue, deliverAlert } from "./alert.ts";
 import { attemptDelivery, deliverDue } from "./delivery.ts";
 import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, json } from "./http.ts";
-import { recordAlert, storeLead } from "./lead-log.ts";
+import { storeLead } from "./lead-log.ts";
 import { isValidTestSignature, runDailyTestLead, TEST_SIGNATURE_HEADER } from "./monitor.ts";
 import { countSpam, purgeExpiredLeads, type SpamReason } from "./retention.ts";
 import { DAILY_CRON } from "./schedules.ts";
-import type { Submission } from "./submission.ts";
 import { MAX_BODY_BYTES, parseSubmission } from "./submission.ts";
 import { verifyTurnstile } from "./turnstile.ts";
 
@@ -27,7 +26,8 @@ export default {
       await purgeExpiredLeads(env.LEAD_LOG, now).catch((err) => console.error("Lead Log purge failed", err));
       await runDailyTestLead(env, now, handleLead);
     } else {
-      await deliverDue(env, now);
+      await deliverDue(env, now).catch((err) => console.error("delivery retries failed", err));
+      await alertsDue(env, now);
     }
   },
 } satisfies ExportedHandler<Env>;
@@ -74,15 +74,13 @@ async function handleLead(request: Request, env: Env, ctx: ExecutionContext): Pr
     return json({ ok: false, error: "unavailable" }, 503, cors);
   }
   // 4. After the reply: work that must never hold up or change the Visitor's success.
-  if (lead.created) ctx.waitUntil(afterReply(env, lead.id, submission, now, isTest));
+  if (lead.created) ctx.waitUntil(afterReply(env, lead.id));
   return json({ ok: true, lead_id: lead.id }, 200, cors);
 }
 
-// The owner alert goes first, so it never waits on Brevo. Test Leads skip the alert.
-async function afterReply(env: Env, leadId: string, submission: Submission, receivedAt: Date, isTest: boolean) {
-  if (!isTest) {
-    const sent = await sendOwnerAlert(env, leadId, submission, receivedAt);
-    await recordAlert(env.LEAD_LOG, leadId, sent);
-  }
+// The owner alert goes first, so it never waits on Brevo (test Leads skip it). Either one
+// that doesn't finish here is picked up by the cron.
+async function afterReply(env: Env, leadId: string) {
+  await deliverAlert(env, "new", leadId, new Date()).catch((err) => console.error("owner alert failed", err));
   await attemptDelivery(env, leadId, new Date());
 }

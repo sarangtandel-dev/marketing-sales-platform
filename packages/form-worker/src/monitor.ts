@@ -65,7 +65,11 @@ export async function runDailyTestLead(env: Env, now: Date, handle: LeadHandler)
   const ctx = { waitUntil: (p: Promise<unknown>) => pending.push(p), passThroughOnException() {} } as ExecutionContext;
   const request = new Request("https://monitor.internal/lead", {
     method: "POST",
-    headers: { "content-type": "application/json", [TEST_SIGNATURE_HEADER]: await signTestBody(env.MONITOR_SECRET, body, now) },
+    // Signed at send time, not the cron's scheduled time, so a late cron run still passes.
+    headers: {
+      "content-type": "application/json",
+      [TEST_SIGNATURE_HEADER]: await signTestBody(env.MONITOR_SECRET, body, new Date()),
+    },
     body,
   });
 

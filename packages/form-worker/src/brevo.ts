@@ -9,6 +9,8 @@
 // the Brevo account.
 
 const CONTACTS = "https://api.brevo.com/v3/contacts";
+// Well inside the delivery lease, so a hung call can't outlive its claim.
+const TIMEOUT_MS = 10_000;
 
 export type LeadForBrevo = {
   id: string;
@@ -24,16 +26,23 @@ export type DeliveryResult = { ok: boolean; retryable: boolean; detail: string }
 
 const attributeName = (field: string) => field.toUpperCase().replace(/[^A-Z0-9]/g, "_");
 
+// Attributes the Worker sets itself; a submitted field can never write them.
+const isReserved = (name: string) =>
+  ["LEAD_ID", "FORM_ID", "FORM_TYPE", "LEAD_RECEIVED_AT", "PAGE_URL"].includes(name) || name.startsWith("EMAIL_OPT_IN");
+
 export function contactUpsert(lead: LeadForBrevo, marketingListId?: number) {
   const { email, ...rest } = lead.fields;
-  const attributes: Record<string, string | boolean> = {
+  const attributes: Record<string, string | boolean> = {};
+  for (const [name, value] of Object.entries(rest)) {
+    if (!isReserved(attributeName(name))) attributes[attributeName(name)] = value;
+  }
+  Object.assign(attributes, {
     LEAD_ID: lead.id,
     FORM_ID: lead.form_id,
     FORM_TYPE: lead.form_type,
     LEAD_RECEIVED_AT: lead.created_at,
-  };
+  });
   if (lead.page_url) attributes.PAGE_URL = lead.page_url;
-  for (const [name, value] of Object.entries(rest)) attributes[attributeName(name)] = value;
 
   const emailOptIn = lead.opt_ins.find((o) => o.channel === "email");
   if (!emailOptIn) return { email, attributes, updateEnabled: true };
@@ -60,6 +69,7 @@ export async function upsertContact(
   let res: Response;
   try {
     res = await fetch(CONTACTS, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
       method: "POST",
       headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
       body: JSON.stringify(contactUpsert(lead, marketingListId)),
@@ -78,6 +88,7 @@ export async function upsertContact(
 export async function deleteContact(apiKey: string, email: string): Promise<DeliveryResult> {
   try {
     const res = await fetch(`${CONTACTS}/${encodeURIComponent(email)}`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
       method: "DELETE",
       headers: { "api-key": apiKey, accept: "application/json" },
     });

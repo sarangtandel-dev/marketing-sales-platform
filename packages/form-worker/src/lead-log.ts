@@ -22,8 +22,8 @@ export async function storeLead(
   await db
     .prepare(
       `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, opt_ins, attribution,
-         language, page_url, is_test)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         consent, language, page_url, is_test)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (submission_token) DO NOTHING`,
     )
     .bind(
@@ -36,6 +36,7 @@ export async function storeLead(
       JSON.stringify(s.fields),
       JSON.stringify(optIns),
       s.attribution ? JSON.stringify(s.attribution) : null,
+      s.consent ? JSON.stringify(s.consent) : null,
       s.language ?? null,
       s.page_url ?? null,
       isTest ? 1 : 0,
@@ -49,6 +50,3 @@ export async function storeLead(
   return { id: row.id, created: row.id === id };
 }
 
-export async function recordAlert(db: D1Database, id: string, sent: boolean): Promise<void> {
-  await db.prepare("UPDATE leads SET alert_status = ? WHERE id = ?").bind(sent ? "sent" : "failed", id).run();
-}

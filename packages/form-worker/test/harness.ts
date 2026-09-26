@@ -57,6 +57,8 @@ export type Harness = {
   rows: (sql?: string) => Promise<Record<string, unknown>[]>;
   requests: Request[];
   emails: SentEmail[];
+  // Makes the fake mailer fail (true) or work (false) from now on.
+  setMailerFails: (fails: boolean) => void;
   // Waits for background work (ctx.waitUntil) to reach a state the check accepts.
   eventually: <T>(check: () => Promise<T | undefined | false>, timeoutMs?: number) => Promise<T>;
   // Runs the Worker's scheduled handler as if the cron `schedule` fired at `at`.
@@ -68,8 +70,9 @@ export async function startWorker(
   opts: { outbound?: Record<string, Outbound>; bindings?: Record<string, string>; mailerFails?: boolean } = {},
 ): Promise<Harness> {
   const emails: SentEmail[] = [];
+  let mailerFails = opts.mailerFails ?? false;
   const recorder = async (request: { json(): Promise<unknown> }) => {
-    if (opts.mailerFails) return new Response("down", { status: 500 }) as never;
+    if (mailerFails) return new Response("down", { status: 500 }) as never;
     emails.push((await request.json()) as SentEmail);
     return new Response("ok") as never;
   };
@@ -140,6 +143,9 @@ export async function startWorker(
     rows: async (sql = "SELECT * FROM leads ORDER BY created_at") =>
       (await db.prepare(sql).all()).results as Record<string, unknown>[],
     emails,
+    setMailerFails: (fails) => {
+      mailerFails = fails;
+    },
     eventually: async (check, timeoutMs = 5000) => {
       const deadline = Date.now() + timeoutMs;
       for (;;) {

@@ -1,4 +1,4 @@
-import { sendDeliveryFailedAlert } from "./alert.ts";
+import { deliverAlert } from "./alert.ts";
 import { type LeadForBrevo, upsertContact } from "./brevo.ts";
 import type { Env } from "./env.ts";
 
@@ -23,13 +23,14 @@ type RawRow = Omit<Row, "fields" | "opt_ins"> & { fields: string; opt_ins: strin
 
 export async function attemptDelivery(env: Env, id: string, now: Date): Promise<void> {
   const db = env.LEAD_LOG;
+  const lease = plusMinutes(now, LEASE_MINUTES);
   const claim = await db
     .prepare(
       `UPDATE leads SET delivery_status = 'sending', next_attempt_at = ?
        WHERE id = ? AND (delivery_status IN ('pending', 'retrying')
          OR (delivery_status = 'sending' AND next_attempt_at <= ?))`,
     )
-    .bind(plusMinutes(now, LEASE_MINUTES), id, now.toISOString())
+    .bind(lease, id, now.toISOString())
     .run();
   if (claim.meta.changes !== 1) return;
 
@@ -44,7 +45,10 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
   const row: Row = { ...raw, fields: JSON.parse(raw.fields), opt_ins: JSON.parse(raw.opt_ins ?? "[]") };
 
   if (!row.fields.email) {
-    await db.prepare("UPDATE leads SET delivery_status = 'skipped', next_attempt_at = NULL WHERE id = ?").bind(id).run();
+    await db
+      .prepare("UPDATE leads SET delivery_status = 'skipped', next_attempt_at = NULL WHERE id = ? AND next_attempt_at = ?")
+      .bind(id, lease)
+      .run();
     return;
   }
 
@@ -61,15 +65,19 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
     next = plusMinutes(now, BACKOFF_MINUTES[attempts - 1]);
   } else status = "failed";
 
-  await db
+  // Only if this attempt still holds its lease: a slower, stale attempt must not overwrite
+  // a newer one's result.
+  const saved = await db
     .prepare(
-      "UPDATE leads SET delivery_status = ?, delivery_attempts = ?, delivery_log = ?, next_attempt_at = ? WHERE id = ?",
+      `UPDATE leads SET delivery_status = ?, delivery_attempts = ?, delivery_log = ?, next_attempt_at = ?
+       WHERE id = ? AND delivery_status = 'sending' AND next_attempt_at = ?`,
     )
-    .bind(status, attempts, JSON.stringify(log), next, id)
+    .bind(status, attempts, JSON.stringify(log), next, id, lease)
     .run();
+  if (saved.meta.changes !== 1) return;
 
-  // A test Lead's failure is reported once, by the monitoring check itself.
-  if (status === "failed" && !row.is_test) await sendDeliveryFailedAlert(env, row, result.detail);
+  // A test Lead's failure is reported once, by the monitoring check itself (deliverAlert skips test Leads).
+  if (status === "failed") await deliverAlert(env, "failure", id, now);
 }
 
 // Run by the cron: every Lead whose retry (or lost first attempt) is due.

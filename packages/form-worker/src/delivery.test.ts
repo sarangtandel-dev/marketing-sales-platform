@@ -16,7 +16,8 @@ const lead = async (h: Harness) => (await h.rows())[0] as unknown as Row | undef
 const settled = (h: Harness, status: string) =>
   h.eventually(async () => {
     const row = await lead(h);
-    return row?.delivery_status === status && row.alert_status ? row : undefined;
+    const alertDone = row?.alert_status === "sent" || row?.alert_status === "failed";
+    return row?.delivery_status === status && alertDone ? row : undefined;
   });
 const minutes = (from: string | Date, m: number) => new Date(new Date(from).getTime() + m * 60_000);
 

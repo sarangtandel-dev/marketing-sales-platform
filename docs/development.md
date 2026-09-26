@@ -66,6 +66,27 @@ The Worker upserts each Lead as a Brevo contact, keyed by email. Before the firs
 - **Set the Worker secret:** `pnpm exec wrangler secret put BREVO_API_KEY`.
 - **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours.
 
+## Monitoring (ADR-0037)
+
+- **Daily test Lead:** the Worker's daily cron (`17 3 * * *`) does four things:
+  1. Sends a test Lead through its real endpoint handler, signed with `MONITOR_SECRET` instead of a Turnstile token.
+  2. Checks the Lead reached the Lead Log and was delivered to Brevo.
+  3. Emails "Daily test Lead failed" through the alert binding if either step failed.
+  4. Deletes the test contact from Brevo and the test row from the Lead Log.
+
+  Test Leads never trigger the owner's new-lead alert.
+- **Before launch, by hand:** run the same check against the preview.
+  ```bash
+  MONITOR_SECRET=... MONITOR_TEST_EMAIL=... node packages/form-worker/scripts/send-test-lead.ts https://<worker>/lead
+  ```
+  The script prints the command that removes the test Lead afterwards.
+- **Locally:**
+  1. Start the Worker with scheduled testing on: `wrangler dev --test-scheduled --var MONITOR_SECRET:...`
+  2. Trigger the daily cron: `curl "http://localhost:8787/__scheduled?cron=17+3+*+*+*"`
+  3. Alerts are written under `.wrangler/tmp/email/`.
+- **Uptime (set up by a person):** use any free external uptime monitor. Have it check the site's home page and the Worker's `GET /health` every 5 minutes, and alert by email. `/health` writes nothing.
+- **Secrets and vars:** `wrangler secret put MONITOR_SECRET`, plus the `MONITOR_TEST_EMAIL` var: an address we own, which is cleaned out of Brevo after every check.
+
 ## Procedures
 
 - [Lead data requests](procedures/lead-data-requests.md): export or delete one Lead's data on request.

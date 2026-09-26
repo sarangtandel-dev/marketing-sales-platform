@@ -12,4 +12,7 @@ export type Env = {
   BREVO_API_KEY: string;
   // Brevo list that email Marketing Opt-ins join. Unset: opt-ins are recorded but no list is joined.
   BREVO_MARKETING_LIST_ID?: string;
+  // Monitoring (ADR-0037): signs test Leads, and the address the daily test Lead uses.
+  MONITOR_SECRET?: string;
+  MONITOR_TEST_EMAIL?: string;
 };

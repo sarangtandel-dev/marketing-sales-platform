@@ -18,7 +18,7 @@ const PENDING_GRACE_MINUTES = 2;
 
 const plusMinutes = (d: Date, m: number) => new Date(d.getTime() + m * 60_000).toISOString();
 
-type Row = LeadForBrevo & { delivery_attempts: number; delivery_log: string };
+type Row = LeadForBrevo & { delivery_attempts: number; delivery_log: string; is_test: number };
 type RawRow = Omit<Row, "fields" | "opt_ins"> & { fields: string; opt_ins: string | null };
 
 export async function attemptDelivery(env: Env, id: string, now: Date): Promise<void> {
@@ -35,7 +35,7 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
 
   const raw = await db
     .prepare(
-      `SELECT id, form_id, form_type, fields, opt_ins, page_url, created_at, delivery_attempts, delivery_log
+      `SELECT id, form_id, form_type, fields, opt_ins, page_url, created_at, delivery_attempts, delivery_log, is_test
        FROM leads WHERE id = ?`,
     )
     .bind(id)
@@ -68,7 +68,8 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
     .bind(status, attempts, JSON.stringify(log), next, id)
     .run();
 
-  if (status === "failed") await sendDeliveryFailedAlert(env, row, result.detail);
+  // A test Lead's failure is reported once, by the monitoring check itself.
+  if (status === "failed" && !row.is_test) await sendDeliveryFailedAlert(env, row, result.detail);
 }
 
 // Run by the cron: every Lead whose retry (or lost first attempt) is due.

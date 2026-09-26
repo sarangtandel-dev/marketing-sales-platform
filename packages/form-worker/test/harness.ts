@@ -25,6 +25,7 @@ function bundleWorker(): Promise<string> {
 }
 
 export const TURNSTILE_PASS = "turnstile-pass";
+export const MONITOR_SECRET = "monitor-test-secret";
 
 export type Outbound = (request: Request) => Promise<Response> | Response;
 
@@ -52,7 +53,7 @@ export type SentEmail = { from: string; to: string; subject: string; text: strin
 
 export type Harness = {
   mf: Miniflare;
-  post: (body: unknown, init?: { origin?: string }) => Promise<Response>;
+  post: (body: unknown, init?: { origin?: string; headers?: Record<string, string> }) => Promise<Response>;
   rows: (sql?: string) => Promise<Record<string, unknown>[]>;
   requests: Request[];
   emails: SentEmail[];
@@ -98,6 +99,8 @@ export async function startWorker(
           ALERT_FROM: "alerts@agency.test",
           ALERT_TO: "owner@agency.test",
           BREVO_API_KEY: "brevo-test-key",
+          MONITOR_SECRET: MONITOR_SECRET,
+          MONITOR_TEST_EMAIL: "monitor@agency.test",
           ...opts.bindings,
         },
         wrappedBindings: { OWNER_ALERT: "fake-mailer" },
@@ -127,7 +130,11 @@ export async function startWorker(
     post: (body, init = {}) =>
       mf.dispatchFetch("https://forms.example.test/lead", {
         method: "POST",
-        headers: { "content-type": "application/json", origin: init.origin ?? "https://example.test" },
+        headers: {
+          "content-type": "application/json",
+          ...(init.origin === "" ? {} : { origin: init.origin ?? "https://example.test" }),
+          ...init.headers,
+        },
         body: typeof body === "string" ? body : JSON.stringify(body),
       }) as unknown as Promise<Response>,
     rows: async (sql = "SELECT * FROM leads ORDER BY created_at") =>
@@ -167,16 +174,30 @@ export function submission(overrides: Record<string, unknown> = {}) {
 }
 
 // A fake Brevo API: answers each POST /v3/contacts with the next queued status
-// (200 once the queue is empty) and records the request bodies.
+// (201 once the queue is empty) and records the request bodies. DELETE
+// /v3/contacts/{email} is recorded in `deleted`.
 export function fakeBrevo(statuses: number[] = []) {
   const calls: { apiKey: string | null; body: Record<string, unknown> }[] = [];
+  const deleted: string[] = [];
   const handler: Outbound = async (request) => {
-    if (new URL(request.url).pathname !== "/v3/contacts") return new Response("not found", { status: 404 });
+    const path = new URL(request.url).pathname;
+    if (request.method === "DELETE" && path.startsWith("/v3/contacts/")) {
+      deleted.push(decodeURIComponent(path.slice("/v3/contacts/".length)));
+      return new Response(null, { status: 204 });
+    }
+    if (path !== "/v3/contacts") return new Response("not found", { status: 404 });
     calls.push({ apiKey: request.headers.get("api-key"), body: await request.json() });
     const status = statuses.shift() ?? 201;
     return status < 300
       ? Response.json({ id: 42 }, { status })
       : Response.json({ code: "error", message: `status ${status}` }, { status });
   };
-  return { calls, handler };
+  return { calls, deleted, handler };
+}
+
+// Signs a body the way the monitoring check does: HMAC-SHA256 over "<t>.<body>".
+export async function signTest(body: string, at = Math.floor(Date.now() / 1000), secret = MONITOR_SECRET) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${at}.${body}`));
+  return `t=${at},v1=${Buffer.from(mac).toString("hex")}`;
 }

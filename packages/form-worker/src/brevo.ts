@@ -68,8 +68,21 @@ export async function upsertContact(
     return { ok: false, retryable: true, detail: `network: ${(err as Error).message}` };
   }
   if (res.ok) return { ok: true, retryable: false, detail: `${res.status}` };
-  const body = (await res.text()).slice(0, 300);
+  const body = (await res.text()).trim().slice(0, 300);
   // Rate limits and server errors may pass; any other 4xx needs a person to fix it.
   const retryable = res.status === 429 || res.status >= 500;
   return { ok: false, retryable, detail: `${res.status} ${body}` };
+}
+
+// Removes a contact by email; used to clean up the daily test Lead.
+export async function deleteContact(apiKey: string, email: string): Promise<DeliveryResult> {
+  try {
+    const res = await fetch(`${CONTACTS}/${encodeURIComponent(email)}`, {
+      method: "DELETE",
+      headers: { "api-key": apiKey, accept: "application/json" },
+    });
+    return { ok: res.ok || res.status === 404, retryable: false, detail: `${res.status}` };
+  } catch (err) {
+    return { ok: false, retryable: true, detail: `network: ${(err as Error).message}` };
+  }
 }

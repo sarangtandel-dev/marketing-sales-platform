@@ -22,7 +22,9 @@
   "vars": {
     "ALLOWED_ORIGINS": "https://client-zero.pages.dev",
     "ALERT_FROM": "alerts@example.com",
-    "ALERT_TO": "owner@example.com"
+    "ALERT_TO": "owner@example.com",
+    // The daily test Lead's address (ADR-0037): one we own, deleted from Brevo after each check.
+    "MONITOR_TEST_EMAIL": "monitor@example.com"
   }
-  // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY, BREVO_API_KEY
+  // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY, BREVO_API_KEY, MONITOR_SECRET
 }

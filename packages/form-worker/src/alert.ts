@@ -30,6 +30,10 @@ export async function sendDeliveryFailedAlert(env: Env, lead: LeadForBrevo, last
   ]);
 }
 
+export async function sendAlert(env: Env, subject: string, lines: string[]): Promise<boolean> {
+  return send(env, subject, lines);
+}
+
 async function send(env: Env, subject: string, lines: string[]): Promise<boolean> {
   try {
     await env.OWNER_ALERT.send({ from: env.ALERT_FROM, to: env.ALERT_TO, subject, text: lines.join("\n") });

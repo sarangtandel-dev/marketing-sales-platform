@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "client": "fixture-showcase",
+    "site_url": "https://showcase.test",
+    "theme": "theme.json",
+    "default_language": "en",
+    "languages": [
+      "en"
+    ],
+    "version": "0.1.0",
+    "turnstile_site_key": "0x4AAAAAAAShowcaseKey"
+  },
+  "pages": [
+    {
+      "id": "home",
+      "type": "home",
+      "slug": {
+        "en": ""
+      },
+      "seo": {
+        "title": {
+          "en": "Showcase home"
+        },
+        "description": {
+          "en": "Showcase home page of the component showcase."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": {
+              "en": "Every component"
+            },
+            "body": {
+              "en": "One page per group of Section Variants."
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        },
+        {
+          "component": "services",
+          "variant": "grid",
+          "text": {
+            "heading": {
+              "en": "Services in a grid"
+            },
+            "body": {
+              "en": "Three cards."
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "Linked service"
+                },
+                "body": {
+                  "en": "Links to the about page."
+                }
+              },
+              "page": "about"
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Title 1"
+                },
+                "body": {
+                  "en": "Body 1"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Title 2"
+                },
+                "body": {
+                  "en": "Body 2"
+                }
+              }
+            }
+          ],
+          "ctas": [
+            "contact"
+          ]
+        },
+        {
+          "component": "steps",
+          "variant": "numbered",
+          "text": {
+            "heading": {
+              "en": "How it works"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "Title 1"
+                },
+                "body": {
+                  "en": "Body 1"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Title 2"
+                },
+                "body": {
+                  "en": "Body 2"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Title 3"
+                },
+                "body": {
+                  "en": "Body 3"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "testimonials",
+          "variant": "cards",
+          "text": {
+            "heading": {
+              "en": "Testimonials as cards"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "quote": {
+                  "en": "A quote."
+                },
+                "name": {
+                  "en": "A Person"
+                },
+                "role": {
+                  "en": "Founder, Example Co"
+                }
+              }
+            },
+            {
+              "text": {
+                "quote": {
+                  "en": "Another quote."
+                },
+                "name": {
+                  "en": "B Person"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "cta-band",
+          "variant": "primary",
+          "text": {
+            "heading": {
+              "en": "Primary band"
+            },
+            "body": {
+              "en": "With a CTA."
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "slug": {
+        "en": "about"
+      },
+      "seo": {
+        "title": {
+          "en": "Showcase about"
+        },
+        "description": {
+          "en": "Showcase about page of the component showcase."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "split",
+          "text": {
+            "heading": {
+              "en": "Split hero"
+            },
+            "body": {
+              "en": "Text beside CTAs."
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        },
+        {
+          "component": "text",
+          "variant": "prose",
+          "text": {
+            "heading": {
+              "en": "Prose"
+            },
+            "intro": {
+              "en": "An intro."
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "A block"
+                },
+                "body": {
+                  "en": "First paragraph.\n\nSecond paragraph."
+                }
+              }
+            },
+            {
+              "text": {
+                "body": {
+                  "en": "A block without a title."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "faq",
+          "variant": "accordion",
+          "text": {
+            "heading": {
+              "en": "FAQ as an accordion"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "question": {
+                  "en": "Question 1"
+                },
+                "answer": {
+                  "en": "Answer 1"
+                }
+              }
+            },
+            {
+              "text": {
+                "question": {
+                  "en": "Question 2"
+                },
+                "answer": {
+                  "en": "Answer 2"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "cta-band",
+          "variant": "subtle",
+          "text": {
+            "heading": {
+              "en": "Subtle band"
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "more",
+      "type": "more",
+      "slug": {
+        "en": "more"
+      },
+      "seo": {
+        "title": {
+          "en": "Showcase more"
+        },
+        "description": {
+          "en": "Showcase more page of the component showcase."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": {
+              "en": "More variants"
+            }
+          },
+          "ctas": [
+            "contact"
+          ]
+        },
+        {
+          "component": "services",
+          "variant": "list",
+          "text": {
+            "heading": {
+              "en": "Services as a list"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "Title 1"
+                },
+                "body": {
+                  "en": "Body 1"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Title 2"
+                },
+                "body": {
+                  "en": "Body 2"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "testimonials",
+          "variant": "single",
+          "text": {
+            "heading": {
+              "en": "A single testimonial"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "quote": {
+                  "en": "One big quote."
+                },
+                "name": {
+                  "en": "C Person"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "faq",
+          "variant": "list",
+          "text": {
+            "heading": {
+              "en": "FAQ as a list"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "question": {
+                  "en": "Question 1"
+                },
+                "answer": {
+                  "en": "Answer 1"
+                }
+              }
+            },
+            {
+              "text": {
+                "question": {
+                  "en": "Question 2"
+                },
+                "answer": {
+                  "en": "Answer 2"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "variant": "two-column",
+          "text": {
+            "heading": {
+              "en": "Two columns"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "Title"
+                },
+                "body": {
+                  "en": "Body beside its title."
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "type": "contact",
+      "slug": {
+        "en": "contact"
+      },
+      "seo": {
+        "title": {
+          "en": "Showcase contact"
+        },
+        "description": {
+          "en": "Showcase contact page of the component showcase."
+        }
+      },
+      "sections": [
+        {
+          "component": "contact-form",
+          "variant": "stacked",
+          "text": {
+            "heading": {
+              "en": "Contact"
+            },
+            "body": {
+              "en": "The form is this page's first section."
+            }
+          },
+          "form": "contact"
+        }
+      ]
+    },
+    {
+      "id": "not-found",
+      "type": "not-found",
+      "slug": {
+        "en": "404"
+      },
+      "seo": {
+        "title": {
+          "en": "Not found"
+        },
+        "description": {
+          "en": "Missing page."
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "centered",
+          "text": {
+            "heading": {
+              "en": "Not found"
+            }
+          },
+          "ctas": [
+            "home"
+          ]
+        }
+      ]
+    }
+  ],
+  "ctas": [
+    {
+      "id": "contact",
+      "type": "consultation_request",
+      "label": {
+        "en": "Talk to us"
+      },
+      "target": {
+        "page": "contact"
+      }
+    },
+    {
+      "id": "home",
+      "type": "visit",
+      "label": {
+        "en": "Home"
+      },
+      "target": {
+        "page": "home"
+      }
+    }
+  ],
+  "forms": [
+    {
+      "id": "contact",
+      "form_type": "consultation_request",
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "label": {
+            "en": "Name"
+          },
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "label": {
+            "en": "Email"
+          },
+          "required": true
+        }
+      ],
+      "endpoint": "https://forms.showcase.test/lead",
+      "submit": {
+        "en": "Send"
+      },
+      "success": {
+        "en": "Sent."
+      },
+      "error": {
+        "en": "Not sent."
+      },
+      "privacy_page": "about",
+      "privacy_notice": {
+        "en": "Privacy"
+      }
+    }
+  ],
+  "navigation": [
+    {
+      "page": "home",
+      "label": {
+        "en": "Home"
+      }
+    },
+    {
+      "page": "about",
+      "label": {
+        "en": "About"
+      }
+    },
+    {
+      "page": "more",
+      "label": {
+        "en": "More"
+      }
+    },
+    {
+      "page": "contact",
+      "label": {
+        "en": "Contact"
+      }
+    }
+  ],
+  "footer": {
+    "text": {
+      "en": "Component showcase"
+    }
+  },
+  "tracking": {},
+  "redirects": []
+}

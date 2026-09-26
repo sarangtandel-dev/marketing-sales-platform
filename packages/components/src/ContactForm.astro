@@ -5,7 +5,8 @@
 // Worker maps it to the same lead ID instead of creating a second Lead.
 interface Props {
   variant: "stacked";
-  text: { heading?: string; body?: string };
+  level: 1 | 2;
+  text: { heading: string; body?: string };
   form?: {
     id: string;
     formType: string;
@@ -29,13 +30,14 @@ interface Props {
   };
 }
 
-const { text, form } = Astro.props;
+const { level, text, form } = Astro.props;
+const Heading = `h${level}`;
 if (!form) throw new Error("contact-form section needs a form");
 const fieldId = (name: string) => `${form.id}-${name}`;
 ---
 <section class="px-4 py-section">
   <div class="mx-auto max-w-xl">
-    {text.heading && <h2 class="font-heading text-3xl">{text.heading}</h2>}
+    <Heading class="font-heading text-3xl">{text.heading}</Heading>
     {text.body && <p class="mt-3 text-muted">{text.body}</p>}
 
     <form

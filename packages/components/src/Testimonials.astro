@@ -1,0 +1,33 @@
+---
+// Testimonials. Variants: "cards" (a grid) and "single" (one large quote).
+// Each needs a Permission Record or a public Source before launch (ADR-0007).
+import type { HeadingLevel, Item } from "./catalog.ts";
+
+interface Props {
+  variant: "cards" | "single";
+  level: HeadingLevel;
+  text: { heading: string };
+  items: Item[];
+}
+
+const { variant, level, text, items } = Astro.props;
+const Heading = `h${level}`;
+---
+<section class="px-4 py-section">
+  <div class="mx-auto max-w-5xl">
+    <Heading class="font-heading text-3xl">{text.heading}</Heading>
+    <div class:list={["mt-10 grid gap-6", variant === "cards" ? "md:grid-cols-2" : "max-w-3xl"]}>
+      {items.map((item) => (
+        <figure class:list={["rounded-card", variant === "cards" ? "bg-surface p-6 shadow-card" : "py-4"]}>
+          <blockquote class:list={[variant === "single" ? "font-heading text-2xl" : "text-lg"]}>
+            <p>“{item.text.quote}”</p>
+          </blockquote>
+          <figcaption class="mt-4 text-sm text-muted">
+            <span class="font-medium text-on-surface">{item.text.name}</span>
+            {item.text.role && <span>, {item.text.role}</span>}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>

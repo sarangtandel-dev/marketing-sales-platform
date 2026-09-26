@@ -6,5 +6,5 @@ import { defaultLanguage, isNotFound, site } from "../lib/site";
 const page = site.pages.find(isNotFound)!;
 ---
 <Base page={page} lang={defaultLanguage} canonical={false}>
-  {page.sections.map((section) => <Section section={section} lang={defaultLanguage} />)}
+  {page.sections.map((section, i) => <Section section={section} lang={defaultLanguage} first={i === 0} />)}
 </Base>

@@ -52,7 +52,7 @@ describe("building a valid site", () => {
   it("links navigation and CTAs to their pages, with the CTA Type on each CTA", () => {
     const home = read("index.html");
     expect(home).toMatch(/<a[^>]*href="\/about\/"[^>]*>About<\/a>/);
-    expect(home).toMatch(/<a[^>]*href="\/about\/"[^>]*data-cta-type="consultation_request"[^>]*>|<a[^>]*data-cta-type="consultation_request"[^>]*href="\/about\/"[^>]*>/);
+    expect(home).toMatch(/<a[^>]*href="\/contact\/"[^>]*data-cta-type="consultation_request"[^>]*>|<a[^>]*data-cta-type="consultation_request"[^>]*href="\/contact\/"[^>]*>/);
   });
 
   it("lists every page except the 404 in the sitemap", () => {
@@ -165,6 +165,34 @@ describe("forms", () => {
     expect(html).not.toContain("0x4AAAAAAAFixtureProdKey");
     expect(html).toMatch(/<form[^>]*action="http:\/\/localhost:8787\/lead"/);
   }, 120_000);
+});
+
+describe("the component showcase", () => {
+  const showcase = join(import.meta.dirname, "../test/fixtures/showcase");
+  const out = join(tmp, "showcase");
+
+  it("renders every catalogued component in every Section Variant", async () => {
+    const { catalog } = await import("@msp/components/catalog");
+    const result = build(showcase, out);
+    expect(result.status, result.stderr).toBe(0);
+    const html = htmlFiles(out).map((f) => readFileSync(join(out, f), "utf8")).join("\n");
+    for (const [component, { variants }] of Object.entries(catalog)) {
+      for (const variant of variants) {
+        expect(html, `${component}/${variant}`).toContain(`data-section="${component}" data-variant="${variant}"`);
+      }
+    }
+  }, 120_000);
+
+  it("uses one h1 per page and no skipped heading levels", () => {
+    for (const file of htmlFiles(out)) {
+      const html = readFileSync(join(out, file), "utf8");
+      const levels = [...html.matchAll(/<h([1-6])[\s>]/g)].map((m) => Number(m[1]));
+      expect(levels.filter((l) => l === 1), file).toHaveLength(1);
+      levels.forEach((level, i) => {
+        if (i > 0) expect(level - levels[i - 1], `${file} heading ${i}`).toBeLessThanOrEqual(1);
+      });
+    }
+  });
 });
 
 describe("building an invalid site", () => {

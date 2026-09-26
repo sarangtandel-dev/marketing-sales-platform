@@ -1,0 +1,27 @@
+---
+// A call-to-action band. Variants: "primary" (brand colour) and "subtle" (surface).
+import CtaLinks from "./CtaLinks.astro";
+import type { Cta, HeadingLevel } from "./catalog.ts";
+
+interface Props {
+  variant: "primary" | "subtle";
+  level: HeadingLevel;
+  text: { heading: string; body?: string };
+  ctas: Cta[];
+}
+
+const { variant, level, text, ctas } = Astro.props;
+const Heading = `h${level}`;
+---
+<section class="px-4 py-section">
+  <div
+    class:list={[
+      "mx-auto max-w-5xl rounded-card p-10 text-center",
+      variant === "primary" ? "bg-primary text-on-primary" : "border border-on-surface/10 bg-surface",
+    ]}
+  >
+    <Heading class="font-heading text-3xl">{text.heading}</Heading>
+    {text.body && <p class:list={["mt-3", variant === "subtle" && "text-muted"]}>{text.body}</p>}
+    <CtaLinks ctas={ctas} tone={variant === "primary" ? "inverse" : "primary"} align="center" />
+  </div>
+</section>

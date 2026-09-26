@@ -1,0 +1,31 @@
+---
+// The CTA buttons a section shows. Each carries its CTA Type for the tracking script.
+import type { Cta } from "./catalog.ts";
+
+interface Props {
+  ctas: Cta[];
+  tone?: "primary" | "inverse";
+  align?: "start" | "center";
+}
+
+const { ctas, tone = "primary", align = "start" } = Astro.props;
+---
+{ctas.length > 0 && (
+  <div class:list={["mt-8 flex flex-wrap gap-4", align === "center" && "justify-center"]}>
+    {ctas.map((cta, i) => (
+      <a
+        class:list={[
+          "rounded-card px-6 py-3 font-medium shadow-card",
+          tone === "primary" && i === 0 && "bg-primary text-on-primary",
+          tone === "primary" && i > 0 && "border border-primary text-primary",
+          tone === "inverse" && "bg-surface text-on-surface",
+        ]}
+        href={cta.href}
+        data-cta-id={cta.id}
+        data-cta-type={cta.type}
+      >
+        {cta.label}
+      </a>
+    ))}
+  </div>
+)}

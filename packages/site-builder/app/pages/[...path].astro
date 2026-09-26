@@ -15,5 +15,5 @@ export function getStaticPaths() {
 const { page, lang } = Astro.props;
 ---
 <Base page={page} lang={lang}>
-  {page.sections.map((section) => <Section section={section} lang={lang} />)}
+  {page.sections.map((section, i) => <Section section={section} lang={lang} first={i === 0} />)}
 </Base>

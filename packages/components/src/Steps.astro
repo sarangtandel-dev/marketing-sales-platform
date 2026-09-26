@@ -1,0 +1,37 @@
+---
+// How an engagement works. Variant: "numbered".
+import CtaLinks from "./CtaLinks.astro";
+import type { Cta, HeadingLevel, Item } from "./catalog.ts";
+
+interface Props {
+  variant: "numbered";
+  level: HeadingLevel;
+  text: { heading: string; body?: string };
+  items: Item[];
+  ctas: Cta[];
+}
+
+const { level, text, items, ctas } = Astro.props;
+const Heading = `h${level}`;
+const ItemHeading = `h${level + 1}`;
+---
+<section class="px-4 py-section">
+  <div class="mx-auto max-w-5xl">
+    <Heading class="font-heading text-3xl">{text.heading}</Heading>
+    {text.body && <p class="mt-3 max-w-3xl text-muted">{text.body}</p>}
+    <ol class="mt-10 grid gap-8 md:grid-cols-3">
+      {items.map((item, i) => (
+        <li class="flex gap-4">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-medium text-on-primary" aria-hidden="true">
+            {i + 1}
+          </span>
+          <div>
+            <ItemHeading class="font-heading text-xl">{item.text.title}</ItemHeading>
+            <p class="mt-2 text-muted">{item.text.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <CtaLinks ctas={ctas} />
+  </div>
+</section>

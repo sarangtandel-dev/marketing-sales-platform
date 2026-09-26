@@ -69,7 +69,10 @@
             "body": {
               "en": "A second page."
             }
-          }
+          },
+          "ctas": [
+            "contact"
+          ]
         }
       ]
     },
@@ -141,7 +144,7 @@
         "en": "Book a consultation"
       },
       "target": {
-        "page": "about"
+        "page": "contact"
       }
     },
     {

@@ -156,6 +156,41 @@ describe("validateSiteDefinition", () => {
     });
   });
 
+  it("rejects text keys a component doesn't use, and requires the ones it needs", () => {
+    const s = site();
+    s.pages[0].sections[0].text = { headline: { en: "Typo" } };
+    const issues = validateSiteDefinition(s);
+    expect(issues).toContainEqual({ path: "/pages/0/sections/0/text/headline", message: expect.stringContaining("heading") });
+    expect(issues).toContainEqual({ path: "/pages/0/sections/0/text", message: expect.stringContaining("heading") });
+  });
+
+  it("requires items for list components and rejects them elsewhere", () => {
+    const s = site();
+    s.pages[0].sections.push({ component: "services", variant: "grid", text: { heading: { en: "Services" } } });
+    s.pages[0].sections[0].items = [{ text: { title: { en: "x" } } }];
+    const issues = validateSiteDefinition(s);
+    expect(issues).toContainEqual({ path: "/pages/0/sections/1", message: expect.stringContaining("items") });
+    expect(issues).toContainEqual({ path: "/pages/0/sections/0/items", message: expect.stringContaining("hero") });
+  });
+
+  it("requires a form on every contact-form section", () => {
+    const s = site();
+    delete s.pages[2].sections[0].form;
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/pages/2/sections/0",
+      message: expect.stringContaining("form"),
+    });
+  });
+
+  it("requires every page to offer a way to a form (ADR-0023)", () => {
+    const s = site();
+    delete s.pages[1].sections[0].ctas;
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/pages/1",
+      message: expect.stringContaining("form"),
+    });
+  });
+
   it("rejects a CTA Type outside ADR-0023's list", () => {
     const s = site();
     s.ctas[0].type = "buy_now";

@@ -1,32 +1,24 @@
 ---
 // Hero section. Variants: "centered" (stacked, centred) and "split" (text left, CTAs right).
+import CtaLinks from "./CtaLinks.astro";
+import type { Cta, HeadingLevel } from "./catalog.ts";
+
 interface Props {
   variant: "centered" | "split";
-  text: { heading?: string; body?: string };
-  ctas: { id: string; type: string; label: string; href: string }[];
+  level: HeadingLevel;
+  text: { heading: string; body?: string };
+  ctas: Cta[];
 }
 
-const { variant, text, ctas } = Astro.props;
+const { variant, level, text, ctas } = Astro.props;
+const Heading = `h${level}`;
 ---
 <section class:list={["px-4 py-section", variant === "centered" && "text-center"]}>
   <div class:list={["mx-auto max-w-5xl", variant === "split" && "grid items-center gap-8 md:grid-cols-2"]}>
     <div>
-      {text.heading && <h1 class="font-heading text-4xl md:text-5xl">{text.heading}</h1>}
+      <Heading class="font-heading text-4xl md:text-5xl">{text.heading}</Heading>
       {text.body && <p class="mt-4 text-lg text-muted">{text.body}</p>}
     </div>
-    {ctas.length > 0 && (
-      <div class:list={["mt-8 flex flex-wrap gap-4", variant === "centered" && "justify-center"]}>
-        {ctas.map((cta) => (
-          <a
-            class="rounded-card bg-primary px-6 py-3 font-medium text-on-primary shadow-card"
-            href={cta.href}
-            data-cta-id={cta.id}
-            data-cta-type={cta.type}
-          >
-            {cta.label}
-          </a>
-        ))}
-      </div>
-    )}
+    <CtaLinks ctas={ctas} align={variant === "centered" ? "center" : "start"} />
   </div>
 </section>

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
-import { catalog } from "@msp/components/catalog";
+import { type CatalogEntry, catalog } from "@msp/components/catalog";
 import { NOT_FOUND } from "./constants.ts";
 
 // Validation for the M0 site definition and Theme (ADR-0034, ADR-0019).
@@ -16,6 +16,7 @@ export type Section = {
   text?: Record<string, Text>;
   ctas?: string[];
   form?: string;
+  items?: { text: Record<string, Text>; page?: string }[];
 };
 
 export type Field = {
@@ -123,6 +124,7 @@ export function validateSiteDefinition(data: unknown): Issue[] {
     ...referenceIssues(site),
     ...slugIssues(site),
     ...notFoundIssues(site),
+    ...formFallbackIssues(site),
   ];
 }
 
@@ -161,21 +163,66 @@ function componentIssues(site: SiteDefinition): Issue[] {
   site.pages.forEach((page, p) =>
     page.sections.forEach((section, s) => {
       const at = `/pages/${p}/sections/${s}`;
-      const entry = catalog[section.component as keyof typeof catalog];
+      const entry = (catalog as Record<string, CatalogEntry>)[section.component];
       if (!entry) {
         issues.push({
           path: `${at}/component`,
           message: `unknown component "${section.component}"; available: ${Object.keys(catalog).join(", ")}`,
         });
-      } else if (!(entry.variants as readonly string[]).includes(section.variant)) {
+        return;
+      }
+      const name = `"${section.component}"`;
+      if (!entry.variants.includes(section.variant)) {
         issues.push({
           path: `${at}/variant`,
-          message: `"${section.component}" has no Section Variant "${section.variant}"; available: ${entry.variants.join(", ")}`,
+          message: `${name} has no Section Variant "${section.variant}"; available: ${entry.variants.join(", ")}`,
         });
       }
+      issues.push(...textKeyIssues(entry.text, section.text ?? {}, at, name));
+      if (entry.items && !section.items) issues.push({ path: at, message: `${name} needs items` });
+      if (!entry.items && section.items) issues.push({ path: `${at}/items`, message: `${name} doesn't take items` });
+      if (entry.items) {
+        section.items?.forEach((item, i) =>
+          issues.push(...textKeyIssues(entry.items!, item.text, `${at}/items/${i}`, `${name} items`)),
+        );
+      }
+      if (!entry.ctas && section.ctas?.length) issues.push({ path: `${at}/ctas`, message: `${name} doesn't show CTAs` });
+      if (entry.form && !section.form) issues.push({ path: at, message: `${name} needs a form` });
+      if (!entry.form && section.form) issues.push({ path: `${at}/form`, message: `${name} doesn't show a form` });
     }),
   );
   return issues;
+}
+
+function textKeyIssues(
+  spec: { required: readonly string[]; optional?: readonly string[] },
+  text: Record<string, unknown>,
+  at: string,
+  name: string,
+): Issue[] {
+  const allowed = [...spec.required, ...(spec.optional ?? [])];
+  const issues: Issue[] = Object.keys(text)
+    .filter((key) => !allowed.includes(key))
+    .map((key) => ({ path: `${at}/text/${key}`, message: `${name} has no text "${key}"; it takes: ${allowed.join(", ")}` }));
+  const missing = spec.required.filter((key) => !(key in text));
+  if (missing.length) issues.push({ path: `${at}/text`, message: `${name} needs text: ${missing.join(", ")}` });
+  return issues;
+}
+
+// ADR-0023: when a site has forms, every page offers a way to one: a form on the page,
+// or a CTA to a page that has one.
+function formFallbackIssues(site: SiteDefinition): Issue[] {
+  if (!site.forms.length) return [];
+  const hasForm = (page: Page) => page.sections.some((s) => s.form);
+  const formPages = new Set(site.pages.filter(hasForm).map((p) => p.id));
+  const ctaToForm = new Set(
+    site.ctas.filter((c) => "page" in c.target && formPages.has(c.target.page)).map((c) => c.id),
+  );
+  return site.pages.flatMap((page, p) =>
+    page.type === NOT_FOUND || hasForm(page) || page.sections.some((s) => s.ctas?.some((id) => ctaToForm.has(id)))
+      ? []
+      : [{ path: `/pages/${p}`, message: "offers no way to a form: add a contact-form section or a CTA to a form page" }],
+  );
 }
 
 function referenceIssues(site: SiteDefinition): Issue[] {
@@ -194,6 +241,13 @@ function referenceIssues(site: SiteDefinition): Issue[] {
     }),
   );
   site.forms.forEach((form, f) => need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`));
+  site.pages.forEach((page, p) =>
+    page.sections.forEach((section, s) =>
+      section.items?.forEach((item, i) => {
+        if (item.page) need(pageIds, "page", item.page, `/pages/${p}/sections/${s}/items/${i}/page`);
+      }),
+    ),
+  );
   // Google tags only ever load after consent (ADR-0020), so GTM needs a consent tool.
   if (site.tracking.gtm && !site.tracking.consent_tool) {
     issues.push({ path: "/tracking", message: "needs consent_tool because gtm is set (ADR-0020)" });

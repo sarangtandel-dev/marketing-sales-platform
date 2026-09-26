@@ -1,30 +1,57 @@
 ---
 import ContactForm from "@msp/components/ContactForm.astro";
+import CtaBand from "@msp/components/CtaBand.astro";
+import Faq from "@msp/components/Faq.astro";
 import Hero from "@msp/components/Hero.astro";
+import Services from "@msp/components/Services.astro";
+import Steps from "@msp/components/Steps.astro";
+import Testimonials from "@msp/components/Testimonials.astro";
+import Text from "@msp/components/Text.astro";
+import type { ComponentName } from "@msp/components/catalog";
 import type { Section } from "../../src/definition.ts";
-import { ctaById, ctaHref, formProps, t } from "../lib/site";
+import { ctaById, ctaHref, formProps, pageById, pagePath, t } from "../lib/site";
 
 // Maps each catalogued component name to its implementation.
-const components = { hero: Hero, "contact-form": ContactForm } as const;
+const components: Record<ComponentName, unknown> = {
+  hero: Hero,
+  services: Services,
+  steps: Steps,
+  testimonials: Testimonials,
+  faq: Faq,
+  text: Text,
+  "cta-band": CtaBand,
+  "contact-form": ContactForm,
+};
 
 interface Props {
   section: Section;
   lang: string;
+  // The page's first section carries its h1; the rest start at h2.
+  first: boolean;
 }
 
-const { section, lang } = Astro.props;
-const Component = components[section.component as keyof typeof components];
-const text = Object.fromEntries(Object.entries(section.text ?? {}).map(([key, value]) => [key, t(value, lang)]));
+const { section, lang, first } = Astro.props;
+const Component = components[section.component as ComponentName] as typeof Hero;
+const resolve = (text: Record<string, Record<string, string>> = {}) =>
+  Object.fromEntries(Object.entries(text).map(([key, value]) => [key, t(value, lang)]));
 const ctas = (section.ctas ?? []).map(ctaById).map((cta) => ({
   id: cta.id,
   type: cta.type,
   label: t(cta.label, lang),
   href: ctaHref(cta, lang),
 }));
+const items = section.items?.map((item) => ({
+  text: resolve(item.text),
+  href: item.page ? pagePath(pageById(item.page), lang) : undefined,
+}));
 ---
-<Component
-  variant={section.variant as never}
-  text={text}
-  ctas={ctas}
-  form={section.form ? formProps(section.form, lang) : undefined}
-/>
+<div data-section={section.component} data-variant={section.variant}>
+  <Component
+    variant={section.variant as never}
+    level={first ? 1 : 2}
+    text={resolve(section.text) as never}
+    items={items as never}
+    ctas={ctas}
+    form={section.form ? formProps(section.form, lang) : undefined}
+  />
+</div>

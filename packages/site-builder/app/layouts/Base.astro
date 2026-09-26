@@ -47,8 +47,8 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     {canonical && <link rel="canonical" href={url} />}
   </head>
   <body class="bg-surface text-on-surface font-body antialiased">
-    <header class="border-b border-on-surface/10">
-      <nav class="mx-auto flex max-w-5xl gap-6 px-4 py-4">
+    <header class="border-b border-on-surface/10 px-4">
+      <nav class="mx-auto flex max-w-5xl flex-wrap gap-x-6 gap-y-2 py-4">
         {site.navigation.map((item) => (
           <a class="hover:text-primary" href={pagePath(pageById(item.page), lang)}>{t(item.label, lang)}</a>
         ))}
@@ -57,8 +57,8 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     <main>
       <slot />
     </main>
-    <footer class="mx-auto max-w-5xl px-4 py-8 text-sm text-muted">
-      {t(site.footer.text, lang)}
+    <footer class="px-4 py-8 text-sm text-muted">
+      <div class="mx-auto max-w-5xl">{t(site.footer.text, lang)}</div>
     </footer>
     <script>
       import "@msp/tracking";

@@ -29,7 +29,11 @@ pnpm build:site clients/client-zero/site dist/client-zero
 - The build validates the site definition and its Theme first. Any problem stops the build before anything is written, with the JSON path and the rule broken.
 - Every site needs exactly one page of type `not-found`, which becomes `404.html`.
 - The schemas are in `packages/site-builder/schema/`.
-- Section components and their Section Variants are listed in `packages/components/src/catalog.ts`. A site definition can only use what's listed there.
+- Section components are listed in `packages/components/src/catalog.ts`, with their Section Variants, their text keys and item keys, and whether they take CTAs or a form. A site definition can only use what's listed there. The components are `hero`, `services`, `steps`, `testimonials`, `faq`, `text`, `cta-band` and `contact-form`.
+- To see every component in every variant, build the showcase: `pnpm build:site packages/site-builder/test/fixtures/showcase dist/showcase`.
+- A page's first section gets its `h1`.
+- When a site has forms, every page must offer a way to one: a form on the page, or a CTA to a page with one (ADR-0023).
+- Components use Theme tokens only. A test fails on hard-coded colours, Tailwind palette colours or font families.
 
 ## Running the form Worker locally
 

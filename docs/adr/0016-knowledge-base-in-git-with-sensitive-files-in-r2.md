@@ -28,4 +28,4 @@ Git gives history and reviewable diffs for Facts. Personal data and signed docum
 
 ## Milestone
 
-M1. M0 keeps no personal data in git and uses no R2 (see issue 19 for a secrets check in M0). See ADR-0039.
+M1. M0 keeps no personal data in git and uses no R2 and runs a secrets scan on pre-commit and in CI (issue 19). See ADR-0039.

@@ -32,4 +32,4 @@ status: accepted
 
 ## Milestone
 
-M0: D1 Lead Log, Brevo delivery with retries, idempotent lead ID, owner alert, 90-day purge. M1: DPA sub-processor list. EU jurisdiction path: DESIGNED. See ADR-0039.
+M0: D1 Lead Log, Brevo delivery with retries, idempotent lead ID, owner alert through Cloudflare Email Routing's send-email binding (issue 19), 90-day purge. M1: DPA sub-processor list. EU jurisdiction path: DESIGNED. See ADR-0039.

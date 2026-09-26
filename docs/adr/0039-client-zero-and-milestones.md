@@ -33,12 +33,14 @@ We are the data controller for Client #0, so no DPA applies, and our own privacy
   - honeypot plus Turnstile
   - D1 Lead Log (location hint near India)
   - Brevo delivery with retries and an idempotent lead ID
-  - an owner alert that doesn't depend on Brevo
+  - an owner alert that doesn't depend on Brevo (Cloudflare Email Routing send-email binding)
   - 90-day purge
 - **Tracking:** the rewritten tracking script with tests (issues 01–05, 07, 14), and GA4 via GTM.
 - **Privacy:** a privacy policy for our own site, and an unticked email marketing opt-in with its wording version stored.
 - **Facts:** a simple facts file for Client #0: YAML with `source` and `status` fields, validated by JSON Schema only.
-- **Monitoring:** a daily test form submission, with an alert if the lead doesn't reach both the Lead Log and Brevo.
+- **Monitoring:** a daily test form submission, with an alert if the lead doesn't reach both the Lead Log and Brevo, plus a free external uptime monitor.
+- **Consent:** an off-the-shelf consent tool, opt-in for every Visitor, with Consent Mode in basic mode.
+- **Safety checks:** a secrets scan on pre-commit and in CI, and a manual launch checklist for alt text, image rights and contrast. A qualified person reviews the privacy policy before launch.
 
 **Excluded (moved to M1):**
 
@@ -52,7 +54,15 @@ We are the data controller for Client #0, so no DPA applies, and our own privacy
 
 **How M0 still follows the publishing rules (ADR-0007):** the M0 site definition holds its text directly, with no Fact references. A person checks every claim on the site against the facts file before launch.
 
-**Open decisions for M0** (issue 19): a consent signal for GA4, a secrets check on commits, manual alt-text/rights and contrast checks, uptime checks, the owner alert channel, review of our privacy policy, and whether Client #0 counts toward the M1 skill-build rule.
+**M0 decisions** (issue 19, decided 2026-09-27):
+
+- **Consent:** an off-the-shelf consent tool, configured by hand as opt-in for every Visitor, with Consent Mode in basic mode. The tool is chosen against written criteria when M0 is specced.
+- **Secrets scan:** on pre-commit and in CI. The personal-data and binary checks stay in M1.
+- **Alt text, image rights and contrast:** a manual launch checklist. The automated checks come in M1.
+- **Uptime:** a free external monitor on the site and the Worker endpoint, alongside the daily test submission.
+- **Owner alert:** Cloudflare Email Routing's send-email binding, sent from the Worker after the Lead Log write.
+- **Privacy policy:** a qualified person reviews it before launch.
+- **Client #0 and the M1 build rule:** Client #0 counts as a real Client for the steps M0 does by hand (site definition, Theme, build, QA, launch). Intake, research and the strategy brief still need a manual run for the first paying Client.
 
 ## M1: triggered by the first paying Client
 
@@ -98,11 +108,11 @@ We are the data controller for Client #0, so no DPA applies, and our own privacy
 | 0013 | Lead Log before Brevo | ✔ | Sub-processor list | EU path: DESIGNED |
 | 0014 | Region config, Privacy Law Profiles | Hand-written privacy policy | IN plus the first paying Client's Region | Others: M2 |
 | 0015 | Pack definition and versioning | | ✔ | Upgrade workflow: DESIGNED |
-| 0016 | Git plus R2, commit checks | Secrets check? (issue 19) | ✔ | |
+| 0016 | Git plus R2, commit checks | Secrets scan (pre-commit and CI) | ✔ | |
 | 0017 | Research limits | | ✔ | Scheduled refresh: DESIGNED |
 | 0018 | Media rights, AI images | Manual check | Build check | |
 | 0019 | Claude Design handover | Manual token export | `/design-sync`, contrast check | |
-| 0020 | Consent banner by Region | **Decision needed** (issue 19) | Region-driven | GB/US: M2 |
+| 0020 | Consent banner by Region | Consent tool, opt-in for all, basic Consent Mode | Region-driven | GB/US: M2 |
 | 0021 | Opt-ins on forms | Email opt-in | | SMS/WhatsApp/double opt-in: DESIGNED |
 | 0022 | Tracking rules and tests | ✔ | | |
 | 0023 | CTA types and resolution | Types used, written directly | Resolution | Business-hours rule: M2 · `purchase`: DESIGNED |
@@ -119,6 +129,6 @@ We are the data controller for Client #0, so no DPA applies, and our own privacy
 | 0034 | Site definition outline | Minimal subset | Full outline | |
 | 0035 | Versions, approvals | Git plus rollback | `changes.yaml`, Client approvals | Screenshot comparison: M2 |
 | 0036 | Module 2 contracts | Idempotent lead ID | Combined file | Split files, webhook: DESIGNED |
-| 0037 | Pipeline skills | Daily test submission | Skills, each after a manual run | |
+| 0037 | Pipeline skills | Daily test submission, uptime monitor | Skills, each after a manual run | |
 | 0038 | Manual vs automated | Mostly manual | ✔ | Scheduled rebuild, screenshots: M2 |
 | 0039 | Milestones | ✔ | | |

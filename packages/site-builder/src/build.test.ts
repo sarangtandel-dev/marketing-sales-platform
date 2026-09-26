@@ -9,8 +9,8 @@ const cli = join(import.meta.dirname, "cli.ts");
 const fixture = join(import.meta.dirname, "../test/fixtures/basic");
 const tmp = mkdtempSync(join(tmpdir(), "site-build-"));
 
-function build(siteDir: string, outDir: string) {
-  return spawnSync(process.execPath, [cli, siteDir, outDir], { encoding: "utf8", timeout: 120_000 });
+function build(siteDir: string, outDir: string, flags: string[] = []) {
+  return spawnSync(process.execPath, [cli, siteDir, outDir, ...flags], { encoding: "utf8", timeout: 120_000 });
 }
 
 const htmlFiles = (dir: string): string[] =>
@@ -80,6 +80,49 @@ describe("building a valid site", () => {
     expect(css).toMatch(/--color-primary:\s*#1d4ed8/);
     expect(css).toMatch(/--font-heading:\s*Georgia, serif/);
   });
+});
+
+describe("forms", () => {
+  const out = join(tmp, "basic");
+  const contact = () => readFileSync(join(out, "contact/index.html"), "utf8");
+
+  it("renders the form with its identity, endpoint and fields", () => {
+    const html = contact();
+    expect(html).toMatch(/<form[^>]*data-form-id="contact"/);
+    expect(html).toMatch(/<form[^>]*data-form-type="consultation_request"/);
+    expect(html).toMatch(/<form[^>]*action="https:\/\/forms\.example\.test\/lead"/);
+    expect(html).toMatch(/<label[^>]*for="contact-name"[^>]*>Your name/);
+    expect(html).toMatch(/<input[^>]*id="contact-email"[^>]*type="email"|<input[^>]*type="email"[^>]*id="contact-email"/);
+    expect(html).toMatch(/<select[^>]*name="company_size"/);
+    expect(html).toMatch(/<textarea[^>]*name="message"[^>]*required/);
+    expect(html).toContain("Send enquiry");
+  });
+
+  it("has a hidden honeypot that people and autofill skip", () => {
+    const honeypot = contact().match(/<input[^>]*name="website"[^>]*>/)?.[0] ?? "";
+    expect(honeypot).toContain('tabindex="-1"');
+    expect(honeypot).toContain('autocomplete="off"');
+    expect(contact()).toMatch(/aria-hidden="true"[^>]*>[^]*?name="website"/);
+  });
+
+  it("links the privacy notice next to the submit button", () => {
+    expect(contact()).toMatch(/<a[^>]*href="\/about\/"[^>]*>How we use your details<\/a>/);
+  });
+
+  it("uses the production Turnstile site key in production", () => {
+    expect(contact()).toContain('data-sitekey="0x4AAAAAAAFixtureProdKey"');
+    expect(contact()).toContain("challenges.cloudflare.com/turnstile/v0/api.js");
+  });
+
+  it("uses Turnstile's test key and the preview endpoint in a preview build", () => {
+    const previewOut = join(tmp, "preview");
+    const result = build(fixture, previewOut, ["--preview", "--form-endpoint", "http://localhost:8787/lead"]);
+    expect(result.status, result.stderr).toBe(0);
+    const html = readFileSync(join(previewOut, "contact/index.html"), "utf8");
+    expect(html).toContain('data-sitekey="1x00000000000000000000AA"');
+    expect(html).not.toContain("0x4AAAAAAAFixtureProdKey");
+    expect(html).toMatch(/<form[^>]*action="http:\/\/localhost:8787\/lead"/);
+  }, 120_000);
 });
 
 describe("building an invalid site", () => {

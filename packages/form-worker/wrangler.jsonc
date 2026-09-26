@@ -1,0 +1,20 @@
+{
+  // The form Worker (ADR-0013). One Worker serves every Client's forms; each Client's
+  // Lead Log is its own D1 database once there's more than Client #0 (M1).
+  "name": "msp-form-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "d1_databases": [
+    {
+      "binding": "LEAD_LOG",
+      "database_name": "lead-log-client-zero",
+      // Set when the database is created in Cloudflare (with a location hint near India, ADR-0029).
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://client-zero.pages.dev"
+  }
+  // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY
+}

@@ -1,6 +1,6 @@
-import type { Cta, Page, SiteDefinition, Text } from "../../src/definition.ts";
+import type { Cta, Form, Page, SiteDefinition, Text } from "../../src/definition.ts";
 import { NOT_FOUND } from "../../src/constants.ts";
-import { site as loaded } from "virtual:msp/site";
+import { settings, site as loaded } from "virtual:msp/site";
 
 export const site: SiteDefinition = loaded;
 export const { default_language: defaultLanguage, languages } = site.meta;
@@ -24,3 +24,30 @@ export function ctaHref(cta: Cta, lang: string): string {
 }
 
 export const ctaById = (id: string) => site.ctas.find((c) => c.id === id)!;
+
+// Everything a form component needs, resolved for one language and this build's settings.
+export function formProps(id: string, lang: string) {
+  const form: Form = site.forms.find((f) => f.id === id)!;
+  return {
+    id: form.id,
+    formType: form.form_type,
+    endpoint: settings.formEndpoint ?? form.endpoint,
+    siteKey: settings.turnstileSiteKey!,
+    language: lang,
+    fields: form.fields.map((f) => ({
+      name: f.name,
+      type: f.type,
+      label: t(f.label, lang),
+      required: f.required ?? false,
+      autocomplete: f.autocomplete,
+      options: f.options?.map((o) => ({ value: o.value, label: t(o.label, lang) })),
+    })),
+    submit: t(form.submit, lang),
+    success: t(form.success, lang),
+    error: t(form.error, lang),
+    privacyHref: pagePath(pageById(form.privacy_page), lang),
+    privacyNotice: t(form.privacy_notice, lang),
+  };
+}
+
+export type FormProps = ReturnType<typeof formProps>;

@@ -32,6 +32,26 @@ pnpm build:site clients/client-zero/site dist/client-zero
 - The schemas are in `packages/site-builder/schema/`.
 - Section components and their Section Variants are listed in `packages/components/src/catalog.ts`. A site definition can only use what's listed there.
 
+## Running the form Worker locally
+
+```bash
+cd packages/form-worker
+pnpm exec wrangler d1 migrations apply LEAD_LOG --local
+pnpm exec wrangler dev --port 8787 \
+  --var ALLOWED_ORIGINS:http://127.0.0.1:4321 \
+  --var TURNSTILE_SECRET_KEY:1x0000000000000000000000000000000AA
+```
+
+Then build a preview that posts to it, and serve it on port 4321:
+
+```bash
+pnpm build:site clients/client-zero/site dist/client-zero --preview --form-endpoint http://localhost:8787/lead
+```
+
+- A `--preview` build always uses Turnstile's test site key (ADR-0028).
+- `--form-endpoint` replaces each form's production endpoint.
+- To look at the stored Leads: `pnpm exec wrangler d1 execute LEAD_LOG --local --command "SELECT * FROM leads"`.
+
 ## Deploying
 
 The `Deploy` workflow runs on every push:
@@ -55,7 +75,13 @@ Until the secrets exist, the workflow deploys nothing and says so in the run.
 These were chosen at build time (ticket 20), against the criteria in the M0 spec.
 
 - **pnpm workspaces:** one install and one lockfile for all packages. Shared code is linked, not published (ADR-0003).
-- **Vitest:** one runner for every seam, with one project per package. It's Vite-based like Astro, and it has a Cloudflare Workers pool for the form Worker.
+- **Vitest:** one runner for every seam, with one project per package. It's Vite-based like Astro.
+- **Miniflare 4 (stable, pinned)** for the form Worker's tests (ticket 22):
+  - the tests bundle the real Worker with esbuild and run it in Cloudflare's local runtime, with a local D1 Lead Log
+  - outside services (Turnstile, Brevo) are faked at their HTTP boundary
+  - Cloudflare's Vitest Workers pool isn't used, because it doesn't support Vitest 5 yet
+  - Miniflare 5, which wrangler bundles, is still an alpha
+  - the Worker's `compatibility_date` must be one the pinned Miniflare runtime supports
 - **gitleaks** for the secrets scan (issue 19 #2):
   - it runs offline in the pre-commit hook
   - it has a maintained default ruleset, including a Brevo key rule

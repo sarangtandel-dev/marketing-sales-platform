@@ -1,10 +1,11 @@
 ---
+import ContactForm from "@msp/components/ContactForm.astro";
 import Hero from "@msp/components/Hero.astro";
 import type { Section } from "../../src/definition.ts";
-import { ctaById, ctaHref, t } from "../lib/site";
+import { ctaById, ctaHref, formProps, t } from "../lib/site";
 
 // Maps each catalogued component name to its implementation.
-const components = { hero: Hero } as const;
+const components = { hero: Hero, "contact-form": ContactForm } as const;
 
 interface Props {
   section: Section;
@@ -21,4 +22,9 @@ const ctas = (section.ctas ?? []).map(ctaById).map((cta) => ({
   href: ctaHref(cta, lang),
 }));
 ---
-<Component variant={section.variant} text={text} ctas={ctas} />
+<Component
+  variant={section.variant as never}
+  text={text}
+  ctas={ctas}
+  form={section.form ? formProps(section.form, lang) : undefined}
+/>

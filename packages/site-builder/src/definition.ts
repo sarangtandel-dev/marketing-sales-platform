@@ -15,6 +15,28 @@ export type Section = {
   variant: string;
   text?: Record<string, Text>;
   ctas?: string[];
+  form?: string;
+};
+
+export type Field = {
+  name: string;
+  type: "text" | "email" | "tel" | "textarea" | "select";
+  label: Text;
+  required?: boolean;
+  autocomplete?: string;
+  options?: { value: string; label: Text }[];
+};
+
+export type Form = {
+  id: string;
+  form_type: string;
+  fields: Field[];
+  endpoint: string;
+  submit: Text;
+  success: Text;
+  error: Text;
+  privacy_page: string;
+  privacy_notice: Text;
 };
 
 export type Page = {
@@ -43,10 +65,11 @@ export type SiteDefinition = {
     default_language: string;
     languages: string[];
     version: string;
+    turnstile_site_key?: string;
   };
   pages: Page[];
   ctas: Cta[];
-  forms: { id: string; form_type: string }[];
+  forms: Form[];
   navigation: { page: string; label: Text }[];
   footer: { text: Text };
   tracking: { gtm?: string; ga4?: string; consent_tool?: string };
@@ -157,16 +180,22 @@ function componentIssues(site: SiteDefinition): Issue[] {
 function referenceIssues(site: SiteDefinition): Issue[] {
   const pageIds = new Set(site.pages.map((p) => p.id));
   const ctaIds = new Set(site.ctas.map((c) => c.id));
+  const formIds = new Set(site.forms.map((f) => f.id));
   const issues: Issue[] = [];
   const need = (ids: Set<string>, kind: string, id: string, path: string) => {
     if (!ids.has(id)) issues.push({ path, message: `no ${kind} with id "${id}"` });
   };
 
   site.pages.forEach((page, p) =>
-    page.sections.forEach((section, s) =>
-      section.ctas?.forEach((id, c) => need(ctaIds, "CTA", id, `/pages/${p}/sections/${s}/ctas/${c}`)),
-    ),
+    page.sections.forEach((section, s) => {
+      section.ctas?.forEach((id, c) => need(ctaIds, "CTA", id, `/pages/${p}/sections/${s}/ctas/${c}`));
+      if (section.form) need(formIds, "form", section.form, `/pages/${p}/sections/${s}/form`);
+    }),
   );
+  site.forms.forEach((form, f) => need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`));
+  if (site.forms.length && !site.meta.turnstile_site_key) {
+    issues.push({ path: "/meta", message: "needs turnstile_site_key because the site has forms (ADR-0028)" });
+  }
   site.ctas.forEach((cta, c) => {
     if ("page" in cta.target) need(pageIds, "page", cta.target.page, `/ctas/${c}/target/page`);
     if (cta.fallback) need(ctaIds, "CTA", cta.fallback, `/ctas/${c}/fallback`);
@@ -179,6 +208,7 @@ function referenceIssues(site: SiteDefinition): Issue[] {
     });
   duplicates(site.pages.map((p) => p.id), "/pages");
   duplicates(site.ctas.map((c) => c.id), "/ctas");
+  duplicates(site.forms.map((f) => f.id), "/forms");
   return issues;
 }
 

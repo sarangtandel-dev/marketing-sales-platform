@@ -1,0 +1,171 @@
+---
+// Contact form section. Variant: "stacked" (one field per row).
+// Posts JSON to the form Worker (ADR-0013); success is shown only when the Worker
+// confirms the Lead Log write. A retry reuses the same submission token, so the
+// Worker maps it to the same lead ID instead of creating a second Lead.
+interface Props {
+  variant: "stacked";
+  text: { heading?: string; body?: string };
+  form?: {
+    id: string;
+    formType: string;
+    endpoint: string;
+    siteKey: string;
+    language: string;
+    fields: {
+      name: string;
+      type: "text" | "email" | "tel" | "textarea" | "select";
+      label: string;
+      required: boolean;
+      autocomplete?: string;
+      options?: { value: string; label: string }[];
+    }[];
+    submit: string;
+    success: string;
+    error: string;
+    privacyHref: string;
+    privacyNotice: string;
+  };
+}
+
+const { text, form } = Astro.props;
+if (!form) throw new Error("contact-form section needs a form");
+const fieldId = (name: string) => `${form.id}-${name}`;
+---
+<section class="px-4 py-section">
+  <div class="mx-auto max-w-xl">
+    {text.heading && <h2 class="font-heading text-3xl">{text.heading}</h2>}
+    {text.body && <p class="mt-3 text-muted">{text.body}</p>}
+
+    <form
+      class="mt-8 grid gap-5"
+      method="post"
+      action={form.endpoint}
+      data-msp-form
+      data-form-id={form.id}
+      data-form-type={form.formType}
+      data-language={form.language}
+      data-success={form.success}
+      data-error={form.error}
+    >
+      {form.fields.map((field) => (
+        <div class="grid gap-1.5">
+          <label class="font-medium" for={fieldId(field.name)}>{field.label}</label>
+          {field.type === "textarea" ? (
+            <textarea
+              class="rounded-card border border-on-surface/20 bg-surface px-3 py-2"
+              id={fieldId(field.name)}
+              name={field.name}
+              rows="5"
+              required={field.required}
+              maxlength="5000"
+            />
+          ) : field.type === "select" ? (
+            <select
+              class="rounded-card border border-on-surface/20 bg-surface px-3 py-2"
+              id={fieldId(field.name)}
+              name={field.name}
+              required={field.required}
+            >
+              <option value="" />
+              {field.options?.map((o) => <option value={o.value}>{o.label}</option>)}
+            </select>
+          ) : (
+            <input
+              class="rounded-card border border-on-surface/20 bg-surface px-3 py-2"
+              id={fieldId(field.name)}
+              name={field.name}
+              type={field.type}
+              required={field.required}
+              autocomplete={field.autocomplete}
+              maxlength="500"
+            />
+          )}
+        </div>
+      ))}
+
+      <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+        <label for={fieldId("website")}>Website</label>
+        <input id={fieldId("website")} name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="cf-turnstile" data-sitekey={form.siteKey}></div>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <button
+          class="rounded-card bg-primary px-6 py-3 font-medium text-on-primary shadow-card disabled:opacity-60"
+          type="submit"
+        >
+          {form.submit}
+        </button>
+        <a class="text-sm text-muted underline" href={form.privacyHref}>{form.privacyNotice}</a>
+      </div>
+
+      <p class="text-sm" role="status" aria-live="polite" data-form-status></p>
+    </form>
+  </div>
+</section>
+
+<!-- No SRI hash: Cloudflare updates api.js in place and requires loading it from their domain. -->
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  type Turnstile = { reset: (el?: Element) => void; remove: (el?: Element) => void };
+  const turnstile = () => (window as unknown as { turnstile?: Turnstile }).turnstile;
+
+  for (const form of document.querySelectorAll<HTMLFormElement>("form[data-msp-form]")) {
+    // One token per attempt at this enquiry; kept across retries so the Worker de-duplicates.
+    let submissionToken = crypto.randomUUID();
+    const status = form.querySelector<HTMLElement>("[data-form-status]")!;
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const fields: Record<string, string> = {};
+      for (const [name, value] of data) {
+        if (name === "website" || name === "cf-turnstile-response") continue;
+        if (typeof value === "string" && value !== "") fields[name] = value;
+      }
+
+      button.disabled = true;
+      status.textContent = "";
+      let ok = false;
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            form_id: form.dataset.formId,
+            form_type: form.dataset.formType,
+            submission_token: submissionToken,
+            fields,
+            honeypot: String(data.get("website") ?? ""),
+            turnstile_token: String(data.get("cf-turnstile-response") ?? ""),
+            page_url: location.href,
+            language: form.dataset.language,
+          }),
+        });
+        ok = res.ok && (await res.json()).ok === true;
+      } catch {
+        ok = false;
+      }
+
+      const widget = form.querySelector(".cf-turnstile") ?? undefined;
+      if (ok) {
+        turnstile()?.remove(widget);
+        form.replaceChildren(Object.assign(document.createElement("p"), {
+          className: "text-lg",
+          textContent: form.dataset.success ?? "",
+        }));
+        form.setAttribute("role", "status");
+        submissionToken = crypto.randomUUID();
+        return;
+      }
+      status.textContent = form.dataset.error ?? "";
+      button.disabled = false;
+      // Turnstile tokens are single-use, so each retry needs a fresh one.
+      turnstile()?.reset(widget);
+    });
+  }
+</script>

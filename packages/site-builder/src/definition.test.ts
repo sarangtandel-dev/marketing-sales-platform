@@ -97,6 +97,33 @@ describe("validateSiteDefinition", () => {
     });
   });
 
+  it("rejects a section that points at a form that doesn't exist", () => {
+    const s = site();
+    s.pages[2].sections[0].form = "missing-form";
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/pages/2/sections/0/form",
+      message: expect.stringContaining("missing-form"),
+    });
+  });
+
+  it("requires a privacy page that exists for every form", () => {
+    const s = site();
+    s.forms[0].privacy_page = "nowhere";
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/forms/0/privacy_page",
+      message: expect.stringContaining("nowhere"),
+    });
+  });
+
+  it("requires a Turnstile site key when the site has forms", () => {
+    const s = site();
+    delete s.meta.turnstile_site_key;
+    expect(validateSiteDefinition(s)).toContainEqual({
+      path: "/meta",
+      message: expect.stringContaining("turnstile_site_key"),
+    });
+  });
+
   it("rejects a CTA Type outside ADR-0023's list", () => {
     const s = site();
     s.ctas[0].type = "buy_now";

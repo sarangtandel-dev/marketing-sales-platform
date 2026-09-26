@@ -3,22 +3,67 @@
   "$id": "https://msp.local/schema/site-definition.schema.json",
   "title": "Site definition (M0 minimal subset, ADR-0034)",
   "type": "object",
-  "required": ["meta", "pages", "ctas", "forms", "navigation", "footer", "tracking"],
+  "required": [
+    "meta",
+    "pages",
+    "ctas",
+    "forms",
+    "navigation",
+    "footer",
+    "tracking"
+  ],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
+    "$schema": {
+      "type": "string"
+    },
     "meta": {
       "type": "object",
-      "required": ["schema_version", "client", "site_url", "theme", "default_language", "languages", "version"],
+      "required": [
+        "schema_version",
+        "client",
+        "site_url",
+        "theme",
+        "default_language",
+        "languages",
+        "version"
+      ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": { "const": 1 },
-        "client": { "$ref": "#/$defs/slug" },
-        "site_url": { "type": "string", "pattern": "^https://[^/]+$" },
-        "theme": { "type": "string", "minLength": 1 },
-        "default_language": { "$ref": "#/$defs/language" },
-        "languages": { "type": "array", "items": { "$ref": "#/$defs/language" }, "minItems": 1, "uniqueItems": true },
-        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+        "schema_version": {
+          "const": 1
+        },
+        "client": {
+          "$ref": "#/$defs/slug"
+        },
+        "site_url": {
+          "type": "string",
+          "pattern": "^https://[^/]+$"
+        },
+        "theme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default_language": {
+          "$ref": "#/$defs/language"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/language"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "turnstile_site_key": {
+          "description": "Production Turnstile widget site key (ADR-0028). Preview builds always use Turnstile's test key.",
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "pages": {
@@ -26,28 +71,56 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "type", "slug", "seo", "sections"],
+        "required": [
+          "id",
+          "type",
+          "slug",
+          "seo",
+          "sections"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "$ref": "#/$defs/id" },
-          "type": { "type": "string", "minLength": 1 },
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
           "slug": {
             "type": "object",
             "x-localized": true,
-            "propertyNames": { "$ref": "#/$defs/language" },
-            "additionalProperties": { "type": "string", "pattern": "^([a-z0-9]+(-[a-z0-9]+)*)?(/[a-z0-9]+(-[a-z0-9]+)*)*$" },
+            "propertyNames": {
+              "$ref": "#/$defs/language"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^([a-z0-9]+(-[a-z0-9]+)*)?(/[a-z0-9]+(-[a-z0-9]+)*)*$"
+            },
             "minProperties": 1
           },
           "seo": {
             "type": "object",
-            "required": ["title", "description"],
+            "required": [
+              "title",
+              "description"
+            ],
             "additionalProperties": false,
             "properties": {
-              "title": { "$ref": "#/$defs/text" },
-              "description": { "$ref": "#/$defs/text" }
+              "title": {
+                "$ref": "#/$defs/text"
+              },
+              "description": {
+                "$ref": "#/$defs/text"
+              }
             }
           },
-          "sections": { "type": "array", "items": { "$ref": "#/$defs/section" } }
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/section"
+            }
+          }
         }
       }
     },
@@ -55,22 +128,68 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "type", "label", "target"],
+        "required": [
+          "id",
+          "type",
+          "label",
+          "target"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "$ref": "#/$defs/id" },
-          "type": {
-            "enum": ["call", "message", "email", "book", "quote_request", "consultation_request", "demo_request", "visit"]
+          "id": {
+            "$ref": "#/$defs/id"
           },
-          "channel": { "type": "string", "minLength": 1 },
-          "label": { "$ref": "#/$defs/text" },
-          "target": {
-            "oneOf": [
-              { "type": "object", "required": ["page"], "additionalProperties": false, "properties": { "page": { "$ref": "#/$defs/id" } } },
-              { "type": "object", "required": ["href"], "additionalProperties": false, "properties": { "href": { "type": "string", "pattern": "^(https://|mailto:|tel:)" } } }
+          "type": {
+            "enum": [
+              "call",
+              "message",
+              "email",
+              "book",
+              "quote_request",
+              "consultation_request",
+              "demo_request",
+              "visit"
             ]
           },
-          "fallback": { "$ref": "#/$defs/id" }
+          "channel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "$ref": "#/$defs/text"
+          },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "page"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "page": {
+                    "$ref": "#/$defs/id"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "pattern": "^(https://|mailto:|tel:)"
+                  }
+                }
+              }
+            ]
+          },
+          "fallback": {
+            "$ref": "#/$defs/id"
+          }
         }
       }
     },
@@ -78,15 +197,59 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "form_type", "fields", "endpoint", "success"],
+        "required": [
+          "id",
+          "form_type",
+          "fields",
+          "endpoint",
+          "submit",
+          "success",
+          "error",
+          "privacy_page",
+          "privacy_notice"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "$ref": "#/$defs/id" },
-          "form_type": { "type": "string", "minLength": 1 },
-          "fields": { "type": "array", "items": { "type": "object" } },
-          "opt_ins": { "type": "array", "items": { "type": "object" } },
-          "endpoint": { "type": "string", "minLength": 1 },
-          "success": { "$ref": "#/$defs/text" }
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "form_type": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/field"
+            }
+          },
+          "opt_ins": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "endpoint": {
+            "description": "The production Worker endpoint. Preview builds can override it.",
+            "type": "string",
+            "pattern": "^https://"
+          },
+          "submit": {
+            "$ref": "#/$defs/text"
+          },
+          "success": {
+            "$ref": "#/$defs/text"
+          },
+          "error": {
+            "$ref": "#/$defs/text"
+          },
+          "privacy_page": {
+            "$ref": "#/$defs/id"
+          },
+          "privacy_notice": {
+            "$ref": "#/$defs/text"
+          }
         }
       }
     },
@@ -94,63 +257,202 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["page", "label"],
+        "required": [
+          "page",
+          "label"
+        ],
         "additionalProperties": false,
         "properties": {
-          "page": { "$ref": "#/$defs/id" },
-          "label": { "$ref": "#/$defs/text" }
+          "page": {
+            "$ref": "#/$defs/id"
+          },
+          "label": {
+            "$ref": "#/$defs/text"
+          }
         }
       }
     },
     "footer": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false,
-      "properties": { "text": { "$ref": "#/$defs/text" } }
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/text"
+        }
+      }
     },
     "tracking": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "gtm": { "type": "string", "pattern": "^GTM-[A-Z0-9]+$" },
-        "ga4": { "type": "string", "pattern": "^G-[A-Z0-9]+$" },
-        "consent_tool": { "type": "string", "minLength": 1 }
+        "gtm": {
+          "type": "string",
+          "pattern": "^GTM-[A-Z0-9]+$"
+        },
+        "ga4": {
+          "type": "string",
+          "pattern": "^G-[A-Z0-9]+$"
+        },
+        "consent_tool": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "redirects": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["from", "to"],
+        "required": [
+          "from",
+          "to"
+        ],
         "additionalProperties": false,
         "properties": {
-          "from": { "type": "string", "pattern": "^/" },
-          "to": { "type": "string", "pattern": "^/" }
+          "from": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^/"
+          }
         }
       }
     }
   },
   "$defs": {
-    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
-    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
-    "language": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+    },
     "text": {
       "description": "Visitor-facing text, keyed by language (ADR-0004).",
       "type": "object",
       "x-localized": true,
-      "propertyNames": { "$ref": "#/$defs/language" },
-      "additionalProperties": { "type": "string", "minLength": 1 },
+      "propertyNames": {
+        "$ref": "#/$defs/language"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
       "minProperties": 1
     },
     "section": {
       "type": "object",
-      "required": ["component", "variant"],
+      "required": [
+        "component",
+        "variant"
+      ],
       "additionalProperties": false,
       "properties": {
-        "component": { "type": "string", "minLength": 1 },
-        "variant": { "type": "string", "minLength": 1 },
-        "text": { "type": "object", "additionalProperties": { "$ref": "#/$defs/text" } },
-        "ctas": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "ctas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "form": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "not": {
+            "enum": [
+              "website"
+            ]
+          }
+        },
+        "type": {
+          "enum": [
+            "text",
+            "email",
+            "tel",
+            "textarea",
+            "select"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "autocomplete": {
+          "type": "string",
+          "pattern": "^[a-z- ]+$"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "type": {
+            "const": "select"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "options"
+        ]
       }
     }
   }

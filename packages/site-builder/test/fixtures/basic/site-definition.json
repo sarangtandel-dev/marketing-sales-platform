@@ -8,7 +8,8 @@
     "languages": [
       "en"
     ],
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "turnstile_site_key": "0x4AAAAAAAFixtureProdKey"
   },
   "pages": [
     {
@@ -73,6 +74,33 @@
       ]
     },
     {
+      "id": "contact",
+      "type": "contact",
+      "slug": {
+        "en": "contact"
+      },
+      "seo": {
+        "title": {
+          "en": "Contact Fixture Co"
+        },
+        "description": {
+          "en": "Ask us about a project."
+        }
+      },
+      "sections": [
+        {
+          "component": "contact-form",
+          "variant": "stacked",
+          "text": {
+            "heading": {
+              "en": "Tell us about your project"
+            }
+          },
+          "form": "contact"
+        }
+      ]
+    },
+    {
       "id": "not-found",
       "type": "not-found",
       "slug": {
@@ -127,7 +155,75 @@
       }
     }
   ],
-  "forms": [],
+  "forms": [
+    {
+      "id": "contact",
+      "form_type": "consultation_request",
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "label": {
+            "en": "Your name"
+          },
+          "required": true,
+          "autocomplete": "name"
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "label": {
+            "en": "Work email"
+          },
+          "required": true,
+          "autocomplete": "email"
+        },
+        {
+          "name": "company_size",
+          "type": "select",
+          "label": {
+            "en": "Company size"
+          },
+          "options": [
+            {
+              "value": "1-10",
+              "label": {
+                "en": "1–10"
+              }
+            },
+            {
+              "value": "11-50",
+              "label": {
+                "en": "11–50"
+              }
+            }
+          ]
+        },
+        {
+          "name": "message",
+          "type": "textarea",
+          "label": {
+            "en": "What do you need?"
+          },
+          "required": true
+        }
+      ],
+      "endpoint": "https://forms.example.test/lead",
+      "submit": {
+        "en": "Send enquiry"
+      },
+      "success": {
+        "en": "Thanks — we'll reply within one working day."
+      },
+      "error": {
+        "en": "Sorry, that didn't send. Please try again."
+      },
+      "privacy_page": "about",
+      "privacy_notice": {
+        "en": "How we use your details"
+      }
+    }
+  ],
   "navigation": [
     {
       "page": "home",

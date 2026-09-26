@@ -42,9 +42,9 @@
   ],
   "mainPath": [
     "design",
-    "decisions",
-    "spec",
-    "build",
+    "plan",
+    "built",
+    "human",
     "launch",
     "live"
   ],
@@ -60,30 +60,32 @@
       "width": 112
     },
     {
-      "id": "decisions",
+      "id": "plan",
       "lane": "done",
       "col": 1,
       "type": "backend",
-      "label": "M0 decisions",
-      "sublabel": "issue 19",
-      "tag": "2026-09-27"
-    },
-    {
-      "id": "spec",
-      "lane": "m0",
-      "col": 2,
-      "type": "frontend",
       "label": "M0 spec",
-      "sublabel": "/to-spec",
-      "tag": "next"
+      "sublabel": "decisions · tickets",
+      "width": 112
     },
     {
-      "id": "build",
+      "id": "built",
+      "lane": "done",
+      "col": 2,
+      "type": "backend",
+      "label": "M0 code built",
+      "sublabel": "13 agent tickets",
+      "tag": "2026-09-27",
+      "width": 112
+    },
+    {
+      "id": "human",
       "lane": "m0",
       "col": 3,
       "type": "frontend",
-      "label": "M0 build",
-      "sublabel": "site · Worker · tracking",
+      "label": "Human work",
+      "sublabel": "Theme · copy · privacy",
+      "tag": "next",
       "width": 112
     },
     {
@@ -91,8 +93,8 @@
       "lane": "m0",
       "col": 4,
       "type": "security",
-      "label": "Launch gate",
-      "sublabel": "manual checklist",
+      "label": "Launch (36)",
+      "sublabel": "accounts · checklist",
       "tag": "human"
     },
     {
@@ -133,23 +135,23 @@
   "edges": [
     {
       "from": "design",
-      "to": "decisions",
+      "to": "plan",
       "fromSide": "right",
       "toSide": "left"
     },
     {
-      "from": "decisions",
-      "to": "spec",
+      "from": "plan",
+      "to": "built",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "built",
+      "to": "human",
       "variant": "emphasis"
     },
     {
-      "from": "spec",
-      "to": "build",
-      "fromSide": "right",
-      "toSide": "left"
-    },
-    {
-      "from": "build",
+      "from": "human",
       "to": "launch",
       "fromSide": "right",
       "toSide": "left"
@@ -187,17 +189,17 @@
   ],
   "cards": [
     {
-      "dot": "amber",
-      "title": "Open issues (19)",
+      "dot": "emerald",
+      "title": "Built (13 of 17 tickets)",
       "items": [
-        "16 ready-for-agent · 2 ready-for-human (12, 17) · 1 needs-triage (15)"
+        "20–29, 31, 32, 35 · 160 tests · preview deploy waits on Cloudflare setup"
       ]
     },
     {
-      "dot": "emerald",
-      "title": "M0 launch gate",
+      "dot": "amber",
+      "title": "Open issues (23)",
       "items": [
-        "Claims vs facts file · alt text, rights, contrast · privacy policy reviewed"
+        "Human: 30, 33, 34, 36 · 12, 17 · Agent: 01–11, 13, 14, 16, 18, 19 · Triage: 15"
       ]
     }
   ]

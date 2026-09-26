@@ -19,4 +19,4 @@ We rejected putting industry rules in region config, because it would mix every 
 
 ## Milestone
 
-M2 (Client #0 is not regulated). See ADR-0039.
+M1 if the first paying Client is in a Regulated Pack, otherwise M2. See ADR-0039.

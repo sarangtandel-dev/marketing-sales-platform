@@ -25,4 +25,4 @@ status: accepted
 
 ## Milestone
 
-M1: pack versions and pinning. Pack upgrade workflow: DESIGNED. See ADR-0039.
+M1. Pack upgrade workflow: DESIGNED. See ADR-0039.

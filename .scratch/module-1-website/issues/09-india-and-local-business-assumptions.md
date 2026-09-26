@@ -39,3 +39,5 @@ Each item either moves into Region config or Category Pack config, or is removed
   - Zoho as the default mailbox
   - the Mon–Sat send window
   - GDPR+DPDP as the only privacy regimes
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M1** (region config). M0 hard-codes India formats for our own site only.

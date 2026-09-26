@@ -31,4 +31,4 @@ status: accepted
 
 ## Milestone
 
-M1: B2B CTA types plus the form fallback. M2: the `call` business-hours rule. `purchase`: DESIGNED. See ADR-0039.
+M0: the CTA types our site uses, written directly in the site definition. M1: CTA resolution from pack, Region and Facts. M2: the `call` business-hours rule, unless the first paying Client needs it. `purchase`: DESIGNED. See ADR-0039.

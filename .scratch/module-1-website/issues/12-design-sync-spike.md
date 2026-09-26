@@ -17,3 +17,5 @@ Source: ADR-0019, 2026-09-17
 - ADR-0019 becomes `accepted`, or switches to the fallback of exporting specs and converting them to tokens by hand.
 
 2026-09-17, milestones (ADR-0039): Milestone M1. This blocks the Theme for Client #0.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: Optional for M0: if it isn't done, the M0 Theme is exported by hand. **Required in M1.**

@@ -14,3 +14,5 @@ Cloudflare Pages allows 100 projects per account. With one project per Client (A
 - The trigger point: review at 70 Clients.
 
 2026-09-17, milestones (ADR-0039): DESIGNED. Review at 70 Clients.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **DESIGNED.** Review at 70 Clients.

@@ -17,3 +17,5 @@ Source: file audit, 2026-09-17
 2026-09-17: decided in ADR-0022. A shared list of click IDs, stored in both first and last touch.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**

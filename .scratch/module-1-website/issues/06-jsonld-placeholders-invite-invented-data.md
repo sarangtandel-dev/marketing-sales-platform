@@ -28,3 +28,5 @@ Any placeholder that is filled without a Publishable Fact breaks ADR-0007.
 - There is never any Review/AggregateRating markup unless it comes from a verified source and follows Google's self-serving review policy.
 
 2026-09-17, milestones (ADR-0039): Milestone M1. Client #0 is professional/B2B, so M1 needs `Organization`/`ProfessionalService`, `Service` and `FAQPage`, generated only from Publishable Facts. `LocalBusiness` (local presence) is M2.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M1.** M0 has no derived structured data. If M0 adds any JSON-LD by hand, it must follow this issue's rules.

@@ -163,7 +163,7 @@ _Avoid_: Lead database, audit sheet, CRM
 ### Delivery
 
 **Milestone**:
-A shippable slice of version 1. M1 is Client #0 live end to end. M2 is the first paying Client, with the remaining packs and Regions.
+A shippable slice of version 1. M0 gets Client #0 live with minimal machinery. M1 is triggered by the first paying Client and builds the pipeline. M2 adds the remaining packs, Regions and automation for scale.
 _Avoid_: Phase (reserved for the Phase 0 rented-tool setup), release
 
 ## Relationships

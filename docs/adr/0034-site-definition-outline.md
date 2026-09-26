@@ -41,4 +41,4 @@ status: accepted
 
 ## Milestone
 
-M1 See ADR-0039.
+M0: the minimal subset (pages, sections, variants, CTAs, forms, language-keyed text), plus 404, sitemap and robots. Preview deployments are noindex by Cloudflare default. M1: the full outline (Fact and Media references, meaning check, claim check, generated legal pages, accessibility statement, derived structured data). See ADR-0039.

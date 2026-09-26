@@ -49,4 +49,4 @@ This pack widens **Permission Record** to cover any named person *or organisatio
 
 ## Milestone
 
-M1 (Client #0). See ADR-0039.
+M1: the formal pack, informed by Client #0. M0 uses the same kinds of sections informally. See ADR-0039.

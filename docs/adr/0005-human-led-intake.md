@@ -8,4 +8,4 @@ A person on our team completes the intake form with the Client. The Client does 
 
 ## Milestone
 
-M1 See ADR-0039.
+M1. Client #0 intake is informal in M0. See ADR-0039.

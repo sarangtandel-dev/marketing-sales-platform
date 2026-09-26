@@ -6,7 +6,7 @@ status: accepted
 
 **Sections cite Fact IDs.** Each build pulls in the current values and applies the publishing rules (ADR-0007).
 
-**When a site rebuilds** (from M2; in M1 an expiry check is run by hand before every deploy, per ADR-0038):
+**When a site rebuilds** (from M2. In M1 an expiry check is run by hand before every deploy, per ADR-0038. M0 has no Fact references.):
 
 - A scheduled job rebuilds a Client **only** when one of its Facts has changed or reached its Refresh-by Date.
 - There are no blanket daily rebuilds. At 100 Clients those would use about 3,000 builds a month, which is above the Pro plan's share once normal deploys are added (see ADR-0003 for the plan limits).
@@ -24,4 +24,4 @@ We rejected copying Fact values into the site definition. Copies drift from the 
 
 ## Milestone
 
-M1: Fact references, the publishing rules, and an expiry check run by hand before every deploy. M2: scheduled rebuild job. See ADR-0039.
+M1: Fact references, build-enforced publishing, and the manual expiry command. Client #0's site definition is migrated to Fact references then. M2: scheduled rebuild job. M0 site definitions hold text directly. See ADR-0039.

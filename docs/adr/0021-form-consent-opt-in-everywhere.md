@@ -25,4 +25,4 @@ We rejected opt-out defaults where the law allows them. One form component and o
 
 ## Milestone
 
-M1: email opt-in. SMS, WhatsApp and double opt-in: DESIGNED until a Client needs them. See ADR-0039.
+M0: unticked email marketing opt-in, with the wording version stored. SMS, WhatsApp and double opt-in: DESIGNED until a Client needs them. See ADR-0039.

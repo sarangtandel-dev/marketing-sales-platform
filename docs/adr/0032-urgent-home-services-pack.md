@@ -54,4 +54,4 @@ status: accepted
 
 ## Milestone
 
-M2. Dynamic number swapping: DESIGNED. See ADR-0039.
+M1 if the first paying Client is in urgent home services, otherwise M2. Dynamic number swapping: DESIGNED. See ADR-0039.

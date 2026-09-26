@@ -33,4 +33,4 @@ Preview deployments use test keys and are noindex.
 
 ## Milestone
 
-M1: version tags, `changes.yaml`, preview approvals, rollback. M2: screenshot comparison across Clients. See ADR-0039.
+M0: git history and Pages rollback; our team approves. M1: `changes.yaml`, version tags and the Client approval flow. M2: screenshot comparison. See ADR-0039.

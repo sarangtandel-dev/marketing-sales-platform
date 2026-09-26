@@ -16,3 +16,5 @@ If Brevo won't sign a BAA, decide which of these applies:
 Blocks onboarding US dental Clients.
 
 2026-09-17, milestones (ADR-0039): Milestone M2. Only needed before any US dental Client.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M1** if the first paying Client is a US dental clinic, otherwise **M2**.

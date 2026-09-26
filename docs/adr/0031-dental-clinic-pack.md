@@ -70,4 +70,4 @@ This pack is **regulated** (ADR-0030).
 
 ## Milestone
 
-M2. US dental Clients are blocked by issue 16. See ADR-0039.
+M1 if the first paying Client is a dental clinic, otherwise M2. US dental Clients are blocked by issue 16. See ADR-0039.

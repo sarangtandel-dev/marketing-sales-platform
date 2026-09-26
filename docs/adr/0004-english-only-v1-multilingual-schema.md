@@ -8,4 +8,4 @@ Version 1 sites publish English only. From day one, the knowledge base and site 
 
 ## Milestone
 
-M1: language-keyed schema and the language-key build check. Publishing a second language (`/<lang>/` routes, hreflang): DESIGNED. See ADR-0039.
+M0: language-keyed text in the minimal site definition schema. M1: the language-key build check. Publishing a second language: DESIGNED. See ADR-0039.

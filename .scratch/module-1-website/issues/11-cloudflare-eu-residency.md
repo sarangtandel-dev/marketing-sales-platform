@@ -35,3 +35,5 @@ Suggested direction:
 2026-09-17: decided in ADR-0013. The Lead Log uses D1 with the `eu` jurisdiction, and KV and Queues are excluded. The default location for non-EU Clients is still open (Round 4).
 
 2026-09-17, milestones (ADR-0039): M1 uses a D1 location hint near India (ADR-0029). The EU jurisdiction path is DESIGNED, because no EU Served Region is planned. GB is not in the EU, so M2 GB Clients also use a location hint.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0:** D1 location hint near India. The EU path is DESIGNED.

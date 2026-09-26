@@ -42,4 +42,4 @@ Cloudflare requires an apex domain on Pages to be a zone in the same Cloudflare 
 
 ## Milestone
 
-M1: ownership split (Client #0 is us, so no DPA). M2: DPA with the first paying Client. Exit handover: DESIGNED (documented only). See ADR-0039.
+M0: Client #0 is us, so no DPA is needed. M1: DPA with the first paying Client. Exit handover: DESIGNED. See ADR-0039.

@@ -35,4 +35,4 @@ status: accepted
 
 ## Milestone
 
-M1, with the M2 items marked above.
+M1. In M0 everything is manual except the build, deploy, Worker and daily test submission. See ADR-0039.

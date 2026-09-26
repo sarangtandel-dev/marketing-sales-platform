@@ -31,4 +31,4 @@ Module 1 publishes versioned contracts in the monorepo covering the three areas 
 
 ## Milestone
 
-M1: **one combined contract file**, idempotent lead ID, Brevo delivery. Splitting it into three files when Module 2 starts: DESIGNED. Signed webhook: DESIGNED. See ADR-0039.
+M0: idempotent lead ID in the Worker. M1: one combined contract file. Splitting into three files, and the signed webhook: DESIGNED. See ADR-0039.

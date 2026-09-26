@@ -25,3 +25,5 @@ Parts worth reusing: the persistence logic, hidden field names, the honeypot, th
 Rewrite the docs, or archive them as Phase 0 and write the Module 1 docs fresh.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M1.** Not needed for Client #0 to go live.

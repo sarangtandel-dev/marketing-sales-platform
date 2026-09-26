@@ -32,3 +32,5 @@ Still open:
 - sending WhatsApp messages
 
 2026-09-17, milestones (ADR-0039): The spam check and Lead Log are M1 (ADR-0013). The intent webhook is replaced by `contact_click` events (ADR-0022). Deal-stage and meeting sync is Module 2. WhatsApp sending is DESIGNED.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0:** spam check, Lead Log, owner alert. The rest is unchanged.

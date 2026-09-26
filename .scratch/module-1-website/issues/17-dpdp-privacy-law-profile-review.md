@@ -12,3 +12,5 @@ Source: ADR-0014, ADR-0039, 2026-09-17
 ## Why it's for a person
 
 Legal review can't be done by an agent. Plan for the reviewer's lead time. This blocks the Client #0 launch (M1).
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M1.** M0 only needs our own privacy policy (issue 19). The full DPDP profile and its legal review come with region machinery in M1.

@@ -19,4 +19,4 @@ On-site purchase is out of scope for version 1.
 
 ## Milestone
 
-M1: professional/B2B pack. M2: dental and urgent home services. See ADR-0039.
+M1: the first paying Client's pack, plus the professional/B2B pack formalised from Client #0. M2: the remaining packs. See ADR-0039.

@@ -28,4 +28,4 @@ State and province configs inherit from their country and override only what dif
 
 ## Milestone
 
-M1: India (`IN`) region config and the DPDP Privacy Law Profile. M2: GB, US, US-CA. Other Regions: DESIGNED. See ADR-0039.
+M1: region config and Privacy Law Profile for India and for the first paying Client's Region. M2: other planned Regions (GB, US, US-CA) not already built. M0 has no region machinery; our own privacy policy is written by hand. See ADR-0039.

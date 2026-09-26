@@ -35,4 +35,4 @@ This replaces the Phase 0 snippet's behaviour, which stored contact details, wro
 
 ## Milestone
 
-M1 See ADR-0039.
+M0 (issues 01–05, 07, 14). See ADR-0039.

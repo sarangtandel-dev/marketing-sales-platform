@@ -26,4 +26,4 @@ status: accepted
 
 ## Milestone
 
-M1 for all eight skills and launch monitoring.
+M1. Each skill is built **only after its step has been done manually for a real Client at least once**. M0: the daily test form submission with an alert. Uptime checks: see issue 19. See ADR-0039.

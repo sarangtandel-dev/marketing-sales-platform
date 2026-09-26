@@ -22,4 +22,4 @@ _Not yet run._
 
 ## Milestone
 
-M1, after the `/design-sync` test (issue 12). See ADR-0039.
+M0: Theme tokens from Claude Design, exported by hand if the `/design-sync` test (issue 12) isn't done. M1: `/design-sync` and the automated contrast check. See ADR-0039.

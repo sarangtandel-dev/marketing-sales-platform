@@ -24,4 +24,4 @@ status: accepted
 
 ## Milestone
 
-M1: profile Facts for `sameAs`. M2: local listings audit. Listing APIs: DESIGNED. See ADR-0039.
+M1: profile Facts for `sameAs`. M2: local listings audit, unless the first paying Client is local. APIs: DESIGNED. See ADR-0039.

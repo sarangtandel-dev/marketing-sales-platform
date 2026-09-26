@@ -37,4 +37,4 @@ status: accepted
 
 ## Milestone
 
-M1, run by hand. Scheduled refresh: DESIGNED. See ADR-0039.
+M1. Scheduled refresh: DESIGNED. See ADR-0039.

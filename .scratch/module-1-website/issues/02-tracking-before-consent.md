@@ -18,3 +18,5 @@ Depends on the privacy and consent-by-region round.
 2026-09-17: decided in ADR-0020 and ADR-0022. In opt-in Regions, attribution storage waits for consent.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**

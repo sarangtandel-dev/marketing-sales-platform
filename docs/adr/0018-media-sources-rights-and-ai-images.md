@@ -28,4 +28,4 @@ status: accepted
 
 ## Milestone
 
-M1. Patient and treatment image consent: M2 (dental). See ADR-0039.
+M1: the automated alt-text and rights build check. In M0, alt text and rights are checked by hand (issue 19). See ADR-0039.

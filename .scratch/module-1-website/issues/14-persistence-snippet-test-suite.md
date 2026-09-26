@@ -22,3 +22,5 @@ The rewritten script ships with tests proving these rules:
 Build when the version 1 spec is written. No code during design.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**

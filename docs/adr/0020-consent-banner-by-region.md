@@ -33,4 +33,4 @@ We also rejected advanced Consent Mode in opt-in Regions. Its pings before conse
 
 ## Milestone
 
-M1: India behaviour. M2: GB (opt-in) and US/US-CA (opt-out, GPC). See ADR-0039.
+M0: **decision needed** (issue 19). GA4 and consent-gated tracking are in M0, so M0 needs a consent signal. M1: region-driven behaviour. M2: GB and US behaviour, unless the first paying Client needs them. See ADR-0039.

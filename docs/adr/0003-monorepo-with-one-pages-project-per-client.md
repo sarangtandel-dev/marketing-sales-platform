@@ -19,4 +19,4 @@ Cloudflare Pages limits (checked 2026-09-17, `developers.cloudflare.com/pages/pl
 
 ## Milestone
 
-M1. Scaling past 100 Clients per account: DESIGNED. See ADR-0039.
+M0. Scaling past 100 Clients per account: DESIGNED. See ADR-0039.

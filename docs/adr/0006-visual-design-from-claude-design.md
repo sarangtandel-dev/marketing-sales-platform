@@ -8,4 +8,4 @@ Each Client's visual design is produced in Claude Design and then turned into th
 
 ## Milestone
 
-M1 See ADR-0039.
+M0 See ADR-0039.

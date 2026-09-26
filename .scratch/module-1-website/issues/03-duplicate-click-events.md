@@ -17,3 +17,5 @@ Source: file audit, 2026-09-17
 2026-09-17: decided in ADR-0022. Site components are the only event source, and GTM only listens. Contact clicks become `contact_click` with a `channel` parameter.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**

@@ -8,4 +8,4 @@ Each Client has one Client Knowledge Base under `/clients/<slug>/`. Every module
 
 ## Milestone
 
-M1 See ADR-0039.
+M0: one facts file for Client #0. M1: the full knowledge base layout (ADR-0024). See ADR-0039.

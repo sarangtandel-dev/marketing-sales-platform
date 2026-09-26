@@ -44,4 +44,4 @@ Stable IDs matter because site definitions and later modules refer to Facts by I
 
 ## Milestone
 
-M1 See ADR-0039.
+M1. M0 uses a single facts file. See ADR-0039.

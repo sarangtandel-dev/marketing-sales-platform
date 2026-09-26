@@ -30,4 +30,4 @@ status: accepted
 
 ## Milestone
 
-M1: B2B page structure, plus a Redirect Map if our current domain has indexed URLs. M2: location and service-area pages. See ADR-0039.
+M0: the B2B page structure by hand, plus 404, `sitemap.xml` and `robots.txt`. Also a hand-written `_redirects` file if issue 18 finds indexed URLs. M1: the content-minimum check and Redirect Map enforcement. M2: location and area pages. See ADR-0039.

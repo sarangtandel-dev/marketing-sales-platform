@@ -18,4 +18,4 @@ status: accepted
 
 ## Milestone
 
-M1 See ADR-0039.
+M0 See ADR-0039.

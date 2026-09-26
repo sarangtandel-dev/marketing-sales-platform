@@ -17,3 +17,5 @@ Each Client typically uses 2–3 hostnames (apex, `www`, `pages.dev`). That caps
 2026-09-17: decided in ADR-0028. Widgets are shared, up to 10 hostnames each. Test keys are used outside production.
 
 2026-09-17, milestones (ADR-0039): Milestone M1.
+
+2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.** Test keys on preview deployments.

@@ -12,4 +12,4 @@ The Phase 0 docs and templates (`docs/01`–`06`, the appendices, `templates/web
 
 ## Milestone
 
-M1 See ADR-0039.
+M0 See ADR-0039.

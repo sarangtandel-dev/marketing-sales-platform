@@ -71,4 +71,4 @@ All four are available below Enterprise:
 
 ## Milestone
 
-M1: Client #0 uses our own domain with standard DNS. M2: nameserver default and cutover checklist, with the first paying Client. www-CNAME fallback: DESIGNED. See ADR-0039.
+M0: our own domain with standard DNS. M1: the nameserver default and cutover checklist, with the first paying Client. www-CNAME fallback: DESIGNED. See ADR-0039.

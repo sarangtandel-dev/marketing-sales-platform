@@ -18,4 +18,4 @@ We rejected trusting everything the Client says. Many markets regulate health, f
 
 ## Milestone
 
-M1 See ADR-0039.
+M0: Facts carry `source` and `status`, checked by JSON Schema only, and publishing is enforced by manual review. M1: the build enforces the publishing rules. See ADR-0039.

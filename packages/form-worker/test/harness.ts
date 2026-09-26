@@ -58,6 +58,8 @@ export type Harness = {
   emails: SentEmail[];
   // Waits for background work (ctx.waitUntil) to reach a state the check accepts.
   eventually: <T>(check: () => Promise<T | undefined | false>, timeoutMs?: number) => Promise<T>;
+  // Runs the Worker's scheduled handler as if the cron fired at `at`.
+  cron: (at: Date) => Promise<void>;
   dispose: () => Promise<void>;
 };
 
@@ -95,6 +97,7 @@ export async function startWorker(
           ALLOWED_ORIGINS: "https://example.test",
           ALERT_FROM: "alerts@agency.test",
           ALERT_TO: "owner@agency.test",
+          BREVO_API_KEY: "brevo-test-key",
           ...opts.bindings,
         },
         wrappedBindings: { OWNER_ALERT: "fake-mailer" },
@@ -139,6 +142,10 @@ export async function startWorker(
         await new Promise((r) => setTimeout(r, 25));
       }
     },
+    cron: async (at) => {
+      const worker = await mf.getWorker("form-worker");
+      await worker.scheduled({ scheduledTime: at, cron: "*/5 * * * *" });
+    },
     dispose: () => mf.dispose(),
   };
 }
@@ -157,4 +164,19 @@ export function submission(overrides: Record<string, unknown> = {}) {
     language: "en",
     ...overrides,
   };
+}
+
+// A fake Brevo API: answers each POST /v3/contacts with the next queued status
+// (200 once the queue is empty) and records the request bodies.
+export function fakeBrevo(statuses: number[] = []) {
+  const calls: { apiKey: string | null; body: Record<string, unknown> }[] = [];
+  const handler: Outbound = async (request) => {
+    if (new URL(request.url).pathname !== "/v3/contacts") return new Response("not found", { status: 404 });
+    calls.push({ apiKey: request.headers.get("api-key"), body: await request.json() });
+    const status = statuses.shift() ?? 201;
+    return status < 300
+      ? Response.json({ id: 42 }, { status })
+      : Response.json({ code: "error", message: `status ${status}` }, { status });
+  };
+  return { calls, handler };
 }

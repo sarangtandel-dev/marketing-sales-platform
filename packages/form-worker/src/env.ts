@@ -9,4 +9,5 @@ export type Env = {
   };
   ALERT_FROM: string;
   ALERT_TO: string;
+  BREVO_API_KEY: string;
 };

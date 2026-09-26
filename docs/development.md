@@ -52,6 +52,16 @@ pnpm build:site clients/client-zero/site dist/client-zero --preview --form-endpo
 - `--form-endpoint` replaces each form's production endpoint.
 - To look at the stored Leads: `pnpm exec wrangler d1 execute LEAD_LOG --local --command "SELECT * FROM leads"`.
 
+## Brevo setup (per Client, done by a person)
+
+The Worker upserts each Lead as a Brevo contact, keyed by email. Before the first real Lead:
+
+- **Create these contact attributes in Brevo (type text):**
+  - `LEAD_ID`, `FORM_ID`, `FORM_TYPE`, `PAGE_URL` and `LEAD_RECEIVED_AT`
+  - one attribute per form field other than `email`, named after the field in capitals (`name` → `NAME`, `company_size` → `COMPANY_SIZE`)
+- **Set the Worker secret:** `pnpm exec wrangler secret put BREVO_API_KEY`.
+- **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours.
+
 ## Deploying
 
 The `Deploy` workflow runs on every push:

@@ -1,4 +1,5 @@
 import { sendOwnerAlert } from "./alert.ts";
+import { attemptDelivery, deliverDue } from "./delivery.ts";
 import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, json } from "./http.ts";
 import { recordAlert, storeLead } from "./lead-log.ts";
@@ -46,9 +47,16 @@ export default {
     if (lead.created) ctx.waitUntil(afterReply(env, lead.id, submission, now));
     return json({ ok: true, lead_id: lead.id }, 200, cors);
   },
+
+  // Cron (every 5 minutes): Brevo retries that are due.
+  async scheduled(controller: ScheduledController, env: Env): Promise<void> {
+    await deliverDue(env, new Date(controller.scheduledTime));
+  },
 } satisfies ExportedHandler<Env>;
 
+// The owner alert goes first, so it never waits on Brevo.
 async function afterReply(env: Env, leadId: string, submission: Submission, receivedAt: Date) {
   const sent = await sendOwnerAlert(env, leadId, submission, receivedAt);
   await recordAlert(env.LEAD_LOG, leadId, sent);
+  await attemptDelivery(env, leadId, new Date());
 }

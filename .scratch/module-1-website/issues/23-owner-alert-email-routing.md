@@ -12,7 +12,7 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - [x] Whether the alert was sent is recorded on the Lead Log row
 - [x] An alert failure never changes the Visitor's success response
 - [x] The destination address comes from configuration, and the setup notes say it must be verified in Email Routing
-- [ ] Seam 2 tests with a faked binding: the alert is sent; the alert is sent when Brevo is unreachable; an alert failure is recorded (the Brevo case is added in ticket 24)
+- [x] Seam 2 tests with a faked binding: the alert is sent; the alert is sent when Brevo is unreachable; an alert failure is recorded (the Brevo case is added in ticket 24)
 
 ## Comments
 

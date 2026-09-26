@@ -19,3 +19,5 @@ Source: file audit, 2026-09-17
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**
+
+2026-09-27, build: Implemented in ticket 27 (b715faa). The shared click-ID list is `packages/tracking/src/sources.ts`, and IDs are stored in both first and last touch. Ready to close once the M0 build is reviewed.

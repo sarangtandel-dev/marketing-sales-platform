@@ -20,3 +20,5 @@ Depends on the privacy and consent-by-region round.
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**
+
+2026-09-27, build: Implemented in tickets 27 and 28 (b715faa, f9a86bd). Nothing is stored until Consent Mode grants `analytics_storage`, and click IDs also need `ad_storage`. GTM loads only after consent. Ready to close once the M0 build is reviewed.

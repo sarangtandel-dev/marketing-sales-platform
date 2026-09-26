@@ -24,3 +24,5 @@ Build when the version 1 spec is written. No code during design.
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**
+
+2026-09-27, build: Implemented in ticket 27 (b715faa). The seam 3 tests (`packages/tracking/src/*.test.ts`) cover every acceptance rule listed here, in jsdom pages running the bundled script. Ready to close once the M0 build is reviewed.

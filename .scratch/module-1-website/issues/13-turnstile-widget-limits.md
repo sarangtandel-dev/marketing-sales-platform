@@ -19,3 +19,5 @@ Each Client typically uses 2–3 hostnames (apex, `www`, `pages.dev`). That caps
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.** Test keys on preview deployments.
+
+2026-09-27, build: Implemented in ticket 22 (9ca6b82). Preview builds always use Turnstile's test site key. The shared production widget is a site-definition setting (`meta.turnstile_site_key`). Ready to close once the M0 build is reviewed.

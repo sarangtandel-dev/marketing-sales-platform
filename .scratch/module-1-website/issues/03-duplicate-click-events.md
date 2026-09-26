@@ -19,3 +19,5 @@ Source: file audit, 2026-09-17
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**
+
+2026-09-27, build: Implemented in ticket 29 (96fa8c1). Site components are the only event source; the GTM container has only custom-event triggers. Contact links push one `contact_click` with a `channel` (call, email, sms or whatsapp). Ready to close once the M0 build is reviewed.

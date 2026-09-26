@@ -18,3 +18,5 @@ Source: file audit, 2026-09-17
 2026-09-17, milestones (ADR-0039): Milestone M1.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **M0.**
+
+2026-09-27, build: Implemented in ticket 27 (b715faa). No contact details go into browser storage or the dataLayer: the tracking script stores only attribution and a `known_contact` flag with an expiry, and `msp.event()` accepts only listed parameters (ticket 29, 96fa8c1). Ready to close once the M0 build is reviewed.

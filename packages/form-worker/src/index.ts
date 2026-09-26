@@ -3,6 +3,8 @@ import { attemptDelivery, deliverDue } from "./delivery.ts";
 import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, json } from "./http.ts";
 import { recordAlert, storeLead } from "./lead-log.ts";
+import { countSpam, purgeExpiredLeads, type SpamReason } from "./retention.ts";
+import { DAILY_CRON } from "./schedules.ts";
 import type { Submission } from "./submission.ts";
 import { MAX_BODY_BYTES, parseSubmission } from "./submission.ts";
 import { verifyTurnstile } from "./turnstile.ts";
@@ -25,14 +27,16 @@ export default {
     if (!submission) return json({ ok: false, error: "invalid" }, 400, cors);
 
     // 1. Spam checks. The honeypot is checked first, so bots don't cost a Turnstile call.
-    const human =
-      submission.honeypot === "" &&
-      (await verifyTurnstile(
-        submission.turnstile_token,
-        env.TURNSTILE_SECRET_KEY,
-        request.headers.get("cf-connecting-ip"),
-      ));
-    if (!human) return json({ ok: false, error: "rejected" }, 400, cors);
+    let spam: SpamReason | null = null;
+    if (submission.honeypot !== "") spam = "honeypot";
+    else if (
+      !(await verifyTurnstile(submission.turnstile_token, env.TURNSTILE_SECRET_KEY, request.headers.get("cf-connecting-ip")))
+    )
+      spam = "turnstile";
+    if (spam) {
+      ctx.waitUntil(countSpam(env.LEAD_LOG, spam, new Date()).catch((err) => console.error("spam count failed", err)));
+      return json({ ok: false, error: "rejected" }, 400, cors);
+    }
 
     // 2. Store first. 3. Only then reply with success.
     const now = new Date();
@@ -48,9 +52,10 @@ export default {
     return json({ ok: true, lead_id: lead.id }, 200, cors);
   },
 
-  // Cron (every 5 minutes): Brevo retries that are due.
   async scheduled(controller: ScheduledController, env: Env): Promise<void> {
-    await deliverDue(env, new Date(controller.scheduledTime));
+    const now = new Date(controller.scheduledTime);
+    if (controller.cron === DAILY_CRON) await purgeExpiredLeads(env.LEAD_LOG, now);
+    else await deliverDue(env, now);
   },
 } satisfies ExportedHandler<Env>;
 

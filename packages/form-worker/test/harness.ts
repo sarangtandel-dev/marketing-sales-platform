@@ -58,8 +58,8 @@ export type Harness = {
   emails: SentEmail[];
   // Waits for background work (ctx.waitUntil) to reach a state the check accepts.
   eventually: <T>(check: () => Promise<T | undefined | false>, timeoutMs?: number) => Promise<T>;
-  // Runs the Worker's scheduled handler as if the cron fired at `at`.
-  cron: (at: Date) => Promise<void>;
+  // Runs the Worker's scheduled handler as if the cron `schedule` fired at `at`.
+  cron: (at: Date, schedule?: string) => Promise<void>;
   dispose: () => Promise<void>;
 };
 
@@ -142,9 +142,9 @@ export async function startWorker(
         await new Promise((r) => setTimeout(r, 25));
       }
     },
-    cron: async (at) => {
+    cron: async (at, schedule = "*/5 * * * *") => {
       const worker = await mf.getWorker("form-worker");
-      await worker.scheduled({ scheduledTime: at, cron: "*/5 * * * *" });
+      await worker.scheduled({ scheduledTime: at, cron: schedule });
     },
     dispose: () => mf.dispose(),
   };

@@ -63,6 +63,10 @@ The Worker upserts each Lead as a Brevo contact, keyed by email. Before the firs
 - **Set the Worker secret:** `pnpm exec wrangler secret put BREVO_API_KEY`.
 - **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours.
 
+## Procedures
+
+- [Lead data requests](procedures/lead-data-requests.md): export or delete one Lead's data on request.
+
 ## Deploying
 
 The `Deploy` workflow runs on every push:

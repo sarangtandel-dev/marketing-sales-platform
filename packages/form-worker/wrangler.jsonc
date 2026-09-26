@@ -4,8 +4,9 @@
   "name": "msp-form-worker",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
-  // Brevo retries that are due (ADR-0013).
-  "triggers": { "crons": ["*/5 * * * *"] },
+  // Brevo retries every 5 minutes; the 90-day Lead Log purge daily (ADR-0013).
+  // Must match src/schedules.ts.
+  "triggers": { "crons": ["*/5 * * * *", "17 3 * * *"] },
   "d1_databases": [
     {
       "binding": "LEAD_LOG",

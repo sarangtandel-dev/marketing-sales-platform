@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "M0 System: Client #0 Agency Site",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "lead-path",
+        "label": "Lead capture path",
+        "focus": [
+          "visitor",
+          "site",
+          "worker",
+          "leadlog",
+          "brevo"
+        ],
+        "note": "The lead is stored in the Lead Log before Brevo delivery is attempted (ADR-0013)."
+      },
+      {
+        "id": "owner-alert",
+        "label": "Owner alert without Brevo",
+        "focus": [
+          "worker",
+          "leadlog",
+          "emailbind",
+          "owner"
+        ],
+        "note": "The alert leaves from the Lead Log path, so a Brevo outage never hides a lead."
+      },
+      {
+        "id": "consent-tracking",
+        "label": "Consent-gated tracking",
+        "focus": [
+          "site",
+          "consent",
+          "gtm",
+          "ga4"
+        ],
+        "note": "Opt-in for every Visitor; Consent Mode basic, so GA4 gets nothing before consent."
+      },
+      {
+        "id": "monitoring",
+        "label": "Monitoring",
+        "focus": [
+          "uptime",
+          "dailytest",
+          "site",
+          "worker"
+        ],
+        "note": "External uptime checks plus a daily test lead that must reach the Lead Log and Brevo."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "visitor",
+      "type": "external",
+      "label": "Visitor",
+      "sublabel": "browser",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "site",
+      "type": "frontend",
+      "label": "Astro site",
+      "sublabel": "Cloudflare Pages",
+      "tag": "from site definition",
+      "pos": [
+        260,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Form Worker",
+      "sublabel": "honeypot + Turnstile",
+      "pos": [
+        500,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "brevo",
+      "type": "external",
+      "label": "Brevo",
+      "sublabel": "CRM + email",
+      "tag": "retries, idempotent lead ID",
+      "pos": [
+        740,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "leadlog",
+      "type": "database",
+      "label": "D1 Lead Log",
+      "sublabel": "hint near India",
+      "tag": "90-day purge",
+      "pos": [
+        500,
+        480
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "emailbind",
+      "type": "cloud",
+      "label": "Email Routing",
+      "sublabel": "send-email binding",
+      "pos": [
+        740,
+        480
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "owner",
+      "type": "external",
+      "label": "Owner inbox",
+      "sublabel": "new-lead alert",
+      "pos": [
+        980,
+        480
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "consent",
+      "type": "security",
+      "label": "Consent tool",
+      "sublabel": "opt-in for all",
+      "pos": [
+        260,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "gtm",
+      "type": "external",
+      "label": "GTM",
+      "sublabel": "listens only",
+      "pos": [
+        500,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "ga4",
+      "type": "external",
+      "label": "GA4",
+      "sublabel": "no personal data",
+      "pos": [
+        740,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "uptime",
+      "type": "external",
+      "label": "Uptime monitor",
+      "sublabel": "external, free",
+      "pos": [
+        40,
+        480
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "dailytest",
+      "type": "backend",
+      "label": "Daily test lead",
+      "sublabel": "end-to-end check",
+      "pos": [
+        260,
+        480
+      ],
+      "size": [
+        150,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Cloudflare account",
+      "wraps": [
+        "site",
+        "worker",
+        "leadlog",
+        "emailbind"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "visit",
+      "from": "visitor",
+      "to": "site",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "submit",
+      "from": "site",
+      "to": "worker",
+      "label": "form POST",
+      "variant": "emphasis"
+    },
+    {
+      "id": "log-first",
+      "from": "worker",
+      "to": "leadlog",
+      "label": "1 \u00b7 write first",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "deliver",
+      "from": "worker",
+      "to": "brevo",
+      "label": "2 \u00b7 deliver"
+    },
+    {
+      "id": "alert",
+      "from": "leadlog",
+      "to": "emailbind",
+      "label": "3 \u00b7 alert"
+    },
+    {
+      "id": "alert-mail",
+      "from": "emailbind",
+      "to": "owner"
+    },
+    {
+      "id": "banner",
+      "from": "site",
+      "to": "consent",
+      "label": "banner",
+      "labelDy": -40
+    },
+    {
+      "id": "gate",
+      "from": "consent",
+      "to": "gtm",
+      "label": "on opt-in",
+      "variant": "security"
+    },
+    {
+      "id": "events",
+      "from": "gtm",
+      "to": "ga4",
+      "label": "events"
+    },
+    {
+      "id": "ping",
+      "from": "uptime",
+      "to": "site",
+      "label": "checks",
+      "variant": "dashed"
+    },
+    {
+      "id": "test-lead",
+      "from": "dailytest",
+      "to": "worker",
+      "label": "test lead",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Lead safety",
+      "items": [
+        "Lead Log written before success is shown",
+        "Brevo delivery retried; alert after final failure",
+        "Spam rejections counted, never stored"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Consent",
+      "items": [
+        "Off-the-shelf tool, opt-in for every Visitor",
+        "Consent Mode basic: nothing sent before consent",
+        "No personal data in dataLayer or GA4"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Monitoring",
+      "items": [
+        "Daily test lead must reach Lead Log and Brevo",
+        "Free external uptime monitor"
+      ]
+    }
+  ]
+}

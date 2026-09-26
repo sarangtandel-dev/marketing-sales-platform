@@ -11,3 +11,7 @@ Uses the five default triage labels (needs-triage, needs-info, ready-for-agent, 
 ### Domain docs
 
 Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Diagrams
+
+Project status and process diagrams live in `docs/diagrams/`, generated with the `archify` skill (installed globally at `~/.claude/skills/archify`). Regenerate `project-status` whenever an issue's `Status:` line or ADR-0039 changes, and the others when their source ADRs change. See `docs/diagrams/README.md`.

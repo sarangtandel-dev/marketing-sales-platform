@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Issue Triage Lifecycle",
+    "locale": "en",
+    "output": "docs/diagrams/issue-lifecycle.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      980,
+      600
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Main path"
+    },
+    {
+      "id": "side",
+      "label": "Human work + waiting"
+    },
+    {
+      "id": "terminal",
+      "label": "Closed without work"
+    }
+  ],
+  "states": [
+    {
+      "id": "needs-triage",
+      "type": "start",
+      "label": "needs-triage",
+      "sublabel": "maintainer evaluates",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "new"
+    },
+    {
+      "id": "ready-for-agent",
+      "type": "active",
+      "label": "ready-for-agent",
+      "sublabel": "fully specified, AFK",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "agent"
+    },
+    {
+      "id": "implemented",
+      "type": "success",
+      "label": "Implemented",
+      "sublabel": "closed, not a label",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "done"
+    },
+    {
+      "id": "ready-for-human",
+      "type": "active",
+      "label": "ready-for-human",
+      "sublabel": "needs a person",
+      "lane": "side",
+      "col": 0,
+      "tag": "human"
+    },
+    {
+      "id": "needs-info",
+      "type": "waiting",
+      "label": "needs-info",
+      "sublabel": "waiting on reporter",
+      "lane": "side",
+      "col": 1,
+      "tag": "pause"
+    },
+    {
+      "id": "wontfix",
+      "type": "failure",
+      "label": "wontfix",
+      "sublabel": "will not be actioned",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "terminal",
+      "yOffset": -30
+    }
+  ],
+  "transitions": [
+    {
+      "id": "triage-to-human",
+      "from": "needs-triage",
+      "to": "ready-for-human",
+      "label": "needs a person",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "human-done",
+      "from": "ready-for-human",
+      "to": "implemented",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "straight"
+    },
+    {
+      "id": "triage-to-info",
+      "from": "needs-triage",
+      "to": "needs-info",
+      "label": "asks reporter",
+      "route": "bottom-channel",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    {
+      "id": "info-answered",
+      "from": "needs-info",
+      "to": "needs-triage",
+      "label": "answered",
+      "variant": "emphasis",
+      "route": "top-channel",
+      "fromSide": "top",
+      "toSide": "top"
+    },
+    {
+      "id": "triage-to-wontfix",
+      "from": "needs-triage",
+      "to": "wontfix",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left"
+    }
+  ]
+}

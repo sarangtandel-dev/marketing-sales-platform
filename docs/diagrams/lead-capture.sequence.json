@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "M0 Lead Capture",
+    "locale": "en",
+    "output": "docs/diagrams/lead-capture.html",
+    "viewBox": [
+      1080,
+      600
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "visitor",
+      "type": "frontend",
+      "label": "Visitor",
+      "sublabel": "site form"
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Form Worker",
+      "sublabel": "Cloudflare"
+    },
+    {
+      "id": "turnstile",
+      "type": "security",
+      "label": "Turnstile",
+      "sublabel": "spam check"
+    },
+    {
+      "id": "leadlog",
+      "type": "database",
+      "label": "Lead Log",
+      "sublabel": "D1, 90 days"
+    },
+    {
+      "id": "brevo",
+      "type": "external",
+      "label": "Brevo",
+      "sublabel": "lasting record"
+    },
+    {
+      "id": "owner",
+      "type": "external",
+      "label": "Owner",
+      "sublabel": "email alert"
+    }
+  ],
+  "segments": [
+    {
+      "from": 156,
+      "to": 268,
+      "label": "Spam checks"
+    },
+    {
+      "from": 284,
+      "to": 362,
+      "label": "Store first"
+    },
+    {
+      "from": 378,
+      "to": 534,
+      "label": "Deliver and alert"
+    }
+  ],
+  "messages": [
+    {
+      "from": "visitor",
+      "to": "worker",
+      "y": 176,
+      "label": "submit + opt-in",
+      "variant": "emphasis",
+      "note": "Unticked email opt-in; wording version stored"
+    },
+    {
+      "from": "worker",
+      "to": "turnstile",
+      "y": 214,
+      "label": "honeypot, then verify token",
+      "variant": "security",
+      "note": "Honeypot runs in the Worker first"
+    },
+    {
+      "from": "turnstile",
+      "to": "worker",
+      "y": 252,
+      "label": "pass / reject",
+      "variant": "return",
+      "note": "Rejections are counted, never stored"
+    },
+    {
+      "from": "worker",
+      "to": "leadlog",
+      "y": 308,
+      "label": "write lead + lead ID",
+      "variant": "emphasis",
+      "note": "Lead ID is the idempotency key"
+    },
+    {
+      "from": "worker",
+      "to": "visitor",
+      "y": 346,
+      "label": "success shown",
+      "variant": "return"
+    },
+    {
+      "from": "worker",
+      "to": "owner",
+      "y": 402,
+      "label": "new-lead alert",
+      "variant": "emphasis",
+      "note": "Email Routing send-email binding; independent of Brevo"
+    },
+    {
+      "from": "worker",
+      "to": "brevo",
+      "y": 440,
+      "label": "deliver lead",
+      "variant": "emphasis"
+    },
+    {
+      "from": "worker",
+      "to": "brevo",
+      "y": 478,
+      "label": "retry with backoff",
+      "variant": "dashed",
+      "note": "Same lead ID, so no duplicates"
+    },
+    {
+      "from": "worker",
+      "to": "leadlog",
+      "y": 516,
+      "label": "record delivery result",
+      "variant": "default"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "worker",
+      "from": 170,
+      "to": 524,
+      "type": "backend"
+    },
+    {
+      "participant": "turnstile",
+      "from": 208,
+      "to": 258,
+      "type": "security"
+    },
+    {
+      "participant": "leadlog",
+      "from": 302,
+      "to": 314,
+      "type": "database"
+    },
+    {
+      "participant": "brevo",
+      "from": 434,
+      "to": 486,
+      "type": "external"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Spam Stays Out",
+      "items": [
+        "Honeypot plus server-side Turnstile",
+        "Rejections are counted for reporting, never stored"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lead Log Before Brevo",
+      "items": [
+        "The Visitor sees success only after the D1 write",
+        "Entries and delivery results are purged after 90 days"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Brevo Can Fail Safely",
+      "items": [
+        "Retries with backoff reuse the lead ID",
+        "The owner alert never depends on Brevo; an alert fires after the final failed attempt"
+      ]
+    }
+  ]
+}

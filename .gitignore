@@ -1,2 +1,5 @@
 .remember/
 .DS_Store
+
+# Archify visual-check evidence (regenerated per run)
+docs/diagrams/*.visual-check.*

@@ -1,0 +1,204 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Growth Platform — Project Status",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "Done"
+        },
+        "frontend": {
+          "label": "Now (M0)"
+        },
+        "security": {
+          "label": "Human gate"
+        },
+        "cloud": {
+          "label": "Later (M1 / M2)"
+        },
+        "external": {
+          "label": "Designed only"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "done",
+      "label": "Done"
+    },
+    {
+      "id": "m0",
+      "label": "M0 · Client #0 (now)"
+    },
+    {
+      "id": "later",
+      "label": "Later · M1 on first paying Client, M2 at scale"
+    }
+  ],
+  "mainPath": [
+    "design",
+    "decisions",
+    "spec",
+    "build",
+    "launch",
+    "live"
+  ],
+  "nodes": [
+    {
+      "id": "design",
+      "lane": "done",
+      "col": 0,
+      "type": "backend",
+      "label": "Module 1 design",
+      "sublabel": "CONTEXT.md + 39 ADRs",
+      "tag": "done",
+      "width": 112
+    },
+    {
+      "id": "decisions",
+      "lane": "done",
+      "col": 1,
+      "type": "backend",
+      "label": "M0 decisions",
+      "sublabel": "issue 19",
+      "tag": "2026-09-27"
+    },
+    {
+      "id": "spec",
+      "lane": "m0",
+      "col": 2,
+      "type": "frontend",
+      "label": "M0 spec",
+      "sublabel": "/to-spec",
+      "tag": "next"
+    },
+    {
+      "id": "build",
+      "lane": "m0",
+      "col": 3,
+      "type": "frontend",
+      "label": "M0 build",
+      "sublabel": "site · Worker · tracking",
+      "width": 112
+    },
+    {
+      "id": "launch",
+      "lane": "m0",
+      "col": 4,
+      "type": "security",
+      "label": "Launch gate",
+      "sublabel": "manual checklist",
+      "tag": "human"
+    },
+    {
+      "id": "live",
+      "lane": "m0",
+      "col": 5,
+      "type": "frontend",
+      "label": "Client #0 live",
+      "sublabel": "agency site, IN"
+    },
+    {
+      "id": "m1",
+      "lane": "later",
+      "col": 5,
+      "type": "cloud",
+      "label": "M1 pipeline",
+      "sublabel": "skills · packs · DPA",
+      "width": 112
+    },
+    {
+      "id": "m2",
+      "lane": "later",
+      "col": 3,
+      "type": "cloud",
+      "label": "M2 breadth",
+      "sublabel": "packs · Regions · rebuild",
+      "width": 112
+    },
+    {
+      "id": "designed",
+      "lane": "later",
+      "col": 0,
+      "type": "external",
+      "label": "DESIGNED ONLY",
+      "sublabel": "not scheduled"
+    }
+  ],
+  "edges": [
+    {
+      "from": "design",
+      "to": "decisions",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "decisions",
+      "to": "spec",
+      "variant": "emphasis"
+    },
+    {
+      "from": "spec",
+      "to": "build",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "build",
+      "to": "launch",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "launch",
+      "to": "live",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "live",
+      "to": "m1",
+      "label": "first paying Client",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "from": "m1",
+      "to": "m2",
+      "label": "second Client",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "design",
+      "to": "designed",
+      "label": "recorded",
+      "variant": "dashed",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Open issues (19)",
+      "items": [
+        "16 ready-for-agent · 2 ready-for-human (12, 17) · 1 needs-triage (15)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "M0 launch gate",
+      "items": [
+        "Claims vs facts file · alt text, rights, contrast · privacy policy reviewed"
+      ]
+    }
+  ]
+}

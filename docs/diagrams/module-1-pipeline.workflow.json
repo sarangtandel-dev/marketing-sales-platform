@@ -1,0 +1,268 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Module 1 Website Pipeline",
+    "locale": "en",
+    "output": "docs/diagrams/module-1-pipeline.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "gates",
+        "label": "Blocking approvals",
+        "focus": [
+          "verify",
+          "gate1",
+          "gate2"
+        ],
+        "note": "Only Fact verification, Gate 1 and Gate 2 block progress (ADR-0037)."
+      },
+      {
+        "id": "client-zero",
+        "label": "Done by hand for Client #0",
+        "focus": [
+          "site_def",
+          "theme",
+          "build",
+          "qa",
+          "launch"
+        ],
+        "note": "Client #0 counts toward the M1 build rule for these steps (issue 19)."
+      },
+      {
+        "id": "paid-first",
+        "label": "Needs a paying Client run",
+        "focus": [
+          "intake",
+          "research",
+          "brief"
+        ],
+        "note": "Intake, research and the strategy brief need a manual run for the first paying Client first."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "plan",
+      "label": "Plan: ends at Gate 1"
+    },
+    {
+      "id": "ship",
+      "label": "Build + launch: ends at Gate 2"
+    }
+  ],
+  "mainPath": [
+    "intake",
+    "research",
+    "verify",
+    "brief",
+    "gate1",
+    "site_def"
+  ],
+  "nodes": [
+    {
+      "id": "intake",
+      "lane": "plan",
+      "col": 0,
+      "type": "frontend",
+      "label": "Intake",
+      "sublabel": "person: live session",
+      "tag": "M1: manual first"
+    },
+    {
+      "id": "research",
+      "lane": "plan",
+      "col": 1,
+      "type": "backend",
+      "label": "Research",
+      "sublabel": "Claude drafts",
+      "tag": "M1: manual first"
+    },
+    {
+      "id": "verify",
+      "lane": "plan",
+      "col": 2,
+      "type": "security",
+      "label": "Fact verification",
+      "sublabel": "person, blocking",
+      "tag": "always manual",
+      "width": 132
+    },
+    {
+      "id": "brief",
+      "lane": "plan",
+      "col": 3,
+      "type": "backend",
+      "label": "Strategy brief",
+      "sublabel": "Claude drafts",
+      "tag": "M1: manual first"
+    },
+    {
+      "id": "gate1",
+      "lane": "plan",
+      "col": 4,
+      "type": "security",
+      "label": "Gate 1",
+      "sublabel": "our lead + Client",
+      "tag": "always manual"
+    },
+    {
+      "id": "site_def",
+      "lane": "plan",
+      "col": 5,
+      "type": "backend",
+      "label": "Site definition",
+      "sublabel": "Claude drafts",
+      "tag": "M1: skill",
+      "width": 120
+    },
+    {
+      "id": "theme",
+      "lane": "ship",
+      "col": 5,
+      "type": "frontend",
+      "label": "Theme",
+      "sublabel": "Claude Design, by hand",
+      "tag": "M1: skill"
+    },
+    {
+      "id": "build",
+      "lane": "ship",
+      "col": 4,
+      "type": "cloud",
+      "label": "Build",
+      "sublabel": "publishing rules",
+      "tag": "automated in M0"
+    },
+    {
+      "id": "qa",
+      "lane": "ship",
+      "col": 3,
+      "type": "backend",
+      "label": "QA",
+      "sublabel": "test lead end to end",
+      "tag": "M1: skill"
+    },
+    {
+      "id": "gate2",
+      "lane": "ship",
+      "col": 2,
+      "type": "security",
+      "label": "Gate 2",
+      "sublabel": "our QA + Client",
+      "tag": "always manual"
+    },
+    {
+      "id": "launch",
+      "lane": "ship",
+      "col": 1,
+      "type": "cloud",
+      "label": "Launch",
+      "sublabel": "person runs DNS",
+      "tag": "M1: skill"
+    },
+    {
+      "id": "change",
+      "lane": "ship",
+      "col": 0,
+      "type": "messagebus",
+      "label": "Change / rollback",
+      "sublabel": "after launch",
+      "tag": "M1: changes.yaml",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "from": "intake",
+      "to": "research",
+      "label": "Facts"
+    },
+    {
+      "from": "research",
+      "to": "verify"
+    },
+    {
+      "from": "verify",
+      "to": "brief"
+    },
+    {
+      "from": "brief",
+      "to": "gate1"
+    },
+    {
+      "from": "gate1",
+      "to": "site_def",
+      "label": "approved"
+    },
+    {
+      "from": "site_def",
+      "to": "theme",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "from": "theme",
+      "to": "build",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "build",
+      "to": "qa",
+      "label": "preview",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "qa",
+      "to": "gate2",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "gate2",
+      "to": "launch",
+      "label": "signed off",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "launch",
+      "to": "change",
+      "fromSide": "left",
+      "toSide": "right",
+      "variant": "dashed",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "M0: Client #0 by hand",
+      "items": [
+        "Every step is manual except build, deploy, the Worker and the daily test",
+        "Our team approves; git history and Pages rollback",
+        "Intake is informal; text sits directly in the site definition"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "M1: skills after a real run",
+      "items": [
+        "A skill is built only after its step was done by hand for a real Client",
+        "Client #0 counts for site definition, Theme, build, QA and launch",
+        "Intake, research and brief wait for the first paying Client"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Blocking approvals",
+      "items": [
+        "Fact verification, Gate 1 and Gate 2 block progress",
+        "Each skill refuses to run if its input is missing or unapproved",
+        "A person runs DNS changes and the email delivery test at launch"
+      ]
+    }
+  ]
+}

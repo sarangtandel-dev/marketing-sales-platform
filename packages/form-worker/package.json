@@ -1,0 +1,6 @@
+{
+  "name": "@msp/form-worker",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker for form submissions: spam checks, Lead Log, Brevo delivery, owner alerts. Test seam 2."
+}

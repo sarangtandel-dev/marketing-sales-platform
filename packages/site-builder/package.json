@@ -1,0 +1,6 @@
+{
+  "name": "@msp/site-builder",
+  "private": true,
+  "type": "module",
+  "description": "Builds a Client's static site from its site definition and Theme (Astro + Tailwind). Test seam 1."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@msp/components",
+  "private": true,
+  "type": "module",
+  "description": "Shared section components with Section Variants, styled only by Theme tokens."
+}

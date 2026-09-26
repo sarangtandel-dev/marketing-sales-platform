@@ -3,3 +3,9 @@
 
 # Archify visual-check evidence (regenerated per run)
 docs/diagrams/*.visual-check.*
+
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+.wrangler/

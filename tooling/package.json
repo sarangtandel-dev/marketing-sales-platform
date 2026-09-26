@@ -1,0 +1,5 @@
+{
+  "name": "@msp/tooling",
+  "private": true,
+  "type": "module"
+}

@@ -8,3 +8,7 @@ them module by module once concrete triggers fire.
 - [`templates/`](templates/README.md): the agency template kit the playbook uses. Webflow snippet and hidden fields, JSON-LD, GTM container, Make scenario specs, Brevo automations and emails, Sheet headers, Looker report spec, privacy policy, client intake form.
 
 Start with [`docs/README.md`](docs/README.md). To onboard a client, follow [`docs/03-setup-playbook.md`](docs/03-setup-playbook.md).
+
+## Module 1 code
+
+Module 1 (website creation) is being built in `packages/` from the design in [`CONTEXT.md`](CONTEXT.md) and [`docs/adr/`](docs/adr/). See [`docs/development.md`](docs/development.md) for setup (`pnpm install`, `pnpm test`), the layout and the secrets scan. The Phase 0 docs above are legacy (ADR-0002).

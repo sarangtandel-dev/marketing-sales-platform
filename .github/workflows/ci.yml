@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  secrets:
+    name: Secrets scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/install-gitleaks
+      - name: Scan full history
+        run: gitleaks git --redact --no-banner .
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      # The secrets-scan tests drive the real pre-commit hook.
+      - uses: ./.github/actions/install-gitleaks
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test

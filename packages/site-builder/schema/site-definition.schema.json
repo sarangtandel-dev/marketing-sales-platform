@@ -225,13 +225,12 @@
             }
           },
           "opt_ins": {
-            "description": "Marketing Opt-ins shown on the form (ADR-0021): unticked, one per channel. M0 offers email only.",
+            "description": "Marketing Opt-ins shown on the form (ADR-0021): unticked, one per channel. M0 offers email only. The wording version is derived from the label text at build time.",
             "type": "array",
             "items": {
               "type": "object",
               "required": [
                 "channel",
-                "version",
                 "label"
               ],
               "additionalProperties": false,
@@ -240,11 +239,6 @@
                   "enum": [
                     "email"
                   ]
-                },
-                "version": {
-                  "description": "Identifies the exact wording shown; change it whenever the label changes.",
-                  "type": "string",
-                  "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$"
                 },
                 "label": {
                   "$ref": "#/$defs/text"

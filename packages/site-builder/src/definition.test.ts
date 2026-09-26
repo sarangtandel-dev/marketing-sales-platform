@@ -124,18 +124,30 @@ describe("validateSiteDefinition", () => {
     });
   });
 
-  it("only offers email marketing opt-ins in M0, each with a wording version", () => {
+  it("only offers email marketing opt-ins in M0", () => {
     const s = site();
-    s.forms[0].opt_ins = [{ channel: "sms", version: "v1", label: { en: "Texts" } }];
+    s.forms[0].opt_ins = [{ channel: "sms", label: { en: "Texts" } }];
     expect(validateSiteDefinition(s)).toContainEqual({
       path: "/forms/0/opt_ins/0/channel",
       message: expect.stringContaining("email"),
     });
-    s.forms[0].opt_ins = [{ channel: "email", label: { en: "Emails" } }];
+  });
+
+  it("derives the wording version itself, so a hand-written one is rejected (review #14)", () => {
+    const s = site();
+    s.forms[0].opt_ins[0].version = "v1";
     expect(validateSiteDefinition(s)).toContainEqual({
       path: "/forms/0/opt_ins/0",
-      message: expect.stringContaining("version"),
+      message: expect.stringContaining("additional"),
     });
+  });
+
+  it("requires the email field to be named email (review #7)", () => {
+    const s = site();
+    s.forms[0].fields[1].name = "work_email";
+    const issues = validateSiteDefinition(s);
+    expect(issues).toContainEqual({ path: "/forms/0/fields/1/name", message: expect.stringContaining('"email"') });
+    expect(issues).toContainEqual({ path: "/forms/0", message: expect.stringContaining("opt-in") });
   });
 
   it("only accepts consent tools we've integrated", () => {

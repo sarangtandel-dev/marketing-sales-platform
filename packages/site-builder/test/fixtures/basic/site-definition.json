@@ -228,7 +228,6 @@
       "opt_ins": [
         {
           "channel": "email",
-          "version": "email-2026-09-27",
           "label": {
             "en": "Send me occasional emails about our work. You can unsubscribe at any time."
           }

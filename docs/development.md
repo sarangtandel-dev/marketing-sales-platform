@@ -64,7 +64,8 @@ The Worker upserts each Lead as a Brevo contact, keyed by email. Before the firs
   - one attribute per form field other than `email`, named after the field in capitals (`name` → `NAME`, `company_size` → `COMPANY_SIZE`)
 - **For email Marketing Opt-ins, also create:** `EMAIL_OPT_IN` (boolean), and `EMAIL_OPT_IN_VERSION`, `EMAIL_OPT_IN_AT`, `EMAIL_OPT_IN_PAGE` and `EMAIL_OPT_IN_FORM` (text). Then create the marketing list and set its ID as the Worker var `BREVO_MARKETING_LIST_ID`. Only contacts who ticked the opt-in join it.
 - **Set the Worker secret:** `pnpm exec wrangler secret put BREVO_API_KEY`.
-- **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours.
+- **What happens on a failure:** if Brevo rejects a Lead (for example, because an attribute is missing), the Worker gives up at once and emails the owner the Lead to add by hand. Temporary failures are retried for about 14.5 hours. An alert that fails to send is retried by the cron, up to 5 times.
+- **Known limitation (M0):** Leads are upserted onto one contact per email address. A second enquiry from the same address overwrites the first one's `LEAD_ID`, `MESSAGE` and form attributes in Brevo, and once the Lead Log's 90 days pass, the first enquiry's details exist only in the owner's alert email. Keeping one Brevo record per Lead (an event, note or deal keyed by lead ID) belongs with Module 2's CRM work (ADR-0036).
 
 ## Monitoring (ADR-0037)
 
@@ -108,6 +109,14 @@ The `Deploy` workflow runs on every push:
    ```
 
 Until the secrets exist, the workflow deploys nothing and says so in the run.
+
+**Previews never touch production (ADR-0028):**
+- Every branch except `live` builds with `--preview`, so its forms use Turnstile's test key.
+- Preview forms post to the **preview form Worker**, set in the repository variable `PREVIEW_FORM_ENDPOINT`. That Worker is the `preview` environment in `packages/form-worker/wrangler.jsonc`, with its own Lead Log.
+- Deploy it with `wrangler deploy --env preview`.
+- Set its `TURNSTILE_SECRET_KEY` to Turnstile's test secret (`1x0000000000000000000000000000000AA`).
+- Its `ALLOWED_ORIGINS` accepts every branch preview through `https://*.<project>.pages.dev`.
+- If the variable isn't set, preview forms post to an address that doesn't exist, never to production.
 
 ## Tool choices
 

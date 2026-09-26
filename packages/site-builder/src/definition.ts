@@ -38,7 +38,7 @@ export type Form = {
   error: Text;
   privacy_page: string;
   privacy_notice: Text;
-  opt_ins?: { channel: "email"; version: string; label: Text }[];
+  opt_ins?: { channel: "email"; label: Text }[];
 };
 
 export type Page = {
@@ -241,6 +241,18 @@ function referenceIssues(site: SiteDefinition): Issue[] {
     }),
   );
   site.forms.forEach((form, f) => need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`));
+  // The Worker delivers to Brevo, and records email opt-ins, by the field named "email".
+  site.forms.forEach((form, f) => {
+    form.fields.forEach((field, i) => {
+      if (field.type === "email" && field.name !== "email") {
+        issues.push({ path: `/forms/${f}/fields/${i}/name`, message: 'an email field must be named "email"' });
+      }
+    });
+    const hasEmail = form.fields.some((field) => field.name === "email" && field.type === "email");
+    if (form.opt_ins?.length && !hasEmail) {
+      issues.push({ path: `/forms/${f}`, message: 'shows an email opt-in, so it needs an email field named "email"' });
+    }
+  });
   site.pages.forEach((page, p) =>
     page.sections.forEach((section, s) =>
       section.items?.forEach((item, i) => {

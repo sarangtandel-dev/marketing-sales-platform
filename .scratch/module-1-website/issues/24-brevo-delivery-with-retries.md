@@ -32,3 +32,5 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
   - Test timeouts are raised to 30s for the Worker package, because each test boots Miniflare.
   - This also covers ticket 23's leftover case: the alert is still sent when Brevo is unreachable.
 - **Brevo account setup:** the contact attributes that must exist are listed in `docs/development.md`.
+
+2026-09-27, known limitation from the independent review (#6): a repeat enquiry from the same email overwrites the earlier Lead's attributes on the Brevo contact. It's documented in `docs/development.md`, and a per-Lead Brevo record is for Module 2 (ADR-0036).

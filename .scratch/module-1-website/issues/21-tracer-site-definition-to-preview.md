@@ -28,3 +28,5 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - **Deploy:** `Deploy` workflow: wrangler direct upload, only changed Clients, every branch as a preview, production branch `live`. It's skipped until `CLOUDFLARE_API_TOKEN` exists.
 - **Client #0:** has a placeholder site definition and Theme. Ticket 33 replaces them; ticket 30 replaces the Theme. `site_url` is the pages.dev URL until the real domain is decided.
 - **Not yet there:** there's no favicon, and no `astro check` type-check step in CI.
+
+2026-09-27, review fix: branch deploys now build with `--preview` and post forms to a preview Worker (`PREVIEW_FORM_ENDPOINT`, wrangler env `preview`). Before this, once the Cloudflare secrets existed, previews would have used the production Turnstile widget and the production Worker (independent review #1).

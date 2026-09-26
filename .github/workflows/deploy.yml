@@ -59,9 +59,19 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           BRANCH: ${{ github.ref_name }}
           CLIENTS: ${{ steps.changed.outputs.clients }}
+          # The preview form Worker (wrangler.jsonc env "preview"). Unset: preview forms post
+          # to an address that doesn't exist, never to the production Worker.
+          PREVIEW_FORM_ENDPOINT: ${{ vars.PREVIEW_FORM_ENDPOINT || 'https://preview-form-worker-not-configured.invalid/lead' }}
         run: |
+          # Only the production branch builds for production. Every other branch is a preview:
+          # Turnstile's test key and the preview Worker, so QA Leads never reach production (ADR-0028).
+          if [ "$BRANCH" = "live" ]; then
+            mode=()
+          else
+            mode=(--preview --form-endpoint "$PREVIEW_FORM_ENDPOINT")
+          fi
           for client in $CLIENTS; do
             [ -f "clients/$client/site/site-definition.json" ] || continue
-            pnpm build:site "clients/$client/site" "dist/$client"
+            pnpm build:site "clients/$client/site" "dist/$client" "${mode[@]}"
             pnpm exec wrangler pages deploy "dist/$client" --project-name="$client" --branch="$BRANCH" --commit-dirty=true
           done

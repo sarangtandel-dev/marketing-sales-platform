@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Cta, Form, Page, SiteDefinition, Text } from "../../src/definition.ts";
 import { NOT_FOUND } from "../../src/constants.ts";
 import { settings, site as loaded } from "virtual:msp/site";
@@ -42,7 +43,11 @@ export function formProps(id: string, lang: string) {
       autocomplete: f.autocomplete,
       options: f.options?.map((o) => ({ value: o.value, label: t(o.label, lang) })),
     })),
-    optIns: (form.opt_ins ?? []).map((o) => ({ channel: o.channel, version: o.version, label: t(o.label, lang) })),
+    optIns: (form.opt_ins ?? []).map((o) => ({
+      channel: o.channel,
+      version: wordingVersion(o.channel, o.label),
+      label: t(o.label, lang),
+    })),
     submit: t(form.submit, lang),
     success: t(form.success, lang),
     error: t(form.error, lang),
@@ -52,3 +57,11 @@ export function formProps(id: string, lang: string) {
 }
 
 export type FormProps = ReturnType<typeof formProps>;
+
+// The wording version stored with every Marketing Opt-in (ADR-0021): a hash of the exact
+// label text in every language, so it changes whenever the wording does. The site
+// definition's git history maps each version back to its text.
+export function wordingVersion(channel: string, label: Text): string {
+  const text = JSON.stringify(Object.entries(label).sort(([a], [b]) => a.localeCompare(b)));
+  return `${channel}-${createHash("sha256").update(text).digest("hex").slice(0, 12)}`;
+}

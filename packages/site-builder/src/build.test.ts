@@ -96,11 +96,28 @@ describe("building a valid site", () => {
   });
 
   it("takes tracking IDs only from the site definition", () => {
-    const components = join(import.meta.dirname, "../../components/src");
-    for (const file of readdirSync(components)) {
-      expect(readFileSync(join(components, file), "utf8"), file).not.toMatch(/GTM-[A-Z0-9]+|G-[A-Z0-9]{6,}/);
+    const dirs = [join(import.meta.dirname, "../../components/src"), join(import.meta.dirname, "../app")];
+    for (const dir of dirs) {
+      for (const file of readdirSync(dir, { recursive: true, encoding: "utf8" }).filter((f) => /\.(astro|ts)$/.test(f))) {
+        expect(readFileSync(join(dir, file), "utf8"), file).not.toMatch(/GTM-[A-Z0-9]{4,}|G-[A-Z0-9]{6,}|cookieyes\.com\/client_data\/[a-z0-9]/);
+      }
     }
   });
+
+  it("changes the opt-in wording version whenever the wording changes (review #14)", () => {
+    const version = (html: string) => html.match(/data-opt-in-version="([^"]+)"/)?.[1];
+    const before = version(read("contact/index.html"));
+    const dir = join(tmp, "reworded-src");
+    cpSync(fixture, dir, { recursive: true });
+    const file = join(dir, "site-definition.json");
+    const s = JSON.parse(readFileSync(file, "utf8"));
+    s.forms[0].opt_ins[0].label.en += " Promise.";
+    writeFileSync(file, JSON.stringify(s));
+    expect(build(dir, join(tmp, "reworded")).status).toBe(0);
+    const after = version(readFileSync(join(tmp, "reworded", "contact/index.html"), "utf8"));
+    expect(after).toMatch(/^email-[0-9a-f]{12}$/);
+    expect(after).not.toBe(before);
+  }, 120_000);
 
   it("never marks production output noindex", () => {
     for (const file of htmlFiles(out)) expect(read(file), file).not.toMatch(/noindex/i);
@@ -142,7 +159,7 @@ describe("forms", () => {
   it("offers the email marketing opt-in as an unticked checkbox with its wording version", () => {
     const box = contact().match(/<input[^>]*name="opt_in_email"[^>]*>/)?.[0] ?? "";
     expect(box).toContain('type="checkbox"');
-    expect(box).toContain('data-opt-in-version="email-2026-09-27"');
+    expect(box).toMatch(/data-opt-in-version="email-[0-9a-f]{12}"/);
     expect(box).not.toMatch(/\schecked/);
     expect(contact()).toContain("Send me occasional emails about our work.");
   });

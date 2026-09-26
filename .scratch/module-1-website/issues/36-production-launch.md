@@ -15,3 +15,8 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - [ ] Every item on the spec's launch checklist is ticked: claims checked against the facts file, alt text, rights and contrast, privacy policy reviewed, end-to-end test Lead on preview
 - [ ] The sitemap is submitted to Search Console, and the uptime monitor and daily test Lead are running against production
 - [ ] The first real test Lead in production reaches the Lead Log, Brevo and the owner's inbox
+
+2026-09-27, from the independent review, to check at launch:
+
+- Confirm the deployed `send_email` binding accepts the structured `send({ from, to, subject, text })` form. The classic Email Routing binding takes `new EmailMessage(from, to, rawMime)`. wrangler dev and Cloudflare's current docs accept the structured form, but the tests use a fake binding. If alerts show `alert_status = 'failed'`, switch to a raw MIME message.
+- Deploy the preview form Worker (`wrangler deploy --env preview`), and set the `PREVIEW_FORM_ENDPOINT` repository variable.

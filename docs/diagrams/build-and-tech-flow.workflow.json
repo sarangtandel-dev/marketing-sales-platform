@@ -2,7 +2,7 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "How We Build \u2014 Steps and Tech (M0)",
+    "title": "How We Build: Steps & Tech",
     "locale": "en",
     "quality_profile": "showcase",
     "legend": {
@@ -55,23 +55,23 @@
         "id": "deploy",
         "label": "Deploy",
         "focus": [
-          "gate",
           "deploy",
           "pages",
+          "deployworker",
           "worker"
         ],
-        "note": "Changed Clients go to Cloudflare Pages with wrangler; branches are noindex previews."
+        "note": "Every push deploys changed Clients as noindex previews. You deploy the form Worker with wrangler."
       },
       {
         "id": "launch-and-run",
         "label": "Launch & run",
         "focus": [
-          "gate",
           "pages",
-          "worker",
+          "gate",
+          "deploy",
           "run"
         ],
-        "note": "check:launch must pass; then crons retry, purge and send a daily test Lead."
+        "note": "Review the preview, pass check:launch, approve: only then does live deploy. Crons retry, purge, run the test Lead."
       }
     ]
   },
@@ -82,7 +82,7 @@
     },
     {
       "id": "github",
-      "label": "GitHub (automated)"
+      "label": "Release (GitHub + manual steps)"
     },
     {
       "id": "cloudflare",
@@ -96,7 +96,7 @@
       "col": 0,
       "type": "external",
       "label": "Describe Client",
-      "sublabel": "facts.yaml \u00b7 Theme tokens",
+      "sublabel": "facts.yaml · Theme tokens",
       "width": 116
     },
     {
@@ -105,7 +105,7 @@
       "col": 1,
       "type": "external",
       "label": "Site definition",
-      "sublabel": "JSON \u00b7 Schema via Ajv",
+      "sublabel": "JSON · Schema via Ajv",
       "width": 116
     },
     {
@@ -114,7 +114,7 @@
       "col": 2,
       "type": "backend",
       "label": "Build locally",
-      "sublabel": "Astro 7 \u00b7 Tailwind 4",
+      "sublabel": "Astro 7 · Tailwind 4",
       "width": 116
     },
     {
@@ -123,7 +123,7 @@
       "col": 3,
       "type": "backend",
       "label": "Test",
-      "sublabel": "Vitest \u00b7 Miniflare \u00b7 jsdom",
+      "sublabel": "Vitest · Miniflare · jsdom",
       "width": 116
     },
     {
@@ -132,7 +132,7 @@
       "col": 4,
       "type": "external",
       "label": "Browser check",
-      "sublabel": "wrangler dev \u00b7 Playwright",
+      "sublabel": "wrangler dev · Playwright",
       "width": 116
     },
     {
@@ -150,34 +150,34 @@
       "col": 5,
       "type": "backend",
       "label": "CI",
-      "sublabel": "gitleaks \u00b7 pnpm test",
+      "sublabel": "gitleaks · pnpm test",
       "width": 116
     },
     {
       "id": "gate",
       "lane": "github",
-      "col": 4,
+      "col": 3,
       "type": "security",
       "label": "Launch gate",
-      "sublabel": "check:launch + checklist",
+      "sublabel": "live only · checks",
       "width": 116
     },
     {
       "id": "deploy",
       "lane": "github",
-      "col": 3,
+      "col": 4,
       "type": "backend",
       "label": "Deploy workflow",
-      "sublabel": "changed Clients only",
+      "sublabel": "every push · preview",
       "width": 116
     },
     {
       "id": "pages",
       "lane": "cloudflare",
-      "col": 3,
+      "col": 4,
       "type": "cloud",
       "label": "Cloudflare Pages",
-      "sublabel": "previews noindex \u00b7 live",
+      "sublabel": "previews noindex · live",
       "width": 116
     },
     {
@@ -186,7 +186,7 @@
       "col": 2,
       "type": "cloud",
       "label": "Form Worker",
-      "sublabel": "wrangler deploy \u00b7 D1",
+      "sublabel": "wrangler deploy · D1",
       "width": 116
     },
     {
@@ -195,7 +195,16 @@
       "col": 1,
       "type": "cloud",
       "label": "Run + monitor",
-      "sublabel": "crons \u00b7 /health \u00b7 Brevo",
+      "sublabel": "crons · /health · Brevo",
+      "width": 116
+    },
+    {
+      "id": "deployworker",
+      "lane": "github",
+      "col": 2,
+      "type": "external",
+      "label": "Deploy Worker",
+      "sublabel": "wrangler · migrations",
       "width": 116
     }
   ],
@@ -229,8 +238,19 @@
     },
     {
       "from": "ci",
-      "to": "gate",
+      "to": "deploy",
       "label": "green"
+    },
+    {
+      "from": "deploy",
+      "to": "pages",
+      "label": "wrangler",
+      "variant": "emphasis"
+    },
+    {
+      "from": "pages",
+      "to": "gate",
+      "label": "review"
     },
     {
       "from": "gate",
@@ -239,10 +259,9 @@
       "variant": "security"
     },
     {
-      "from": "deploy",
-      "to": "pages",
-      "label": "wrangler",
-      "variant": "emphasis"
+      "from": "deployworker",
+      "to": "worker",
+      "label": "you run it"
     },
     {
       "from": "pages",
@@ -259,19 +278,19 @@
       "dot": "emerald",
       "title": "Tech stack",
       "items": [
-        "TypeScript \u00b7 Node 24 \u00b7 pnpm \u00b7 Astro 7 \u00b7 Tailwind 4 \u00b7 Ajv \u00b7 YAML",
-        "Cloudflare Workers \u00b7 D1 \u00b7 Turnstile \u00b7 Email Routing \u00b7 Pages",
-        "Vitest \u00b7 Miniflare 4 \u00b7 esbuild \u00b7 jsdom \u00b7 GitHub Actions \u00b7 gitleaks",
-        "Brevo \u00b7 CookieYes \u00b7 GTM/GA4 \u00b7 wrangler \u00b7 Archify diagrams"
+        "TypeScript · Node 24 · pnpm · Astro 7 · Tailwind 4 · Ajv · YAML",
+        "Cloudflare Workers · D1 · Turnstile · Email Routing · Pages",
+        "Vitest · Miniflare 4 · esbuild · jsdom · GitHub Actions · gitleaks",
+        "Brevo · CookieYes · GTM/GA4 · wrangler · Archify diagrams"
       ]
     },
     {
       "dot": "cyan",
       "title": "Commands",
       "items": [
-        "pnpm build:site <site> <out> [--preview] \u00b7 pnpm test",
+        "pnpm build:site <site> <out> [--preview] · pnpm test",
         "pnpm check:launch clients/<slug>",
-        "wrangler dev \u00b7 deploy [--env preview] \u00b7 d1 migrations apply"
+        "wrangler dev · deploy [--env preview] · d1 migrations apply"
       ]
     },
     {
@@ -279,7 +298,7 @@
       "title": "Set up once (not done yet)",
       "items": [
         "Cloudflare token, account ID, Pages project, preview Worker",
-        "Brevo attributes + key \u00b7 CookieYes, GTM, GA4 IDs"
+        "Brevo attributes + key · CookieYes, GTM, GA4 IDs"
       ]
     }
   ]

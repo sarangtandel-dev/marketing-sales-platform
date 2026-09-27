@@ -42,8 +42,8 @@
   ],
   "mainPath": [
     "design",
-    "plan",
     "built",
+    "prep",
     "human",
     "launch",
     "live"
@@ -54,28 +54,29 @@
       "lane": "done",
       "col": 0,
       "type": "backend",
-      "label": "Module 1 design",
-      "sublabel": "CONTEXT.md + 39 ADRs",
+      "label": "Design + spec",
+      "sublabel": "39 ADRs · spec · tickets",
       "tag": "done",
-      "width": 112
-    },
-    {
-      "id": "plan",
-      "lane": "done",
-      "col": 1,
-      "type": "backend",
-      "label": "M0 spec",
-      "sublabel": "decisions · tickets",
       "width": 112
     },
     {
       "id": "built",
       "lane": "done",
-      "col": 2,
+      "col": 1,
       "type": "backend",
       "label": "M0 code built",
-      "sublabel": "13 agent tickets",
+      "sublabel": "13 tickets · review fixes",
       "tag": "2026-09-27",
+      "width": 112
+    },
+    {
+      "id": "prep",
+      "lane": "done",
+      "col": 2,
+      "type": "backend",
+      "label": "Launch prep",
+      "sublabel": "pages · privacy · check",
+      "tag": "c296b71",
       "width": 112
     },
     {
@@ -84,7 +85,7 @@
       "col": 3,
       "type": "frontend",
       "label": "Human work",
-      "sublabel": "Theme · copy · privacy",
+      "sublabel": "30 · 33 · 34 · 21",
       "tag": "next",
       "width": 112
     },
@@ -94,7 +95,7 @@
       "col": 4,
       "type": "security",
       "label": "Launch (36)",
-      "sublabel": "accounts · checklist",
+      "sublabel": "after check:launch",
       "tag": "human"
     },
     {
@@ -135,18 +136,18 @@
   "edges": [
     {
       "from": "design",
-      "to": "plan",
-      "fromSide": "right",
-      "toSide": "left"
-    },
-    {
-      "from": "plan",
       "to": "built",
       "fromSide": "right",
       "toSide": "left"
     },
     {
       "from": "built",
+      "to": "prep",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "prep",
       "to": "human",
       "variant": "emphasis"
     },
@@ -190,16 +191,17 @@
   "cards": [
     {
       "dot": "emerald",
-      "title": "Built (13 of 17 tickets)",
+      "title": "Built and prepared",
       "items": [
-        "20–29, 31, 32, 35 · 160 tests · preview deploy waits on Cloudflare setup"
+        "Agent tickets 20, 22–29, 31, 32, 35 done · independent review fixes · 202 tests",
+        "Launch prep: Client #0 pages with TO FILL placeholders, privacy draft, pnpm check:launch"
       ]
     },
     {
       "dot": "amber",
-      "title": "Open issues (23)",
+      "title": "Issues by status (36)",
       "items": [
-        "Human: 30, 33, 34, 36 · 12, 17 · Agent: 01–11, 13, 14, 16, 18, 19 · Triage: 15"
+        "Done 23 · Human 7: 12, 17, 21, 30, 33, 34, 36 · Agent 5: 06, 09, 10, 16 (M1/M2), 18 (needs our domain) · Triage 1: 15"
       ]
     }
   ]

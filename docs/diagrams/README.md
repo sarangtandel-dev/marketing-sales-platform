@@ -8,6 +8,7 @@ The `.json` file next to each diagram is its source. Edit the JSON and regenerat
 |---|---|---|---|
 | [project-status](project-status.html) | workflow | Where the project is: design done, M0 in progress, the M1 and M2 triggers, and issue counts by status | ADR-0039, issue `Status:` lines |
 | [end-to-end-flow](end-to-end-flow.html) | workflow | The whole M0 flow in one picture: authoring, build and deploy, the launch gate, consent and tracking, the Lead's journey through the Worker, alerts, retries and monitoring. What's manual and what's for later are marked | ADR-0013, 0020, 0022, 0037, 0038, 0039, `docs/development.md` |
+| [build-and-tech-flow](build-and-tech-flow.html) | workflow | How we build: each step from describing a Client to running in production, and the exact tech and commands at each step | `docs/development.md`, `package.json` files, `.github/workflows/`, `packages/form-worker/wrangler.jsonc` |
 | [m0-system](m0-system.html) | architecture | The M0 system: site, consent and tracking, form Worker, Lead Log, Brevo, owner alert, monitoring | ADR-0002, 0013, 0020, 0022, 0028, 0029, 0039 |
 | [lead-capture](lead-capture.html) | sequence | What happens when a Visitor submits a form | ADR-0013, 0021, 0028, 0036 |
 | [module-1-pipeline](module-1-pipeline.html) | workflow | The website-creation pipeline for a Client, and which steps are manual or automated | ADR-0005, 0007, 0035, 0037, 0038, 0039 |

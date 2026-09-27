@@ -10,7 +10,8 @@
     "prepare": "git config core.hooksPath .githooks",
     "test": "vitest run",
     "secrets:scan": "gitleaks git --redact --no-banner .",
-    "build:site": "node packages/site-builder/src/cli.ts"
+    "build:site": "node packages/site-builder/src/cli.ts",
+    "check:launch": "node tooling/launch-check.ts"
   },
   "devDependencies": {
     "vitest": "^5.0.2",

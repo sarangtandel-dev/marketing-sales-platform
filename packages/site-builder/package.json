@@ -10,5 +10,8 @@
     "ajv": "^8.20.0",
     "astro": "^7.3.5",
     "tailwindcss": "^4.3.3"
+  },
+  "exports": {
+    "./definition": "./src/definition.ts"
   }
 }

@@ -1,6 +1,6 @@
 # Only gclid and fbclid are captured
 
-Status: ready-for-agent
+Status: done
 Source: file audit, 2026-09-17
 
 ## Problem

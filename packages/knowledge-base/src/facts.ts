@@ -8,7 +8,7 @@ import { parse } from "yaml";
 export type Issue = { path: string; message: string };
 
 const schema = JSON.parse(readFileSync(new URL("../schema/facts.schema.json", import.meta.url), "utf8"));
-const check = new Ajv2020({ allErrors: true }).compile(schema);
+const check = new Ajv2020({ allErrors: true, allowUnionTypes: true }).compile(schema);
 
 const describe = (e: ErrorObject) =>
   e.keyword === "enum"

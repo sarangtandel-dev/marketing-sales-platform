@@ -1,5 +1,9 @@
 {
   "name": "@msp/tooling",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@msp/knowledge-base": "workspace:*",
+    "@msp/site-builder": "workspace:*"
+  }
 }

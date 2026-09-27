@@ -88,6 +88,22 @@ The Worker upserts each Lead as a Brevo contact, keyed by email. Before the firs
 - **Uptime (set up by a person):** use any free external uptime monitor. Have it check the site's home page and the Worker's `GET /health` every 5 minutes, and alert by email. `/health` writes nothing.
 - **Secrets and vars:** `wrangler secret put MONITOR_SECRET`, plus the `MONITOR_TEST_EMAIL` var: an address we own, which is cleaned out of Brevo after every check.
 
+## Launch check
+
+```bash
+pnpm check:launch clients/client-zero
+```
+
+**Fails** (exit 1) on any of these:
+- an invalid site definition or facts file
+- a `TO FILL` placeholder anywhere in the site definition, Theme or facts file
+- an `unverified` or `rejected` Fact
+- a pages.dev `site_url`
+- a Turnstile test key or placeholder form endpoint in production
+- a missing GTM, GA4 or consent tool setting
+
+**Always lists** the launch checks only a person can do: claims checked against Facts, alt text and rights, contrast, the privacy review, the end-to-end test Lead, the alert address, Search Console and monitoring.
+
 ## Procedures
 
 - [Lead data requests](procedures/lead-data-requests.md): export or delete one Lead's data on request.

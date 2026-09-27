@@ -8,9 +8,15 @@
   },
   "type": {
     "body": "system-ui, sans-serif",
-    "heading": "system-ui, sans-serif"
+    "heading": "system-ui, sans-serif /* TO FILL: replace this placeholder Theme with the Claude Design export (ticket 30) */"
   },
-  "spacing": { "section": "5rem" },
-  "radius": { "card": "0.5rem" },
-  "shadows": { "card": "0 1px 2px rgb(0 0 0 / 0.08)" }
+  "spacing": {
+    "section": "5rem"
+  },
+  "radius": {
+    "card": "0.5rem"
+  },
+  "shadows": {
+    "card": "0 1px 2px rgb(0 0 0 / 0.08)"
+  }
 }

@@ -1,6 +1,6 @@
 # Last touch records returning organic/referral visits as (direct)
 
-Status: ready-for-agent
+Status: done
 Source: file audit, 2026-09-17
 
 ## Problem

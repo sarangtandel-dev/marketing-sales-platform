@@ -1,6 +1,6 @@
 # M0 gaps that need a decision before Client #0 launches
 
-Status: ready-for-agent
+Status: done
 Source: ADR-0039 re-audit, 2026-09-17
 
 These items weren't in the M0 scope list, but each one affects whether M0 captures leads **safely**. There's a recommendation for each.

@@ -5,53 +5,746 @@
     "site_url": "https://client-zero.pages.dev",
     "theme": "../design/theme.json",
     "default_language": "en",
-    "languages": ["en"],
-    "version": "0.1.0"
+    "languages": [
+      "en"
+    ],
+    "version": "0.2.0",
+    "turnstile_site_key": "TO-FILL-production-turnstile-site-key"
   },
   "pages": [
     {
       "id": "home",
       "type": "home",
-      "slug": { "en": "" },
+      "slug": {
+        "en": ""
+      },
       "seo": {
-        "title": { "en": "Coming soon" },
-        "description": { "en": "Our new website is on its way." }
+        "title": {
+          "en": "[TO FILL: page title, e.g. agency name and what it does (Fact: business-name)]"
+        },
+        "description": {
+          "en": "[TO FILL: one-sentence description (Fact: business-description)]"
+        }
       },
       "sections": [
         {
           "component": "hero",
           "variant": "centered",
           "text": {
-            "heading": { "en": "Our new website is on its way" },
-            "body": { "en": "Placeholder page for Client #0 until ticket 33 adds the real site definition." }
-          }
+            "heading": {
+              "en": "[TO FILL: one line on what we do and for whom (Fact: business-description)]"
+            },
+            "body": {
+              "en": "[TO FILL: one or two sentences expanding on it]"
+            }
+          },
+          "ctas": [
+            "consult",
+            "services"
+          ]
+        },
+        {
+          "component": "services",
+          "variant": "grid",
+          "text": {
+            "heading": {
+              "en": "What we do"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-1)]"
+                },
+                "body": {
+                  "en": "[TO FILL: what it includes]"
+                }
+              },
+              "page": "services"
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-2)]"
+                },
+                "body": {
+                  "en": "[TO FILL: what it includes]"
+                }
+              },
+              "page": "services"
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-3)]"
+                },
+                "body": {
+                  "en": "[TO FILL: what it includes]"
+                }
+              },
+              "page": "services"
+            }
+          ]
+        },
+        {
+          "component": "steps",
+          "variant": "numbered",
+          "text": {
+            "heading": {
+              "en": "How we work together"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: step 1, e.g. a first call]"
+                },
+                "body": {
+                  "en": "[TO FILL: what happens]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: step 2]"
+                },
+                "body": {
+                  "en": "[TO FILL: what happens]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: step 3]"
+                },
+                "body": {
+                  "en": "[TO FILL: what happens]"
+                }
+              }
+            }
+          ],
+          "ctas": [
+            "consult"
+          ]
+        },
+        {
+          "component": "cta-band",
+          "variant": "primary",
+          "text": {
+            "heading": {
+              "en": "[TO FILL: closing call to action]"
+            },
+            "body": {
+              "en": "[TO FILL: one supporting sentence]"
+            }
+          },
+          "ctas": [
+            "consult"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "type": "services",
+      "slug": {
+        "en": "services"
+      },
+      "seo": {
+        "title": {
+          "en": "[TO FILL: services page title]"
+        },
+        "description": {
+          "en": "[TO FILL: services page description]"
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "split",
+          "text": {
+            "heading": {
+              "en": "Services"
+            },
+            "body": {
+              "en": "[TO FILL: short introduction to our services]"
+            }
+          },
+          "ctas": [
+            "consult"
+          ]
+        },
+        {
+          "component": "services",
+          "variant": "list",
+          "text": {
+            "heading": {
+              "en": "What each engagement includes"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-1)]"
+                },
+                "body": {
+                  "en": "[TO FILL: scope, deliverables and who it's for]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-2)]"
+                },
+                "body": {
+                  "en": "[TO FILL: scope, deliverables and who it's for]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "[TO FILL: service name (Fact: offering-3)]"
+                },
+                "body": {
+                  "en": "[TO FILL: scope, deliverables and who it's for]"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "faq",
+          "variant": "accordion",
+          "text": {
+            "heading": {
+              "en": "Questions we're often asked"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "question": {
+                  "en": "[TO FILL: question]"
+                },
+                "answer": {
+                  "en": "[TO FILL: answer backed by a Fact where it makes a claim]"
+                }
+              }
+            },
+            {
+              "text": {
+                "question": {
+                  "en": "[TO FILL: question]"
+                },
+                "answer": {
+                  "en": "[TO FILL: answer]"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "cta-band",
+          "variant": "subtle",
+          "text": {
+            "heading": {
+              "en": "[TO FILL: call to action]"
+            }
+          },
+          "ctas": [
+            "consult",
+            "email"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "slug": {
+        "en": "about"
+      },
+      "seo": {
+        "title": {
+          "en": "[TO FILL: about page title]"
+        },
+        "description": {
+          "en": "[TO FILL: about page description]"
+        }
+      },
+      "sections": [
+        {
+          "component": "hero",
+          "variant": "split",
+          "text": {
+            "heading": {
+              "en": "About us"
+            },
+            "body": {
+              "en": "[TO FILL: who we are, in one sentence]"
+            }
+          },
+          "ctas": [
+            "consult"
+          ]
+        },
+        {
+          "component": "text",
+          "variant": "prose",
+          "text": {
+            "heading": {
+              "en": "Our story"
+            },
+            "intro": {
+              "en": "[TO FILL: short introduction]"
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "body": {
+                  "en": "[TO FILL: a paragraph about the agency; only claims backed by Facts]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "How we work"
+                },
+                "body": {
+                  "en": "[TO FILL: our approach]"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "component": "cta-band",
+          "variant": "primary",
+          "text": {
+            "heading": {
+              "en": "[TO FILL: call to action]"
+            }
+          },
+          "ctas": [
+            "consult"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "type": "contact",
+      "slug": {
+        "en": "contact"
+      },
+      "seo": {
+        "title": {
+          "en": "Contact us"
+        },
+        "description": {
+          "en": "[TO FILL: contact page description]"
+        }
+      },
+      "sections": [
+        {
+          "component": "contact-form",
+          "variant": "stacked",
+          "text": {
+            "heading": {
+              "en": "Tell us about your project"
+            },
+            "body": {
+              "en": "[TO FILL: what happens after someone sends the form, e.g. who replies and when]"
+            }
+          },
+          "form": "consultation"
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "type": "privacy",
+      "slug": {
+        "en": "privacy"
+      },
+      "seo": {
+        "title": {
+          "en": "Privacy policy"
+        },
+        "description": {
+          "en": "How we collect and use personal data on this website."
+        }
+      },
+      "sections": [
+        {
+          "component": "text",
+          "variant": "prose",
+          "text": {
+            "heading": {
+              "en": "Privacy policy"
+            },
+            "intro": {
+              "en": "This policy explains what personal data this website collects, why, and the choices you have."
+            }
+          },
+          "items": [
+            {
+              "text": {
+                "title": {
+                  "en": "Draft status"
+                },
+                "body": {
+                  "en": "[TO FILL: remove this block once a qualified person has reviewed and approved this policy (ticket 34), and record the reviewer and date in the ticket.]\n\nThis policy is a draft written from how the site actually works. It must not go live unreviewed."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Who we are"
+                },
+                "body": {
+                  "en": "[TO FILL: legal name] (\"we\", \"us\") runs this website. We decide why and how the personal data described here is used, so we are its data controller (a Data Fiduciary under India's Digital Personal Data Protection Act, 2023).\n\nAddress: [TO FILL: registered address]. Contact for anything in this policy: [TO FILL: privacy contact email]."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "What we collect when you contact us"
+                },
+                "body": {
+                  "en": "When you send an enquiry through our contact form, we receive the details you type in: your name, email address, company, role, company size and your message.\n\nWith the enquiry we also record the page you sent it from (without any tracking codes in the address), the time, the language of the page, and your cookie choices. If you have accepted analytics cookies, we also record how you first and most recently found our site (for example a search engine or a campaign link), as described under \"Cookies and similar storage\"."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Why we use it"
+                },
+                "body": {
+                  "en": "We use your enquiry to reply to you and to discuss the work you asked about. Under the DPDP Act, you give us these details voluntarily for that purpose. Under the GDPR, where it applies, our legal basis is taking steps at your request before entering into a contract, and our legitimate interest in answering business enquiries.\n\nWe send you marketing emails only if you tick the box on the form. That box is never ticked for you, and we keep a record of the exact wording you agreed to and when. You can unsubscribe from any email at any time."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Who processes it for us"
+                },
+                "body": {
+                  "en": "Cloudflare hosts this website and runs the service that receives the form. It checks submissions for spam with Cloudflare Turnstile, keeps a short-term copy of each enquiry (the Lead Log) and sends us an email alert about it.\n\nBrevo stores enquiries as our contact records and sends our emails.\n\nCookieYes shows the cookie banner and keeps a record of your cookie choices.\n\nGoogle (Google Tag Manager and Google Analytics) measures how the site is used, and only if you accept analytics cookies.\n\nEach of them processes the data only to provide their service to us. [TO FILL: confirm each provider's data processing terms and processing locations during review.]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "How long we keep it"
+                },
+                "body": {
+                  "en": "The short-term copy of your enquiry (the Lead Log) is deleted automatically after 90 days.\n\nIn Brevo we keep your contact record for [TO FILL: retention period decided during review], or until you ask us to delete it. Your cookie choices are kept by CookieYes for [TO FILL: CookieYes consent record retention]."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Cookies and similar storage"
+                },
+                "body": {
+                  "en": "Nothing that tracks you runs until you accept it in the cookie banner, and you can change your choice at any time from the cookie settings link.\n\nIf you accept analytics cookies, Google Analytics sets its own cookies, and our site keeps a note in your browser of how you first and most recently arrived (for example \"google / organic\" or a campaign name) for 90 days. It never stores your name, email or phone number. If you also accept advertising cookies, that note can include the ad click identifier in the link you followed. Withdrawing your consent deletes the note.\n\nThe spam check (Cloudflare Turnstile) is needed to protect the form, so it runs without a cookie choice."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Transfers outside India"
+                },
+                "body": {
+                  "en": "Our providers may process data outside India, including in the European Union and the United States. Cloudflare processes requests at locations worldwide. [TO FILL: confirm the transfer mechanisms and any countries restricted under the DPDP Act during review.]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Your rights"
+                },
+                "body": {
+                  "en": "Under the DPDP Act you can ask us for a summary of the personal data we hold about you and how we use it, ask us to correct, complete or erase it, withdraw your consent, nominate someone to act for you, and have a grievance addressed. If we don't resolve it, you can complain to the Data Protection Board of India.\n\nIf the GDPR applies to you, you can also ask for access, correction, erasure, restriction or a copy of your data, object to our use of it, and complain to your data protection authority.\n\nTo use any of these rights, email [TO FILL: privacy contact email]. We will answer within [TO FILL: response time decided during review]."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Grievance officer"
+                },
+                "body": {
+                  "en": "[TO FILL: name or role of the person handling privacy grievances, and their contact details, as required for India.]"
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Children"
+                },
+                "body": {
+                  "en": "This site is for businesses and isn't meant for children. We don't knowingly collect personal data from anyone under 18."
+                }
+              }
+            },
+            {
+              "text": {
+                "title": {
+                  "en": "Changes to this policy"
+                },
+                "body": {
+                  "en": "We will post any change here and update the date below.\n\nLast updated: [TO FILL: date of the reviewed version]."
+                }
+              }
+            }
+          ],
+          "ctas": [
+            "consult"
+          ]
         }
       ]
     },
     {
       "id": "not-found",
       "type": "not-found",
-      "slug": { "en": "404" },
+      "slug": {
+        "en": "404"
+      },
       "seo": {
-        "title": { "en": "Page not found" },
-        "description": { "en": "This page doesn't exist." }
+        "title": {
+          "en": "Page not found"
+        },
+        "description": {
+          "en": "This page doesn't exist."
+        }
       },
       "sections": [
         {
           "component": "hero",
           "variant": "centered",
-          "text": { "heading": { "en": "We couldn't find that page" } },
-          "ctas": ["home"]
+          "text": {
+            "heading": {
+              "en": "We couldn't find that page"
+            },
+            "body": {
+              "en": "It may have moved. Try the home page, or get in touch."
+            }
+          },
+          "ctas": [
+            "home",
+            "consult"
+          ]
         }
       ]
     }
   ],
   "ctas": [
-    { "id": "home", "type": "visit", "label": { "en": "Go to the home page" }, "target": { "page": "home" } }
+    {
+      "id": "consult",
+      "type": "consultation_request",
+      "label": {
+        "en": "Book a consultation"
+      },
+      "target": {
+        "page": "contact"
+      }
+    },
+    {
+      "id": "services",
+      "type": "visit",
+      "label": {
+        "en": "See our services"
+      },
+      "target": {
+        "page": "services"
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "channel": "email",
+      "label": {
+        "en": "Email us"
+      },
+      "target": {
+        "href": "mailto:TO-FILL@example.com"
+      }
+    },
+    {
+      "id": "home",
+      "type": "visit",
+      "label": {
+        "en": "Go to the home page"
+      },
+      "target": {
+        "page": "home"
+      }
+    }
   ],
-  "forms": [],
-  "navigation": [{ "page": "home", "label": { "en": "Home" } }],
-  "footer": { "text": { "en": "Client #0" } },
-  "tracking": {},
+  "forms": [
+    {
+      "id": "consultation",
+      "form_type": "consultation_request",
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "label": {
+            "en": "Your name"
+          },
+          "required": true,
+          "autocomplete": "name"
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "label": {
+            "en": "Work email"
+          },
+          "required": true,
+          "autocomplete": "email"
+        },
+        {
+          "name": "company",
+          "type": "text",
+          "label": {
+            "en": "Company"
+          },
+          "required": true,
+          "autocomplete": "organization"
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "label": {
+            "en": "Your role"
+          },
+          "autocomplete": "organization-title"
+        },
+        {
+          "name": "company_size",
+          "type": "select",
+          "label": {
+            "en": "Company size"
+          },
+          "options": [
+            {
+              "value": "1-10",
+              "label": {
+                "en": "1–10 people"
+              }
+            },
+            {
+              "value": "11-50",
+              "label": {
+                "en": "11–50 people"
+              }
+            },
+            {
+              "value": "51-200",
+              "label": {
+                "en": "51–200 people"
+              }
+            },
+            {
+              "value": "201+",
+              "label": {
+                "en": "More than 200 people"
+              }
+            }
+          ]
+        },
+        {
+          "name": "need",
+          "type": "textarea",
+          "label": {
+            "en": "What do you need help with?"
+          },
+          "required": true
+        }
+      ],
+      "opt_ins": [
+        {
+          "channel": "email",
+          "label": {
+            "en": "Send me occasional emails about our work. I can unsubscribe at any time."
+          }
+        }
+      ],
+      "endpoint": "https://forms.TO-FILL.invalid/lead",
+      "submit": {
+        "en": "Send enquiry"
+      },
+      "success": {
+        "en": "[TO FILL: thank-you message, e.g. who replies and within what time]"
+      },
+      "error": {
+        "en": "Sorry, your enquiry didn't send. Please try again."
+      },
+      "privacy_page": "privacy",
+      "privacy_notice": {
+        "en": "How we use your details"
+      }
+    }
+  ],
+  "navigation": [
+    {
+      "page": "home",
+      "label": {
+        "en": "Home"
+      }
+    },
+    {
+      "page": "services",
+      "label": {
+        "en": "Services"
+      }
+    },
+    {
+      "page": "about",
+      "label": {
+        "en": "About"
+      }
+    },
+    {
+      "page": "contact",
+      "label": {
+        "en": "Contact"
+      }
+    }
+  ],
+  "footer": {
+    "text": {
+      "en": "[TO FILL: © year and legal name (Fact: business-name)]"
+    }
+  },
+  "tracking": {
+    "gtm": "GTM-TOFILL",
+    "ga4": "G-TOFILL",
+    "consent_tool": {
+      "provider": "cookieyes",
+      "id": "TO-FILL"
+    }
+  },
   "redirects": []
 }

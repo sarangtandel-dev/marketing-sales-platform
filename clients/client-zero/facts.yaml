@@ -22,6 +22,18 @@ facts:
     source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
     status: unverified
 
+  - id: legal-name
+    kind: legal-name
+    value: "TO FILL: our registered legal name (used in the privacy policy and footer)"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: registered-address
+    kind: address
+    value: "TO FILL: our registered address"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
   - id: business-description
     kind: description
     value:
@@ -29,16 +41,36 @@ facts:
     source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
     status: unverified
 
-  - id: offering-websites
+  - id: offering-1
     kind: offering
     value:
-      en: "TO FILL: a service we offer"
+      en: "TO FILL: our first service"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: offering-2
+    kind: offering
+    value:
+      en: "TO FILL: our second service"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: offering-3
+    kind: offering
+    value:
+      en: "TO FILL: our third service"
     source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
     status: unverified
 
   - id: contact-email
     kind: contact-email
     value: "TO FILL: our business enquiries address"
+    source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
+    status: unverified
+
+  - id: privacy-contact
+    kind: contact-email
+    value: "TO FILL: the address for privacy requests and grievances"
     source: { type: person, who: "TO FILL: role", date: "2026-09-27" }
     status: unverified
 

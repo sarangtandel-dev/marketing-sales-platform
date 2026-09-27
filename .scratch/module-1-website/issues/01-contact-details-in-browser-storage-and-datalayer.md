@@ -1,6 +1,6 @@
 # Contact details are stored in browser storage and pushed to the dataLayer
 
-Status: ready-for-agent
+Status: done
 Source: file audit, 2026-09-17
 
 ## Problem

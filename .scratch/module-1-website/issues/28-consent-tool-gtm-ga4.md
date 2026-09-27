@@ -4,7 +4,7 @@
 
 **Blocked by:** 21, 27
 
-Status: ready-for-agent
+Status: done
 
 Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 

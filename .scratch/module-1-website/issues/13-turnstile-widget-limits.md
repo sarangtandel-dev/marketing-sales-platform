@@ -1,6 +1,6 @@
 # Turnstile's free-tier widget limits cap how many Clients we can serve
 
-Status: ready-for-agent
+Status: done
 Source: Cloudflare research, 2026-09-17
 
 ## Problem

@@ -1,6 +1,6 @@
 # Automated tests for the rewritten attribution script
 
-Status: ready-for-agent
+Status: done
 Source: ADR-0022, 2026-09-17
 
 ## Problem

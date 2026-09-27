@@ -20,3 +20,5 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 
 - Confirm the deployed `send_email` binding accepts the structured `send({ from, to, subject, text })` form. The classic Email Routing binding takes `new EmailMessage(from, to, rawMime)`. wrangler dev and Cloudflare's current docs accept the structured form, but the tests use a fake binding. If alerts show `alert_status = 'failed'`, switch to a raw MIME message.
 - Deploy the preview form Worker (`wrangler deploy --env preview`), and set the `PREVIEW_FORM_ENDPOINT` repository variable.
+
+2026-09-27: `pnpm check:launch clients/client-zero` runs the automated half of the launch checklist and prints the manual half. See `docs/development.md` ("Launch check").

@@ -6,7 +6,7 @@ Issues and specs live as local markdown files under `.scratch/<feature>/`. See `
 
 ### Triage labels
 
-Uses the five default triage labels (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix), recorded as a `Status:` line in each issue file. See `docs/agents/triage-labels.md`.
+Uses the five default triage labels (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix), plus `done` for built and verified issues, recorded as a `Status:` line in each issue file. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 

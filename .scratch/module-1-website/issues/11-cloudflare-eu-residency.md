@@ -1,6 +1,6 @@
 # Confirm which Cloudflare storage products can guarantee EU residency
 
-Status: ready-for-agent
+Status: done
 Source: ADR-0013, ADR-0016, 2026-09-17
 
 ## Problem

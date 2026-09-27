@@ -1,6 +1,6 @@
 # Make's responsibilities need a new home
 
-Status: ready-for-agent
+Status: done
 Source: file audit, 2026-09-17
 
 ## Problem

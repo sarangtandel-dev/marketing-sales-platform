@@ -4,7 +4,7 @@
 
 **Blocked by:** 20
 
-Status: ready-for-agent
+Status: ready-for-human
 
 Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 
@@ -30,3 +30,5 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - **Not yet there:** there's no favicon, and no `astro check` type-check step in CI.
 
 2026-09-27, review fix: branch deploys now build with `--preview` and post forms to a preview Worker (`PREVIEW_FORM_ENDPOINT`, wrangler env `preview`). Before this, once the Cloudflare secrets existed, previews would have used the production Turnstile widget and the production Worker (independent review #1).
+
+2026-09-27: everything but the live preview is done. What's left is the Cloudflare setup in `docs/development.md` ("Deploying"), which needs a person with account access.

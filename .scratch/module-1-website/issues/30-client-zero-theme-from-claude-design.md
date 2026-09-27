@@ -12,3 +12,5 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - [ ] The tokens (colours, type, spacing, radius, shadows) are exported into the Theme format from ticket 21: by hand, or through `/design-sync` if issue 12 has passed
 - [ ] The Section Variants the design uses are listed for ticket 31
 - [ ] Colour pairs are checked for WCAG AA contrast by hand, and the result is noted for the launch checklist
+
+2026-09-27: `clients/client-zero/design/theme.json` is still a placeholder, and its heading font value carries a `TO FILL` marker so the launch check fails until the Claude Design export replaces it.

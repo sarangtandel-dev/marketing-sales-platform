@@ -1,6 +1,6 @@
 # form_start reads a form_type that nothing pushes
 
-Status: ready-for-agent
+Status: done
 Source: file audit, 2026-09-17
 
 ## Problem

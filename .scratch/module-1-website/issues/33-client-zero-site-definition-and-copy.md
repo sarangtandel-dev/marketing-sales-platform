@@ -15,3 +15,16 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - [ ] No superlatives appear without a third-party Source. Any hand-written JSON-LD follows issue 06's rules
 - [ ] Every image has alt text and recorded rights, and no AI image shows real people, premises or work (ADR-0018)
 - [ ] The page structure is recorded as input to the M1 professional/B2B pack
+
+2026-09-27, prepared by the agent (the ticket stays with a person):
+
+- **Pages:** `clients/client-zero/site/site-definition.json` now has the full page structure: home, services, about, contact, privacy and 404.
+  - Every page offers a way to the form.
+  - The primary CTA is `consultation_request`; the secondary is `email`. A `book` CTA can be added once a calendar link exists.
+  - The form has the fields ADR-0033 asks for (name, work email, company, role, company size, need) and no budget question, plus the unticked email opt-in.
+- **Where you come in:** every piece of copy that makes a claim is a `[TO FILL: …]` placeholder, naming the Fact it should come from. `facts.yaml` has a matching placeholder Fact for each, all `unverified`.
+- **Your part:**
+  1. Fill in and verify the Facts.
+  2. Write the copy from them.
+  3. Set the real domain, the Turnstile site key, the form endpoint, and the GTM, GA4 and CookieYes IDs.
+- **Done when:** `pnpm check:launch clients/client-zero` shows no failures.

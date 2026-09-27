@@ -4,6 +4,17 @@
   "name": "msp-form-worker",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
+  // Production is served only on the Client's own route (set at launch, ticket 36); the
+  // workers.dev address stays off so nothing can bypass the zone's rules (audit security M1).
+  "workers_dev": false,
+  // Logs and traces for incidents (Workers Logs; see docs/procedures/incident.md).
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+  },
+  // Per-IP limit on /lead (audit security M1). Generous for real Visitors; slows floods.
+  "ratelimits": [{ "name": "LEAD_RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }],
   // Brevo retries every 5 minutes; the 90-day Lead Log purge daily (ADR-0013).
   // Must match src/schedules.ts.
   "triggers": { "crons": ["*/5 * * * *", "17 3 * * *"] },
@@ -20,6 +31,7 @@
   // address before launch; ALERT_FROM must be on a domain with Email Routing enabled.
   "send_email": [{ "name": "OWNER_ALERT", "destination_address": "owner@example.com" }],
   "vars": {
+    "CLIENT_SLUG": "client-zero",
     "ALLOWED_ORIGINS": "https://client-zero.pages.dev",
     "ALERT_FROM": "alerts@example.com",
     "ALERT_TO": "owner@example.com",
@@ -33,6 +45,9 @@
   "env": {
     "preview": {
       "name": "msp-form-worker-preview",
+      // The preview Worker lives on workers.dev (no custom route) and is rate limited.
+      "workers_dev": true,
+      "ratelimits": [{ "name": "LEAD_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } }],
       "d1_databases": [
         {
           "binding": "LEAD_LOG",
@@ -42,7 +57,11 @@
         }
       ],
       "send_email": [{ "name": "OWNER_ALERT", "destination_address": "owner@example.com" }],
+      // No BREVO_API_KEY here: QA Leads are stored and alerted, never delivered (audit security H1).
       "vars": {
+        "CLIENT_SLUG": "client-zero",
+        // Turnstile's test secret reports example.com for every token, so the check is off here only.
+        "TURNSTILE_SKIP_HOSTNAME": "true",
         "ALLOWED_ORIGINS": "https://client-zero.pages.dev,https://*.client-zero.pages.dev",
         "ALERT_FROM": "alerts@example.com",
         "ALERT_TO": "owner@example.com",

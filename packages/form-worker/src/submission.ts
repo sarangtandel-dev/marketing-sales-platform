@@ -83,8 +83,9 @@ export function parseSubmission(raw: string): Submission | null {
     if (!optIns.some((x) => x.channel === o.channel)) optIns.push({ channel: "email", version: o.version });
   }
 
-  const attribution = parseAttribution(rawAttribution);
-  if (attribution === null) return null;
+  // Attribution is best-effort: if it's malformed or too large, the Lead is stored without it
+  // rather than rejected (audit code #1: a long tracking link must never cost a Lead).
+  const attribution = parseAttribution(rawAttribution) ?? undefined;
 
   // The Visitor's Consent state when they submitted (ADR-0036's Lead record).
   if (consent !== undefined) {

@@ -8,7 +8,7 @@ import { plusMinutes } from "./schedules.ts";
 //   sending   → an attempt holds the row until next_attempt_at (a lease, so the first
 //               attempt and the cron never deliver the same Lead at once)
 //   retrying  → a temporary failure; try again at next_attempt_at
-//   delivered | skipped (no email) | failed (gave up; the owner was alerted)
+//   delivered | skipped (no email, or no Brevo key) | failed (gave up; the owner was alerted)
 
 // Wait after attempt n before attempt n+1. Six attempts over about 14.5 hours.
 const BACKOFF_MINUTES = [1, 5, 30, 120, 720];
@@ -44,7 +44,8 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
   if (!raw) return;
   const row: Row = { ...raw, fields: JSON.parse(raw.fields), opt_ins: JSON.parse(raw.opt_ins ?? "[]") };
 
-  if (!row.fields.email) {
+  // No email to key on, or no Brevo account (the preview Worker): stored and alerted, not delivered.
+  if (!row.fields.email || !env.BREVO_API_KEY) {
     await db
       .prepare("UPDATE leads SET delivery_status = 'skipped', next_attempt_at = NULL WHERE id = ? AND next_attempt_at = ?")
       .bind(id, lease)

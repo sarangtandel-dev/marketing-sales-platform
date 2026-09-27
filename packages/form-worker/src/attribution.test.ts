@@ -22,14 +22,19 @@ describe("attribution from the tracking script", () => {
     expect(row.attribution).toBeNull();
   });
 
-  it("drops keys it doesn't know and rejects oversized or malformed attribution", async () => {
+  it("drops unknown keys, and stores the Lead without oversized or malformed attribution", async () => {
     w = await startWorker();
     await w.post(submission({ attribution: { first_touch: touch, last_touch: null, ga_client_id: null, email: "x@y.z" } }));
     const [row] = await w.rows();
     expect(JSON.parse(row.attribution as string)).toEqual({ first_touch: touch, last_touch: null, ga_client_id: null });
 
+    // Malformed or oversized attribution is dropped, never a reason to lose the Lead (audit code #1).
     for (const attribution of ["utm", [touch], { first_touch: { ...touch, source: "x".repeat(5000) } }]) {
-      expect((await w.post(submission({ attribution }))).status).toBe(400);
+      const res = await w.post(submission({ attribution }));
+      expect(res.status).toBe(200);
     }
+    const rows = await w.rows();
+    expect(rows).toHaveLength(4);
+    for (const r of rows.slice(1)) expect(r.attribution).toBeNull();
   });
 });

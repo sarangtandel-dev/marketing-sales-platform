@@ -8,6 +8,7 @@ export async function storeLead(
   s: Submission,
   now: Date,
   isTest = false,
+  client: string | null = null,
 ): Promise<{ id: string; created: boolean }> {
   const id = crypto.randomUUID();
   const receivedAt = now.toISOString();
@@ -22,8 +23,8 @@ export async function storeLead(
   await db
     .prepare(
       `INSERT INTO leads (id, submission_token, created_at, form_id, form_type, cta_type, fields, opt_ins, attribution,
-         consent, language, page_url, is_test)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         consent, language, page_url, is_test, client)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (submission_token) DO NOTHING`,
     )
     .bind(
@@ -40,6 +41,7 @@ export async function storeLead(
       s.language ?? null,
       s.page_url ?? null,
       isTest ? 1 : 0,
+      client,
     )
     .run();
   const row = await db

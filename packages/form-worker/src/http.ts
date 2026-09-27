@@ -17,6 +17,12 @@ function originMatches(entry: string, origin: string): boolean {
   return /^[a-z0-9-]+$/i.test(label);
 }
 
+// Whether a Turnstile token's hostname belongs to one of our allowed origins.
+export function hostAllowed(host: string, allowed: string): boolean {
+  const list = allowed.split(",").map((o) => o.trim()).filter(Boolean);
+  return list.some((entry) => originMatches(entry.replace(/^http:/, "https:"), `https://${host}`));
+}
+
 export function corsHeaders(origin: string | null): Record<string, string> {
   return origin
     ? {

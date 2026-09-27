@@ -29,11 +29,17 @@ export const MONITOR_SECRET = "monitor-test-secret";
 
 export type Outbound = (request: Request) => Promise<Response> | Response;
 
-// Turnstile's siteverify: tokens equal to TURNSTILE_PASS succeed, anything else fails.
+// Turnstile's siteverify: TURNSTILE_PASS succeeds for example.test; "turnstile-pass@<host>"
+// succeeds as if solved on <host>; anything else fails. A wrong secret reports it.
 export const fakeTurnstile: Outbound = async (request) => {
   const body = await request.formData();
-  const success = body.get("response") === TURNSTILE_PASS && body.get("secret") === "test-secret";
-  return Response.json({ success, "error-codes": success ? [] : ["invalid-input-response"] });
+  const token = String(body.get("response"));
+  if (body.get("secret") !== "test-secret") {
+    return Response.json({ success: false, "error-codes": ["invalid-input-secret"] });
+  }
+  const [pass, host = "example.test"] = token.split("@");
+  const success = pass === TURNSTILE_PASS;
+  return Response.json({ success, hostname: success ? host : undefined, "error-codes": success ? [] : ["invalid-input-response"] });
 };
 
 // Stands in for the send_email binding (Cloudflare Email Routing). Each send() is
@@ -53,7 +59,7 @@ export type SentEmail = { from: string; to: string; subject: string; text: strin
 
 export type Harness = {
   mf: Miniflare;
-  post: (body: unknown, init?: { origin?: string; headers?: Record<string, string> }) => Promise<Response>;
+  post: (body: unknown, init?: { origin?: string; headers?: Record<string, string>; ip?: string }) => Promise<Response>;
   rows: (sql?: string) => Promise<Record<string, unknown>[]>;
   requests: Request[];
   emails: SentEmail[];
@@ -67,7 +73,13 @@ export type Harness = {
 };
 
 export async function startWorker(
-  opts: { outbound?: Record<string, Outbound>; bindings?: Record<string, string>; mailerFails?: boolean } = {},
+  opts: {
+    outbound?: Record<string, Outbound>;
+    bindings?: Record<string, string>;
+    mailerFails?: boolean;
+    // Requests allowed per IP per 60s by the rate-limit binding (default: effectively unlimited).
+    rateLimit?: number;
+  } = {},
 ): Promise<Harness> {
   const emails: SentEmail[] = [];
   let mailerFails = opts.mailerFails ?? false;
@@ -96,6 +108,7 @@ export async function startWorker(
         script: await bundleWorker(),
         compatibilityDate: COMPATIBILITY_DATE,
         d1Databases: ["LEAD_LOG"],
+        ratelimits: { LEAD_RATE_LIMITER: { namespace_id: "1001", simple: { limit: opts.rateLimit ?? 10_000, period: 60 } } },
         bindings: {
           TURNSTILE_SECRET_KEY: "test-secret",
           ALLOWED_ORIGINS: "https://example.test",
@@ -104,6 +117,7 @@ export async function startWorker(
           BREVO_API_KEY: "brevo-test-key",
           MONITOR_SECRET: MONITOR_SECRET,
           MONITOR_TEST_EMAIL: "monitor@agency.test",
+          CLIENT_SLUG: "fixture",
           ...opts.bindings,
         },
         wrappedBindings: { OWNER_ALERT: "fake-mailer" },
@@ -136,6 +150,7 @@ export async function startWorker(
         headers: {
           "content-type": "application/json",
           ...(init.origin === "" ? {} : { origin: init.origin ?? "https://example.test" }),
+          ...(init.ip ? { "cf-connecting-ip": init.ip } : {}),
           ...init.headers,
         },
         body: typeof body === "string" ? body : JSON.stringify(body),

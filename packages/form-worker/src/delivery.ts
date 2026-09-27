@@ -1,5 +1,5 @@
 import { deliverAlert } from "./alert.ts";
-import { type LeadForBrevo, upsertContact } from "./brevo.ts";
+import { deliverLead, type LeadForBrevo } from "./brevo.ts";
 import type { Env } from "./env.ts";
 import { plusMinutes } from "./schedules.ts";
 
@@ -53,8 +53,15 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
     return;
   }
 
-  const listId = Number(env.BREVO_MARKETING_LIST_ID) || undefined;
-  const result = await upsertContact(env.BREVO_API_KEY, row, listId);
+  const result = await deliverLead(
+    {
+      apiKey: env.BREVO_API_KEY,
+      marketingListId: Number(env.BREVO_MARKETING_LIST_ID) || undefined,
+      doiTemplateId: Number(env.BREVO_DOI_TEMPLATE_ID) || undefined,
+      doiRedirectUrl: env.BREVO_DOI_REDIRECT_URL || undefined,
+    },
+    row,
+  );
   const attempts = row.delivery_attempts + 1;
   const log = [...JSON.parse(row.delivery_log), { at: now.toISOString(), ok: result.ok, detail: result.detail }];
 

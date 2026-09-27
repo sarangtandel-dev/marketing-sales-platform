@@ -17,6 +17,10 @@ export type Env = {
   BREVO_API_KEY?: string;
   // Brevo list that email Marketing Opt-ins join. Unset: opt-ins are recorded but no list is joined.
   BREVO_MARKETING_LIST_ID?: string;
+  // Brevo double opt-in (ADR-0021): the confirmation email template and where its link lands.
+  // Unset: email opt-ins stay in the Lead Log only and nothing is sent to Brevo for them.
+  BREVO_DOI_TEMPLATE_ID?: string;
+  BREVO_DOI_REDIRECT_URL?: string;
   // Monitoring (ADR-0037): signs test Leads, and the address the daily test Lead uses.
   MONITOR_SECRET?: string;
   MONITOR_TEST_EMAIL?: string;

@@ -20,6 +20,15 @@ function bundleWorker(): Promise<string> {
     platform: "neutral",
     target: "es2022",
     write: false,
+    // The Worker bundles its Client's forms manifest; tests use a fixed one.
+    plugins: [
+      {
+        name: "test-forms-manifest",
+        setup(b) {
+          b.onResolve({ filter: /forms\.generated\.json$/ }, () => ({ path: join(root, "test/forms.test.json") }));
+        },
+      },
+    ],
   }).then((r) => r.outputFiles[0].text);
   return bundle;
 }
@@ -194,26 +203,45 @@ export function submission(overrides: Record<string, unknown> = {}) {
   };
 }
 
-// A fake Brevo API: answers each POST /v3/contacts with the next queued status
-// (201 once the queue is empty) and records the request bodies. DELETE
-// /v3/contacts/{email} is recorded in `deleted`.
+// A fake Brevo API. POST /v3/contacts creates a contact: it answers with the next queued
+// status (201 once the queue is empty) and records the body in `calls`; creating an email
+// that already exists (updateEnabled false) answers 400 duplicate_parameter. PUT
+// /v3/contacts/{email} is recorded in `updates`, POST .../doubleOptinConfirmation in `doi`,
+// and DELETE /v3/contacts/{email} in `deleted`.
 export function fakeBrevo(statuses: number[] = []) {
   const calls: { apiKey: string | null; body: Record<string, unknown> }[] = [];
+  const updates: { email: string; body: Record<string, unknown> }[] = [];
+  const doi: Record<string, unknown>[] = [];
   const deleted: string[] = [];
+  const contacts = new Set<string>();
   const handler: Outbound = async (request) => {
     const path = new URL(request.url).pathname;
+    const email = decodeURIComponent(path.slice("/v3/contacts/".length));
     if (request.method === "DELETE" && path.startsWith("/v3/contacts/")) {
-      deleted.push(decodeURIComponent(path.slice("/v3/contacts/".length)));
+      deleted.push(email);
+      contacts.delete(email);
       return new Response(null, { status: 204 });
     }
+    if (request.method === "PUT" && path.startsWith("/v3/contacts/")) {
+      updates.push({ email, body: await request.json() });
+      return new Response(null, { status: 204 });
+    }
+    if (path === "/v3/contacts/doubleOptinConfirmation") {
+      doi.push(await request.json());
+      return new Response(null, { status: 201 });
+    }
     if (path !== "/v3/contacts") return new Response("not found", { status: 404 });
-    calls.push({ apiKey: request.headers.get("api-key"), body: await request.json() });
+    const body = (await request.json()) as Record<string, unknown>;
+    calls.push({ apiKey: request.headers.get("api-key"), body });
     const status = statuses.shift() ?? 201;
-    return status < 300
-      ? Response.json({ id: 42 }, { status })
-      : Response.json({ code: "error", message: `status ${status}` }, { status });
+    if (status >= 300) return Response.json({ code: "error", message: `status ${status}` }, { status });
+    if (contacts.has(body.email as string) && body.updateEnabled === false) {
+      return Response.json({ code: "duplicate_parameter", message: "Contact already exist" }, { status: 400 });
+    }
+    contacts.add(body.email as string);
+    return Response.json({ id: 42 }, { status });
   };
-  return { calls, deleted, handler };
+  return { calls, updates, doi, deleted, contacts, handler };
 }
 
 // Signs a body the way the monitoring check does: HMAC-SHA256 over "<t>.<body>".

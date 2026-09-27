@@ -22,11 +22,13 @@ const COLUMNS = {
 type AlertRow = Omit<LeadForBrevo, "opt_ins"> & { delivery_log: string };
 
 const fieldLines = (fields: Record<string, string>) => Object.entries(fields).map(([k, v]) => `${k}: ${v}`);
+// Control characters never reach an email subject or line (audit security M2).
+const clean = (s: string) => s.replace(/[\u0000-\u001f\u007f]/g, " ");
 
 function message(kind: Kind, lead: AlertRow): { subject: string; lines: string[] } {
   if (kind === "new") {
     return {
-      subject: `New enquiry: ${lead.form_type}`,
+      subject: `New enquiry: ${clean(lead.form_type)}`,
       lines: [
         `New ${lead.form_type} enquiry from form "${lead.form_id}".`,
         "",
@@ -40,7 +42,7 @@ function message(kind: Kind, lead: AlertRow): { subject: string; lines: string[]
   }
   const last = (JSON.parse(lead.delivery_log) as { detail: string }[]).at(-1)?.detail ?? "unknown";
   return {
-    subject: `Lead not delivered to Brevo: ${lead.form_type}`,
+    subject: `Lead not delivered to Brevo: ${clean(lead.form_type)}`,
     lines: [
       "Brevo delivery failed for the last time. Add this Lead to Brevo by hand.",
       "",

@@ -33,7 +33,7 @@ describe("Brevo delivery", () => {
     const [{ apiKey, body }] = brevo.calls;
     expect(apiKey).toBe("brevo-test-key");
     expect(body.email).toBe("asha@example.test");
-    expect(body.updateEnabled).toBe(true);
+    expect(body.updateEnabled).toBe(false);
     expect(body.attributes).toMatchObject({
       LEAD_ID: lead_id,
       FORM_ID: "contact",

@@ -1,0 +1,21 @@
+{
+  "client": "client-zero",
+  "forms": {
+    "consultation": {
+      "form_type": "consultation_request",
+      "fields": [
+        "name",
+        "email",
+        "company",
+        "role",
+        "company_size",
+        "need"
+      ],
+      "opt_ins": {
+        "email": [
+          "email-88b162c046ac"
+        ]
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { attemptDelivery, deliverDue } from "./delivery.ts";
 import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, hostAllowed, json } from "./http.ts";
 import { storeLead } from "./lead-log.ts";
+import { applyManifest } from "./manifest.ts";
 import { isValidTestSignature, runDailyTestLead, TEST_SIGNATURE_HEADER } from "./monitor.ts";
 import { countSpam, purgeExpiredLeads, type SpamReason } from "./retention.ts";
 import { DAILY_CRON } from "./schedules.ts";
@@ -51,8 +52,8 @@ async function handleLead(request: Request, env: Env, ctx: ExecutionContext): Pr
   }
 
   const raw = await request.text();
-  const submission = new TextEncoder().encode(raw).length <= MAX_BODY_BYTES ? parseSubmission(raw) : null;
-  if (!submission) return json({ ok: false, error: "invalid" }, 400, cors);
+  const parsed = new TextEncoder().encode(raw).length <= MAX_BODY_BYTES ? parseSubmission(raw) : null;
+  if (!parsed) return json({ ok: false, error: "invalid" }, 400, cors);
 
   // A monitoring request signed with MONITOR_SECRET replaces the Turnstile check.
   const now = new Date();
@@ -61,6 +62,9 @@ async function handleLead(request: Request, env: Env, ctx: ExecutionContext): Pr
   if (isTest && !(await isValidTestSignature(signature, raw, env.MONITOR_SECRET, now))) {
     return json({ ok: false, error: "forbidden" }, 403, cors);
   }
+  // Only this Client's own forms (the signed monitoring Lead has its own fixed shape).
+  const submission = isTest ? parsed : applyManifest(parsed);
+  if (!submission) return json({ ok: false, error: "invalid" }, 400, cors);
 
   // 1. Spam checks. The honeypot is checked first, so bots don't cost a Turnstile call.
   let spam: SpamReason | null = null;

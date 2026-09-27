@@ -11,7 +11,8 @@
     "test": "vitest run",
     "secrets:scan": "gitleaks git --redact --no-banner .",
     "build:site": "node packages/site-builder/src/cli.ts",
-    "check:launch": "node tooling/launch-check.ts"
+    "check:launch": "node tooling/launch-check.ts",
+    "forms:manifest": "node packages/site-builder/src/manifest-cli.ts clients/client-zero/site packages/form-worker/src/forms.generated.json"
   },
   "devDependencies": {
     "vitest": "^5.0.2",

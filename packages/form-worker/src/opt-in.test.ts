@@ -28,24 +28,45 @@ describe("email marketing opt-in", () => {
     });
   });
 
-  it("sends the opt-in to Brevo and adds the contact to the marketing list", async () => {
+  it("sends the opt-in to Brevo only as a double opt-in, which joins the list after confirmation", async () => {
     const brevo = fakeBrevo();
     w = await startWorker({
       outbound: { "api.brevo.com": brevo.handler },
-      bindings: { BREVO_MARKETING_LIST_ID: "7" },
+      bindings: { BREVO_MARKETING_LIST_ID: "7", BREVO_DOI_TEMPLATE_ID: "3", BREVO_DOI_REDIRECT_URL: "https://example.test/thanks/" },
     });
     await w.post(submission({ opt_ins: [optIn] }));
     const row = await delivered(w);
     const { body } = brevo.calls[0];
-    expect(body.listIds).toEqual([7]);
-    expect(body.attributes).toMatchObject({
-      EMAIL_OPT_IN: true,
-      EMAIL_OPT_IN_VERSION: "email-2026-09-27",
-      EMAIL_OPT_IN_AT: row.created_at,
-      EMAIL_OPT_IN_PAGE: "https://example.test/contact/",
-      EMAIL_OPT_IN_FORM: "contact",
-    });
+    expect(body).not.toHaveProperty("listIds");
+    expect(body.attributes).not.toHaveProperty("EMAIL_OPT_IN");
+    expect(brevo.doi).toEqual([
+      {
+        email: "asha@example.test",
+        includeListIds: [7],
+        templateId: 3,
+        redirectionUrl: "https://example.test/thanks/",
+        attributes: {
+          EMAIL_OPT_IN: true,
+          EMAIL_OPT_IN_VERSION: "email-2026-09-27",
+          EMAIL_OPT_IN_AT: row.created_at,
+          EMAIL_OPT_IN_PAGE: "https://example.test/contact/",
+          EMAIL_OPT_IN_FORM: "contact",
+        },
+      },
+    ]);
   });
+
+  it("keeps an opt-in in the Lead Log only, when double opt-in isn't set up in Brevo", async () => {
+    const brevo = fakeBrevo();
+    w = await startWorker({ outbound: { "api.brevo.com": brevo.handler }, bindings: { BREVO_MARKETING_LIST_ID: "7" } });
+    await w.post(submission({ opt_ins: [optIn] }));
+    const row = await delivered(w);
+    expect(JSON.parse(row.opt_ins as string)).toHaveLength(1);
+    expect(brevo.doi).toEqual([]);
+    expect(brevo.calls[0].body).not.toHaveProperty("listIds");
+    expect(row.delivery_log).toContain("double opt-in not configured");
+  });
+
 
   it("records no opt-in and adds no list when the box isn't ticked", async () => {
     const brevo = fakeBrevo();

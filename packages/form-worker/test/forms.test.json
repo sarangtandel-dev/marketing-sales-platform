@@ -1,0 +1,10 @@
+{
+  "client": "fixture",
+  "forms": {
+    "contact": {
+      "form_type": "consultation_request",
+      "fields": ["name", "email", "message", "phone", "company", "company_size"],
+      "opt_ins": { "email": ["email-2026-09-27"] }
+    }
+  }
+}

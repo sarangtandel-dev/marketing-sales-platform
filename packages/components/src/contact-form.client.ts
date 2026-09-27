@@ -60,7 +60,7 @@ export function wireContactForm(form: HTMLFormElement, win: FormWindow): void {
       });
       ok = res.ok && (await res.json()).ok === true;
     } catch {
-      ok = false;
+      // A network error leaves ok false: the Visitor sees the error and can retry.
     }
 
     const widget = form.querySelector(".cf-turnstile") ?? undefined;

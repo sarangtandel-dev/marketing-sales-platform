@@ -21,12 +21,23 @@ async function hmac(secret: string, message: string): Promise<string> {
   return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const sameText = (a: string, b: string) => {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-};
+// Workers-only (not in Node's WebCrypto), which is fine: only the Worker verifies.
+const encoder = new TextEncoder();
+const sameText = (a: string, b: string) =>
+  a.length === b.length && crypto.subtle.timingSafeEqual(encoder.encode(a), encoder.encode(b));
+
+// The signed test Lead the daily check (kind "daily") and the manual script (kind "manual") send.
+export const testLeadBody = (email: string, kind: "daily" | "manual") =>
+  JSON.stringify({
+    form_id: "monitor",
+    form_type: "monitoring",
+    submission_token: crypto.randomUUID(),
+    fields: { email, name: `${kind === "daily" ? "Daily" : "Manual"} test Lead` },
+    honeypot: "",
+    turnstile_token: "",
+    page_url: `monitor://${kind}`,
+    language: "en",
+  });
 
 export async function signTestBody(secret: string, body: string, at: Date): Promise<string> {
   const t = Math.floor(at.getTime() / 1000);
@@ -51,16 +62,7 @@ export async function runDailyTestLead(env: Env, now: Date, handle: LeadHandler)
     console.warn("daily test Lead skipped: MONITOR_SECRET or MONITOR_TEST_EMAIL isn't set");
     return;
   }
-  const body = JSON.stringify({
-    form_id: "monitor",
-    form_type: "monitoring",
-    submission_token: crypto.randomUUID(),
-    fields: { email: env.MONITOR_TEST_EMAIL, name: "Daily test Lead" },
-    honeypot: "",
-    turnstile_token: "",
-    page_url: "monitor://daily",
-    language: "en",
-  });
+  const body = testLeadBody(env.MONITOR_TEST_EMAIL, "daily");
   const pending: Promise<unknown>[] = [];
   const ctx = { waitUntil: (p: Promise<unknown>) => pending.push(p), passThroughOnException() {} } as ExecutionContext;
   const request = new Request("https://monitor.internal/lead", {

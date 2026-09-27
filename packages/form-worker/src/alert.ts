@@ -1,4 +1,5 @@
 import type { LeadForBrevo } from "./brevo.ts";
+import { plusMinutes } from "./schedules.ts";
 import type { Env } from "./env.ts";
 
 // Alerts to the owner, sent through Cloudflare Email Routing's send_email binding so they
@@ -18,9 +19,8 @@ const COLUMNS = {
   failure: { status: "failure_alert_status", attempts: "failure_alert_attempts", lease: "failure_alert_lease" },
 } as const;
 
-type AlertRow = LeadForBrevo & { delivery_log: string };
+type AlertRow = Omit<LeadForBrevo, "opt_ins"> & { delivery_log: string };
 
-const plusMinutes = (d: Date, m: number) => new Date(d.getTime() + m * 60_000).toISOString();
 const fieldLines = (fields: Record<string, string>) => Object.entries(fields).map(([k, v]) => `${k}: ${v}`);
 
 function message(kind: Kind, lead: AlertRow): { subject: string; lines: string[] } {
@@ -70,11 +70,11 @@ export async function deliverAlert(env: Env, kind: Kind, id: string, now: Date):
   if (claim.meta.changes !== 1) return;
 
   const raw = await db
-    .prepare("SELECT id, form_id, form_type, fields, opt_ins, page_url, created_at, delivery_log FROM leads WHERE id = ?")
+    .prepare("SELECT id, form_id, form_type, fields, page_url, created_at, delivery_log FROM leads WHERE id = ?")
     .bind(id)
-    .first<Omit<AlertRow, "fields" | "opt_ins"> & { fields: string; opt_ins: string | null }>();
+    .first<Omit<AlertRow, "fields"> & { fields: string }>();
   if (!raw) return;
-  const lead: AlertRow = { ...raw, fields: JSON.parse(raw.fields), opt_ins: JSON.parse(raw.opt_ins ?? "[]") };
+  const lead: AlertRow = { ...raw, fields: JSON.parse(raw.fields) };
   const { subject, lines } = message(kind, lead);
   const sent = await sendAlert(env, subject, lines);
   await db

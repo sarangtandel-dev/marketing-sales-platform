@@ -1,6 +1,6 @@
 // Sends one signed test Lead to a form Worker, e.g. the preview before launch (ADR-0037).
 // Usage: MONITOR_SECRET=... MONITOR_TEST_EMAIL=... node scripts/send-test-lead.ts <endpoint>
-import { signTestBody, TEST_SIGNATURE_HEADER } from "../src/monitor.ts";
+import { signTestBody, TEST_SIGNATURE_HEADER, testLeadBody } from "../src/monitor.ts";
 
 const [endpoint] = process.argv.slice(2);
 const { MONITOR_SECRET: secret, MONITOR_TEST_EMAIL: email } = process.env;
@@ -9,16 +9,7 @@ if (!endpoint || !secret || !email) {
   process.exit(2);
 }
 
-const body = JSON.stringify({
-  form_id: "monitor",
-  form_type: "monitoring",
-  submission_token: crypto.randomUUID(),
-  fields: { email, name: "Manual test Lead" },
-  honeypot: "",
-  turnstile_token: "",
-  page_url: "monitor://manual",
-  language: "en",
-});
+const body = testLeadBody(email, "manual");
 const res = await fetch(endpoint, {
   method: "POST",
   headers: { "content-type": "application/json", [TEST_SIGNATURE_HEADER]: await signTestBody(secret, body, new Date()) },

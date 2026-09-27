@@ -2,10 +2,9 @@
 // after 90 days. Brevo, owned by the Client, remains the lasting record.
 export const RETENTION_DAYS = 90;
 
-export async function purgeExpiredLeads(db: D1Database, now: Date): Promise<number> {
+export async function purgeExpiredLeads(db: D1Database, now: Date): Promise<void> {
   const cutoff = new Date(now.getTime() - RETENTION_DAYS * 86_400_000).toISOString();
-  const result = await db.prepare("DELETE FROM leads WHERE created_at < ?").bind(cutoff).run();
-  return result.meta.changes;
+  await db.prepare("DELETE FROM leads WHERE created_at < ?").bind(cutoff).run();
 }
 
 export type SpamReason = "honeypot" | "turnstile";

@@ -238,11 +238,14 @@ function referenceIssues(site: SiteDefinition): Issue[] {
     page.sections.forEach((section, s) => {
       section.ctas?.forEach((id, c) => need(ctaIds, "CTA", id, `/pages/${p}/sections/${s}/ctas/${c}`));
       if (section.form) need(formIds, "form", section.form, `/pages/${p}/sections/${s}/form`);
+      section.items?.forEach((item, i) => {
+        if (item.page) need(pageIds, "page", item.page, `/pages/${p}/sections/${s}/items/${i}/page`);
+      });
     }),
   );
-  site.forms.forEach((form, f) => need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`));
   // The Worker delivers to Brevo, and records email opt-ins, by the field named "email".
   site.forms.forEach((form, f) => {
+    need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`);
     form.fields.forEach((field, i) => {
       if (field.type === "email" && field.name !== "email") {
         issues.push({ path: `/forms/${f}/fields/${i}/name`, message: 'an email field must be named "email"' });
@@ -253,13 +256,6 @@ function referenceIssues(site: SiteDefinition): Issue[] {
       issues.push({ path: `/forms/${f}`, message: 'shows an email opt-in, so it needs an email field named "email"' });
     }
   });
-  site.pages.forEach((page, p) =>
-    page.sections.forEach((section, s) =>
-      section.items?.forEach((item, i) => {
-        if (item.page) need(pageIds, "page", item.page, `/pages/${p}/sections/${s}/items/${i}/page`);
-      }),
-    ),
-  );
   // Google tags only ever load after consent (ADR-0020), so GTM needs a consent tool.
   if (site.tracking.gtm && !site.tracking.consent_tool) {
     issues.push({ path: "/tracking", message: "needs consent_tool because gtm is set (ADR-0020)" });

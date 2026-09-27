@@ -1,6 +1,7 @@
 import { deliverAlert } from "./alert.ts";
 import { type LeadForBrevo, upsertContact } from "./brevo.ts";
 import type { Env } from "./env.ts";
+import { plusMinutes } from "./schedules.ts";
 
 // Delivery states on a Lead Log row:
 //   pending   → written, first attempt not yet made
@@ -16,7 +17,6 @@ const LEASE_MINUTES = 10;
 // A pending Lead this old has lost its first attempt (the Worker was stopped mid-way).
 const PENDING_GRACE_MINUTES = 2;
 
-const plusMinutes = (d: Date, m: number) => new Date(d.getTime() + m * 60_000).toISOString();
 
 type Row = LeadForBrevo & { delivery_attempts: number; delivery_log: string; is_test: number };
 type RawRow = Omit<Row, "fields" | "opt_ins"> & { fields: string; opt_ins: string | null };

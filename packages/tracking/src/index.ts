@@ -93,18 +93,15 @@ function store(consent: ConsentState) {
 // Withdrawing analytics consent deletes what we stored. The starting state is "denied"
 // until the consent tool restores a returning Visitor's choice, so only a change from
 // granted to denied counts as a withdrawal.
-let analyticsGranted = false;
-let adsGranted = false;
+let granted: ConsentState = { analytics: false, ads: false };
 const consent = watchConsent(window as never, (state) => {
-  if (analyticsGranted && !state.analytics) forget();
-  else if (adsGranted && !state.ads) stripClickIds();
-  analyticsGranted = state.analytics;
-  adsGranted = state.ads;
+  if (granted.analytics && !state.analytics) forget();
+  else if (granted.ads && !state.ads) stripClickIds();
+  granted = state;
   store(state);
 });
-analyticsGranted = consent().analytics;
-adsGranted = consent().ads;
-store(consent());
+granted = consent();
+store(granted);
 
 function gaClientId(): string | undefined {
   const match = document.cookie.match(/(?:^|;\s*)_ga=GA\d\.\d\.(\d+\.\d+)/);

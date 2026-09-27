@@ -4,9 +4,7 @@ export type Env = {
   // Comma-separated site origins allowed to post forms, e.g. "https://example.com,https://www.example.com".
   ALLOWED_ORIGINS: string;
   // send_email binding (Email Routing); ALERT_TO must be a verified destination address.
-  OWNER_ALERT: {
-    send(message: { from: string; to: string; subject: string; text: string }): Promise<{ messageId: string }>;
-  };
+  OWNER_ALERT: SendEmail;
   ALERT_FROM: string;
   ALERT_TO: string;
   BREVO_API_KEY: string;

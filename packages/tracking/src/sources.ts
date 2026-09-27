@@ -13,16 +13,7 @@ export const CLICK_IDS: Record<string, { source: string; medium: string }> = {
 };
 
 // Referrer domains, matched on the registrable part of the host (`www.google.co.in` → google).
-export const SEARCH_ENGINES: Record<string, string> = {
-  google: "google",
-  bing: "bing",
-  yahoo: "yahoo",
-  duckduckgo: "duckduckgo",
-  baidu: "baidu",
-  yandex: "yandex",
-  ecosia: "ecosia",
-  brave: "brave",
-};
+export const SEARCH_ENGINES = new Set(["google", "bing", "yahoo", "duckduckgo", "baidu", "yandex", "ecosia", "brave"]);
 
 export const SOCIAL_NETWORKS: Record<string, string> = {
   facebook: "facebook",

@@ -33,7 +33,7 @@ export const looksPersonal = (v: string) => EMAIL.test(v) || looksLikePhone(v);
 function siteName(host: string): string {
   const parts = host.replace(/^www\./, "").split(".");
   const joined = parts.join(".");
-  if (joined in SOCIAL_NETWORKS || joined in SEARCH_ENGINES) return joined;
+  if (joined in SOCIAL_NETWORKS || SEARCH_ENGINES.has(joined)) return joined;
   const secondLevel = new Set(["co", "com", "org", "net", "gov", "ac", "edu"]);
   const i = parts.length >= 3 && secondLevel.has(parts[parts.length - 2]) ? parts.length - 3 : parts.length - 2;
   return parts[Math.max(i, 0)];
@@ -49,15 +49,10 @@ function referrerHost(referrer: string, ownHost: string): string | null {
 }
 
 function fromReferrer(referrer: string, ownHost: string): { source: string; medium: string } | null {
-  let host: string;
-  try {
-    host = new URL(referrer).hostname;
-  } catch {
-    return null;
-  }
-  if (!host || host === ownHost) return null;
+  const host = referrerHost(referrer, ownHost);
+  if (!host) return null;
   const name = siteName(host);
-  if (SEARCH_ENGINES[name]) return { source: SEARCH_ENGINES[name], medium: "organic" };
+  if (SEARCH_ENGINES.has(name)) return { source: name, medium: "organic" };
   if (SOCIAL_NETWORKS[name]) return { source: SOCIAL_NETWORKS[name], medium: "social" };
   return { source: host.replace(/^www\./, ""), medium: "referral" };
 }

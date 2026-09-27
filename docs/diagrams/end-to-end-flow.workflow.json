@@ -1,0 +1,290 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Module 1 — End-to-End Flow (M0)",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "external": {
+          "label": "Manual (agency team)"
+        },
+        "backend": {
+          "label": "Automated"
+        },
+        "frontend": {
+          "label": "Visitor's browser"
+        },
+        "security": {
+          "label": "Gate / safety check"
+        },
+        "database": {
+          "label": "Lead Log (D1)"
+        },
+        "cloud": {
+          "label": "Later (M1 / Module 2)"
+        }
+      }
+    },
+    "views": [
+      {
+        "id": "build-a-site",
+        "label": "Build a site",
+        "focus": [
+          "inputs",
+          "ci",
+          "gate",
+          "deploy"
+        ],
+        "note": "Facts and Theme, then a site definition, validated and built, gated, then deployed."
+      },
+      {
+        "id": "visitor-and-consent",
+        "label": "Visitor and consent",
+        "focus": [
+          "deploy",
+          "consent",
+          "tracking",
+          "form"
+        ],
+        "note": "Nothing is stored and no Google tag loads until the Visitor opts in."
+      },
+      {
+        "id": "a-leads-journey",
+        "label": "A Lead's journey",
+        "focus": [
+          "form",
+          "worker",
+          "after",
+          "cron"
+        ],
+        "note": "Spam checks, the Lead Log write, success, then the owner alert and Brevo."
+      },
+      {
+        "id": "when-something-fails",
+        "label": "When something fails",
+        "focus": [
+          "worker",
+          "after",
+          "cron"
+        ],
+        "note": "Retries with backoff, alerts that are themselves retried, and a daily test Lead."
+      },
+      {
+        "id": "manual-vs-automated",
+        "label": "Manual vs automated",
+        "focus": [
+          "inputs",
+          "gate",
+          "later"
+        ],
+        "note": "In M0 people do intake, design, copy and the launch gate; M1 turns steps into skills."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "build",
+      "label": "Build & launch (people + CI)"
+    },
+    {
+      "id": "browser",
+      "label": "Visitor's browser"
+    },
+    {
+      "id": "worker",
+      "label": "Form Worker + crons (automated)"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "inputs",
+      "lane": "build",
+      "col": 0,
+      "type": "external",
+      "label": "Author the site",
+      "sublabel": "Facts · Theme · pages",
+      "tag": "manual (M0)",
+      "width": 116
+    },
+    {
+      "id": "ci",
+      "lane": "build",
+      "col": 1,
+      "type": "backend",
+      "label": "Validate + build",
+      "sublabel": "tests · secrets · Astro",
+      "tag": "CI",
+      "width": 116
+    },
+    {
+      "id": "gate",
+      "lane": "build",
+      "col": 2,
+      "type": "security",
+      "label": "Launch gate",
+      "sublabel": "check:launch + checklist",
+      "tag": "Gate 2",
+      "width": 116
+    },
+    {
+      "id": "deploy",
+      "lane": "build",
+      "col": 3,
+      "type": "backend",
+      "label": "Deploy to Pages",
+      "sublabel": "previews noindex · live",
+      "tag": "wrangler",
+      "width": 116
+    },
+    {
+      "id": "later",
+      "lane": "build",
+      "col": 5,
+      "type": "cloud",
+      "label": "Later",
+      "sublabel": "M1 skills · Module 2 CRM",
+      "width": 116
+    },
+    {
+      "id": "consent",
+      "lane": "browser",
+      "col": 4,
+      "type": "frontend",
+      "label": "Consent banner",
+      "sublabel": "CookieYes · all denied",
+      "tag": "opt-in",
+      "width": 116
+    },
+    {
+      "id": "tracking",
+      "lane": "browser",
+      "col": 3,
+      "type": "frontend",
+      "label": "Tracking script",
+      "sublabel": "touches · GTM · events",
+      "tag": "after consent",
+      "width": 116
+    },
+    {
+      "id": "form",
+      "lane": "browser",
+      "col": 5,
+      "type": "frontend",
+      "label": "Contact form",
+      "sublabel": "fields · opt-in · token",
+      "width": 116
+    },
+    {
+      "id": "worker",
+      "lane": "worker",
+      "col": 4,
+      "type": "database",
+      "label": "Store first",
+      "sublabel": "spam checks · Lead Log",
+      "tag": "then success",
+      "width": 116
+    },
+    {
+      "id": "after",
+      "lane": "worker",
+      "col": 3,
+      "type": "backend",
+      "label": "Alert + Brevo",
+      "sublabel": "owner email · upsert",
+      "tag": "retried",
+      "width": 116
+    },
+    {
+      "id": "cron",
+      "lane": "worker",
+      "col": 2,
+      "type": "backend",
+      "label": "Crons + monitor",
+      "sublabel": "retries · purge · test Lead",
+      "tag": "5 min · daily",
+      "width": 116
+    }
+  ],
+  "edges": [
+    {
+      "from": "inputs",
+      "to": "ci",
+      "label": "push"
+    },
+    {
+      "from": "ci",
+      "to": "gate",
+      "label": "preview"
+    },
+    {
+      "from": "gate",
+      "to": "deploy",
+      "label": "approve",
+      "variant": "security"
+    },
+    {
+      "from": "deploy",
+      "to": "consent",
+      "label": "visit",
+      "variant": "emphasis"
+    },
+    {
+      "from": "consent",
+      "to": "form"
+    },
+    {
+      "from": "consent",
+      "to": "tracking",
+      "label": "granted",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "from": "form",
+      "to": "worker",
+      "label": "POST /lead",
+      "variant": "emphasis"
+    },
+    {
+      "from": "worker",
+      "to": "after",
+      "label": "then"
+    },
+    {
+      "from": "after",
+      "to": "cron",
+      "label": "failures",
+      "variant": "dashed",
+      "role": "error"
+    },
+    {
+      "from": "gate",
+      "to": "later",
+      "label": "M1",
+      "variant": "dashed",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Guarantees",
+      "items": [
+        "A Lead is in the Lead Log before the Visitor sees 'thanks'",
+        "Nothing is stored and no Google tag loads before consent",
+        "Every failure emails the owner; alerts are retried"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Manual in M0 · outside services",
+      "items": [
+        "People: Facts, Claude Design Theme, copy, launch gate, accounts",
+        "Cloudflare (Pages, Worker, D1, Turnstile, Email Routing) · Brevo · GTM/GA4 · CookieYes"
+      ]
+    }
+  ]
+}

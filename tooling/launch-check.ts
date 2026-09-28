@@ -1,5 +1,6 @@
 // The automated half of the M0 launch checklist (spec: "Launch checklist").
-// Usage: pnpm check:launch clients/<slug>
+// Usage: pnpm check:launch clients/<slug> [--worker path/to/wrangler.jsonc]
+// (default Worker config: packages/form-worker/wrangler.jsonc, the production environment)
 // Exits 1 if any automated check fails, and always lists what a person still has to check.
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -19,11 +20,76 @@ const MANUAL = [
   "A test Lead has gone end to end on the preview (scripts/send-test-lead.ts), with events and the consent banner checked.",
   "The owner alert address is verified in Email Routing, and the deployed send_email binding accepts the structured message (ticket 36).",
   "Search Console has the sitemap; the uptime monitor and the daily test Lead are running against production.",
+  "GTM: the repo container (packages/tracking/gtm/container.json) is imported, the GA4 measurement ID variable is set, and generate_lead is a key event in GA4.",
+  "CookieYes: categories, banner wording and Consent Mode are set up, and the banner reopens from the footer's Cookie settings link.",
+  "Brevo: every contact attribute the Worker writes exists (one per form field, plus LEAD_ID, FORM_ID, FORM_TYPE, LEAD_RECEIVED_AT, PAGE_URL and the EMAIL_OPT_IN_* ones), and the double opt-in template and redirect are set.",
+  "The preview Worker is deployed with Turnstile's test secret and no Brevo key, and PREVIEW_FORM_ENDPOINT points at it.",
+  "DNS: the domain is on Cloudflare, existing mail (MX) records survived the move, and Email Routing is on (docs/procedures/release-worker.md).",
+  "Worker secrets are set (TURNSTILE_SECRET_KEY, BREVO_API_KEY, MONITOR_SECRET, HEARTBEAT_URL, NTFY_URL) and the healthchecks.io check expects a daily ping.",
 ];
+
+const WORKER_CONFIG = resolve(import.meta.dirname, "../packages/form-worker/wrangler.jsonc");
 
 type Result = { ok: boolean; check: string; detail?: string };
 
-function checkClient(dir: string): Result[] {
+function readJson(file: string, text = readFileSync(file, "utf8")) {
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    throw new Error(`${file} isn't valid JSON: ${(err as Error).message}`);
+  }
+}
+
+// wrangler.jsonc is JSON with comments; strings (which can hold "//", as URLs do) are kept.
+const stripComments = (text: string) =>
+  text.replace(/("(?:\\.|[^"\\])*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (_, str) => str ?? "");
+
+// An address or domain from the docs, not a real one.
+const PLACEHOLDER_EMAIL = /@(example\.(com|org|net)|[^@\s]*\.(test|invalid|example))$/i;
+
+// The production Worker's config (its top level; env.preview is the preview Worker).
+function checkWorker(file: string, site: SiteDefinition): Result[] {
+  const config = readJson(file, stripComments(readFileSync(file, "utf8"))) as {
+    d1_databases?: { database_id?: string }[];
+    send_email?: { destination_address?: string }[];
+    vars?: Record<string, string>;
+  };
+  const vars = config.vars ?? {};
+  const results: Result[] = [];
+  const databaseId = config.d1_databases?.[0]?.database_id ?? "";
+  results.push({
+    ok: databaseId !== "" && !/^0{8}-/.test(databaseId),
+    check: "the Worker's Lead Log is a real D1 database (d1_databases database_id)",
+    detail: databaseId || "missing",
+  });
+  const addresses: [string, string | undefined][] = [
+    ["ALERT_FROM", vars.ALERT_FROM],
+    ["ALERT_TO", vars.ALERT_TO],
+    ["MONITOR_TEST_EMAIL", vars.MONITOR_TEST_EMAIL],
+    ...(config.send_email ?? []).map((b): [string, string | undefined] => ["send_email destination_address", b.destination_address]),
+  ];
+  const fake = addresses.filter(([, value]) => !value || PLACEHOLDER_EMAIL.test(value));
+  results.push({
+    ok: fake.length === 0,
+    check: "the Worker's alert and monitoring addresses are real",
+    detail: fake.map(([name, value]) => `${name}: ${value ?? "missing"}`).join(", "),
+  });
+  results.push({
+    ok: vars.CLIENT_SLUG === site.meta.client,
+    check: "the Worker's CLIENT_SLUG is this Client",
+    detail: `CLIENT_SLUG is ${vars.CLIENT_SLUG ?? "missing"}, the Client is ${site.meta.client}`,
+  });
+  const origin = new URL(site.meta.site_url).origin;
+  const origins = (vars.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim());
+  results.push({
+    ok: origins.includes(origin),
+    check: "the Worker's ALLOWED_ORIGINS includes the site, or every Visitor is refused",
+    detail: `${origin} isn't in ALLOWED_ORIGINS (${vars.ALLOWED_ORIGINS ?? "missing"})`,
+  });
+  return results;
+}
+
+function checkClient(dir: string, workerFile: string): Result[] {
   const results: Result[] = [];
   const files = {
     site: join(dir, "site/site-definition.json"),
@@ -35,7 +101,7 @@ function checkClient(dir: string): Result[] {
   if (results.length) return results;
 
   const siteText = readFileSync(files.site, "utf8");
-  const site = JSON.parse(siteText) as SiteDefinition;
+  const site = readJson(files.site, siteText) as SiteDefinition;
   const themeFile = resolve(dir, "site", site.meta.theme);
   const factsText = readFileSync(files.facts, "utf8");
 
@@ -87,19 +153,43 @@ function checkClient(dir: string): Result[] {
     });
     const endpoints = site.forms.map((f) => f.endpoint).filter((e) => /\.(invalid|test|example)\b|example\.com/.test(e));
     results.push({ ok: endpoints.length === 0, check: "form endpoints are real", detail: endpoints.join(", ") });
+    // The production Worker has no workers.dev address (workers_dev: false): it's served on a
+    // route on the Client's own domain.
+    const domain = new URL(site.meta.site_url).hostname.replace(/^www\./, "");
+    const offDomain = site.forms
+      .map((f) => f.endpoint)
+      .filter((e) => {
+        const host = new URL(e).hostname;
+        return host !== domain && !host.endsWith(`.${domain}`);
+      });
+    results.push({
+      ok: offDomain.length === 0,
+      check: "forms post to the Worker's route on the Client's own domain",
+      detail: offDomain.join(", "),
+    });
+    results.push(...checkWorker(workerFile, site));
   }
   const missing = (["gtm", "ga4", "consent_tool"] as const).filter((k) => !site.tracking[k]);
   results.push({ ok: missing.length === 0, check: "gtm, ga4 and consent_tool are set", detail: missing.join(", ") });
   return results;
 }
 
-const [dir] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const workerAt = args.indexOf("--worker");
+const workerFile = workerAt >= 0 ? resolve(args.splice(workerAt, 2)[1] ?? "") : WORKER_CONFIG;
+const [dir] = args;
 if (!dir) {
-  console.error("usage: pnpm check:launch clients/<slug>");
+  console.error("usage: pnpm check:launch clients/<slug> [--worker path/to/wrangler.jsonc]");
   process.exit(2);
 }
 
-const results = checkClient(resolve(dir));
+// Malformed input is a failed check with the reason, never a stack trace.
+let results: Result[];
+try {
+  results = checkClient(resolve(dir), workerFile);
+} catch (err) {
+  results = [{ ok: false, check: "the Client's files can be read", detail: (err as Error).message }];
+}
 console.log(`Launch check for ${dir}\n`);
 for (const r of results) {
   console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.check}${!r.ok && r.detail ? `\n      ${r.detail}` : ""}`);

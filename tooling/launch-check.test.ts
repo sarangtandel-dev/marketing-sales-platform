@@ -35,8 +35,30 @@ function client(edit: (site: Record<string, any>) => void = () => {}, facts = FA
   return dir;
 }
 
-const check = (dir: string) =>
-  spawnSync(process.execPath, [join(import.meta.dirname, "launch-check.ts"), dir], { encoding: "utf8" });
+// The form Worker's config as it should be at launch (JSONC, like the real one).
+const WORKER = {
+  name: "msp-form-worker",
+  d1_databases: [{ binding: "LEAD_LOG", database_name: "lead-log-fixture", database_id: "4b1d8f0e-2c3a-4e5f-9a7b-1c2d3e4f5a6b" }],
+  send_email: [{ name: "OWNER_ALERT", destination_address: "owner@fixture-co.in" }],
+  vars: {
+    CLIENT_SLUG: "fixture-basic",
+    ALLOWED_ORIGINS: "https://fixture-co.in",
+    ALERT_FROM: "alerts@fixture-co.in",
+    ALERT_TO: "owner@fixture-co.in",
+    MONITOR_TEST_EMAIL: "monitor@fixture-co.in",
+  },
+};
+
+function worker(edit: (w: typeof WORKER) => void = () => {}) {
+  const w = structuredClone(WORKER);
+  edit(w);
+  const file = join(tmp, `wrangler-${++n}.jsonc`);
+  writeFileSync(file, `{\n  // The form Worker (https://example.invalid/docs)\n${JSON.stringify(w, null, 2).slice(1)}`);
+  return file;
+}
+
+const check = (dir: string, workerFile = worker()) =>
+  spawnSync(process.execPath, [join(import.meta.dirname, "launch-check.ts"), dir, "--worker", workerFile], { encoding: "utf8" });
 
 describe("launch check", () => {
   it("passes a ready Client and still lists the checks a person must do", () => {
@@ -87,6 +109,34 @@ describe("launch check", () => {
     const result = check(client((s) => delete s.tracking.ga4));
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("ga4");
+  });
+
+  it.each([
+    ["the placeholder database", (w: typeof WORKER) => (w.d1_databases[0].database_id = "00000000-0000-0000-0000-000000000000"), "database_id"],
+    ["an example alert address", (w: typeof WORKER) => (w.vars.ALERT_TO = "owner@example.com"), "ALERT_TO"],
+    ["an example send_email destination", (w: typeof WORKER) => (w.send_email[0].destination_address = "owner@example.com"), "destination_address"],
+    ["another Client's slug", (w: typeof WORKER) => (w.vars.CLIENT_SLUG = "client-zero"), "CLIENT_SLUG"],
+    ["an allow-list without the site", (w: typeof WORKER) => (w.vars.ALLOWED_ORIGINS = "https://fixture.pages.dev"), "ALLOWED_ORIGINS"],
+  ])("fails on the Worker config's %s", (_, edit, named) => {
+    const result = check(client(), worker(edit));
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(named);
+  });
+
+  it("fails when a form posts somewhere other than the Client's own domain", () => {
+    const result = check(client((s) => (s.forms[0].endpoint = "https://msp-form-worker.someone.workers.dev/lead")));
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("workers.dev");
+  });
+
+  it("reports unreadable files as a failure instead of crashing", () => {
+    const dir = client();
+    writeFileSync(join(dir, "site/site-definition.json"), "{ not json");
+    const result = check(dir);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("FAIL");
+    expect(result.stdout).toContain("site-definition.json");
+    expect(result.stderr).not.toMatch(/at .*launch-check\.ts/);
   });
 
   it("fails on an invalid site definition", () => {

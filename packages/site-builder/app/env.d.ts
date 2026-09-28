@@ -5,4 +5,8 @@ declare module "virtual:msp/site" {
   export const settings: import("../src/build.ts").BuildSettings;
 }
 
+declare module "virtual:msp/images" {
+  export const images: Record<string, import("astro").ImageMetadata>;
+}
+
 declare module "msp:theme.css";

@@ -2,9 +2,9 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
-import { build } from "astro";
+import { type AstroUserConfig, build } from "astro";
 import { fontProviders } from "astro/config";
-import { loadSite } from "./load.ts";
+import { loadSite, SiteDefinitionError } from "./load.ts";
 import type { Theme } from "./definition.ts";
 import { fontVariable, themeCss } from "./theme-css.ts";
 
@@ -13,6 +13,7 @@ const appDir = join(packageDir, "app");
 const componentsDir = dirname(fileURLToPath(import.meta.resolve("@msp/components/catalog")));
 
 const SITE_MODULE = "virtual:msp/site";
+const IMAGES_MODULE = "virtual:msp/images";
 
 // Cloudflare's published Turnstile test site key that always passes (ADR-0028: never
 // use a production widget outside production).
@@ -31,8 +32,9 @@ export type BuildSettings = {
   turnstileSiteKey?: string;
   formEndpoint?: string;
   favicon?: string;
-  // The social preview image in the Client's public/ folder, if any.
+  // The social preview image and the logo in the Client's public/ folder, if any.
   ogImage?: string;
+  logo?: string;
   fonts: string[];
   themeColor: string;
 };
@@ -41,17 +43,20 @@ export type BuildSettings = {
 // served from the site itself, so Visitors never contact a font host (ADR-0020). The type
 // token's own value becomes the fallback stack.
 function fontsConfig(theme: Theme) {
-  return Object.entries(theme.fonts ?? {}).map(([token, font]) => ({
-    name: font.family,
-    cssVariable: fontVariable(token) as `--${string}`,
-    fallbacks: theme.type[token].split(",").map((f) => f.trim().replace(/^["']|["']$/g, "")),
-    ...(font.provider === "local"
+  return Object.entries(theme.fonts ?? {}).map(([token, font]) => {
+    const family = {
+      name: font.family,
+      cssVariable: fontVariable(token) as `--${string}`,
+      fallbacks: theme.type[token].split(",").map((f) => f.trim().replace(/^["']|["']$/g, "")),
+    };
+    return font.provider === "local"
       ? {
+          ...family,
           provider: fontProviders.local(),
           options: { variants: font.files.map((f) => ({ src: [f.src], weight: f.weight, style: f.style })) },
         }
-      : { provider: fontProviders.fontsource(), weights: font.weights ?? ["400", "700"], styles: font.styles ?? ["normal"] }),
-  }));
+      : { ...family, provider: fontProviders.fontsource(), weights: font.weights ?? ["400", "700"], styles: font.styles ?? ["normal"] };
+  });
 }
 
 // Sent with every page by Cloudflare Pages (audit M4). The CSP is header-only rules that
@@ -79,9 +84,22 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
     formEndpoint,
     favicon: ["favicon.svg", "favicon.ico"].find((f) => existsSync(join(publicDir, f))),
     ogImage: ["og.png", "og.jpg"].find((f) => existsSync(join(publicDir, f))),
+    logo: ["logo.svg", "logo.png"].find((f) => existsSync(join(publicDir, f))),
     fonts: Object.keys(theme.fonts ?? {}),
     themeColor: theme.colors.primary,
   };
+  // The business name is the logo's alt text.
+  if (settings.logo && !site.meta.name) {
+    throw new SiteDefinitionError(join(resolve(siteDir), "site-definition.json"), [
+      { path: "/meta/name", message: `is needed as the logo's alt text, because public/${settings.logo} exists` },
+    ]);
+  }
+  // Every section image, imported so astro:assets can resize it and serve modern formats.
+  const imageSrcs = [...new Set(site.pages.flatMap((p) => p.sections.flatMap((s) => (s.image ? [s.image.src] : []))))];
+  const imagesModule = [
+    ...imageSrcs.map((src, i) => `import i${i} from ${JSON.stringify(resolve(siteDir, src))};`),
+    `export const images = {${imageSrcs.map((src, i) => `${JSON.stringify(src)}: i${i}`).join(", ")}};`,
+  ].join("\n");
 
   // Per-build scratch space inside the package, so Astro and Tailwind resolve from its node_modules.
   const scratch = join(packageDir, ".build");
@@ -90,14 +108,22 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
   const themeFile = join(work, "theme.css");
   writeFileSync(themeFile, themeCss(theme, [appDir, componentsDir]));
 
+  // Astro puts its pre-render chunk in the current directory when the output is outside it,
+  // and that chunk loads sharp (image processing) from there. Build from this package, so
+  // it always finds ours, wherever the CLI is run from.
+  const cwd = process.cwd();
+  const out = resolve(outDir);
+  process.chdir(packageDir);
   try {
     await build({
       configFile: false,
       root: work,
       srcDir: appDir,
       publicDir,
-      fonts: fontsConfig(theme),
-      outDir: resolve(outDir),
+      // Each family is typed by its own provider; Astro's config type only accepts one provider
+      // type per array position, so the mixed list is cast here.
+      fonts: fontsConfig(theme) as NonNullable<AstroUserConfig["fonts"]>,
+      outDir: out,
       site: site.meta.site_url,
       logLevel: "error",
       vite: {
@@ -105,17 +131,20 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
           tailwindcss(),
           {
             name: "msp-site",
-            resolveId: (id) => (id === SITE_MODULE ? `\0${SITE_MODULE}` : undefined),
-            load: (id) =>
-              id === `\0${SITE_MODULE}`
-                ? `export const site = ${JSON.stringify(site)};\nexport const settings = ${JSON.stringify(settings)};`
-                : undefined,
+            resolveId: (id) => (id === SITE_MODULE || id === IMAGES_MODULE ? `\0${id}` : undefined),
+            load: (id) => {
+              if (id === `\0${SITE_MODULE}`) {
+                return `export const site = ${JSON.stringify(site)};\nexport const settings = ${JSON.stringify(settings)};`;
+              }
+              if (id === `\0${IMAGES_MODULE}`) return imagesModule;
+            },
           },
         ],
         resolve: { alias: { "msp:theme.css": themeFile } },
       },
     });
   } finally {
+    process.chdir(cwd);
     rmSync(work, { recursive: true, force: true });
   }
   writeFileSync(join(outDir, "_headers"), HEADERS);

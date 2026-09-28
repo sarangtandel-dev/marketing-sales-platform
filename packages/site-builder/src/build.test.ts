@@ -107,6 +107,18 @@ describe("building a valid site", () => {
     expect(home).not.toContain("hreflang");
   });
 
+  it("shows the logo, with the business name as its alt text, linking home", () => {
+    expect(read("index.html")).toMatch(/<a[^>]*href="\/"[^>]*>\s*<img[^>]*src="\/logo\.svg"[^>]*alt="Fixture Co"/);
+  });
+
+  it("serves the hero image resized, in a modern format, with its alt text and size", () => {
+    const img = read("index.html").match(/<img[^>]*alt="A fixture team at work"[^>]*>/)?.[0] ?? "";
+    expect(img).toMatch(/src="\/_astro\/[^"]+\.webp"/);
+    expect(img).toMatch(/width="\d+"/);
+    expect(img).toMatch(/height="\d+"/);
+    expect(img).toContain('fetchpriority="high"');
+  });
+
   it("sends security headers with every response (audit M4)", () => {
     const headers = read("_headers");
     expect(headers).toMatch(/^\/\*$/m);
@@ -282,6 +294,15 @@ describe("the component showcase", () => {
     for (const file of htmlFiles(out)) expect(await axeViolations(readFileSync(join(out, file), "utf8")), file).toEqual([]);
   });
 
+  it("adds valid structured data for its services and FAQ sections", () => {
+    const blocks = htmlFiles(out)
+      .flatMap((f) => [...readFileSync(join(out, f), "utf8").matchAll(/<script type="application\/ld\+json">([^]*?)<\/script>/g)])
+      .map((m) => JSON.parse(m[1]));
+    const types = blocks.flatMap((b) => b["@graph"].map((n: { "@type": string }) => n["@type"]));
+    expect(types).toContain("Service");
+    expect(types).toContain("FAQPage");
+  });
+
   it("uses one h1 per page and no skipped heading levels", () => {
     for (const file of htmlFiles(out)) {
       const html = readFileSync(join(out, file), "utf8");
@@ -317,6 +338,27 @@ describe("building an invalid site", () => {
     const result = build(dir, join(tmp, "missing-font-out"));
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("/fonts/body/files/0/src");
+  });
+
+  it("fails when an image file is missing", () => {
+    const dir = join(tmp, "missing-image");
+    cpSync(fixture, dir, { recursive: true });
+    rmSync(join(dir, "images"), { recursive: true });
+    const result = build(dir, join(tmp, "missing-image-out"));
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("/pages/0/sections/0/image/src");
+  });
+
+  it("needs the business name when there's a logo, as its alt text", () => {
+    const dir = join(tmp, "nameless-logo");
+    cpSync(fixture, dir, { recursive: true });
+    const file = join(dir, "site-definition.json");
+    const s = JSON.parse(readFileSync(file, "utf8"));
+    delete s.meta.name;
+    writeFileSync(file, JSON.stringify(s));
+    const result = build(dir, join(tmp, "nameless-logo-out"));
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("/meta/name");
   });
 
   it("fails when the Theme is invalid", () => {

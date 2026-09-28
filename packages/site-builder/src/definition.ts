@@ -17,7 +17,11 @@ export type Section = {
   ctas?: string[];
   form?: string;
   items?: { text: Record<string, Text>; page?: string }[];
+  image?: SectionImage;
 };
+
+// src is relative to the site definition's folder; alt text, or explicitly decorative.
+export type SectionImage = { src: string; alt?: Text; decorative?: true };
 
 export type Field = {
   name: string;
@@ -209,6 +213,11 @@ function componentIssues(site: SiteDefinition): Issue[] {
         section.items?.forEach((item, i) =>
           issues.push(...textKeyIssues(entry.items!, item.text, `${at}/items/${i}`, `${name} items`)),
         );
+      }
+      if (section.image && !entry.image) {
+        issues.push({ path: `${at}/image`, message: `${name} doesn't show an image` });
+      } else if (section.image && !entry.image?.includes(section.variant)) {
+        issues.push({ path: `${at}/image`, message: `${name} shows an image only in: ${entry.image?.join(", ")}` });
       }
       if (!entry.ctas && section.ctas?.length) issues.push({ path: `${at}/ctas`, message: `${name} doesn't show CTAs` });
       if (entry.form && !section.form) issues.push({ path: at, message: `${name} needs a form` });

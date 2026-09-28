@@ -442,6 +442,48 @@
               }
             }
           }
+        },
+        "image": {
+          "description": "An image the section shows (only components and variants the catalog allows). src is relative to the site definition's folder. Every image has alt text, or says it's decorative.",
+          "type": "object",
+          "required": [
+            "src"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "src": {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9_./-]+\\.(png|jpe?g|webp|avif)$"
+            },
+            "alt": {
+              "$ref": "#/$defs/text"
+            },
+            "decorative": {
+              "const": true
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "alt"
+              ],
+              "not": {
+                "required": [
+                  "decorative"
+                ]
+              }
+            },
+            {
+              "required": [
+                "decorative"
+              ],
+              "not": {
+                "required": [
+                  "alt"
+                ]
+              }
+            }
+          ]
         }
       }
     },

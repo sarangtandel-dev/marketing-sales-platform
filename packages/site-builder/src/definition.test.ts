@@ -191,6 +191,24 @@ describe("validateSiteDefinition", () => {
     expect(validateSiteDefinition(s)).toContainEqual({ path: "/meta/name", message: expect.stringContaining('"en"') });
   });
 
+  it("only takes an image on a component and variant that shows one", () => {
+    const s = site();
+    s.pages[0].sections[0].variant = "centered";
+    expect(validateSiteDefinition(s)).toContainEqual({ path: "/pages/0/sections/0/image", message: expect.stringContaining("split") });
+    const t = site();
+    t.pages[1].sections[0] = { ...t.pages[1].sections[0], component: "cta-band", variant: "primary", image: t.pages[0].sections[0].image };
+    delete t.pages[1].sections[0].ctas;
+    expect(validateSiteDefinition(t)).toContainEqual({ path: "/pages/1/sections/0/image", message: expect.stringContaining("doesn't show an image") });
+  });
+
+  it("requires alt text on an image, or saying it's decorative", () => {
+    const s = site();
+    delete s.pages[0].sections[0].image.alt;
+    expect(validateSiteDefinition(s).some((i) => i.path === "/pages/0/sections/0/image")).toBe(true);
+    s.pages[0].sections[0].image.decorative = true;
+    expect(validateSiteDefinition(s)).toEqual([]);
+  });
+
   it("only accepts consent tools we've integrated", () => {
     const s = site();
     s.tracking.consent_tool = { provider: "homegrown", id: "x" };

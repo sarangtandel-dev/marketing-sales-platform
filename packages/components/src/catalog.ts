@@ -4,6 +4,7 @@
 //   items: list components take items, each with these text keys (and an optional page link)
 //   ctas:  whether the section shows CTAs
 //   form:  whether the section shows a form
+//   image: the variants that show an optional image
 
 export type CatalogEntry = {
   variants: readonly string[];
@@ -11,10 +12,11 @@ export type CatalogEntry = {
   items?: { required: readonly string[]; optional?: readonly string[] };
   ctas?: boolean;
   form?: boolean;
+  image?: readonly string[];
 };
 
 export const catalog = {
-  hero: { variants: ["centered", "split"], text: { required: ["heading"], optional: ["body"] }, ctas: true },
+  hero: { variants: ["centered", "split"], text: { required: ["heading"], optional: ["body"] }, ctas: true, image: ["split"] },
   services: {
     variants: ["grid", "list"],
     text: { required: ["heading"], optional: ["body"] },
@@ -50,3 +52,5 @@ export type ComponentName = keyof typeof catalog;
 export type Cta = { id: string; type: string; label: string; href: string };
 export type Item = { text: Record<string, string>; href?: string };
 export type HeadingLevel = 1 | 2;
+// A section image, already processed by the build (astro:assets) and with alt text resolved.
+export type SectionImage = { src: import("astro").ImageMetadata; alt: string };

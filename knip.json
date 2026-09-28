@@ -18,12 +18,8 @@
       "ignoreDependencies": [
         "tailwindcss",
         "@msp/tracking",
-        "msp"
-      ]
-    },
-    "packages/components": {
-      "ignoreDependencies": [
-        "astro"
+        "msp",
+        "sharp"
       ]
     }
   },

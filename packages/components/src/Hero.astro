@@ -1,16 +1,19 @@
 ---
-// Hero section. Variants: "centered" (stacked, centred) and "split" (text left, CTAs right).
+// Hero section. Variants: "centered" (stacked, centred) and "split" (text left, CTAs right,
+// or text and CTAs left with an image right).
+import { Image } from "astro:assets";
 import CtaLinks from "./CtaLinks.astro";
-import type { Cta, HeadingLevel } from "./catalog.ts";
+import type { Cta, HeadingLevel, SectionImage } from "./catalog.ts";
 
 interface Props {
   variant: "centered" | "split";
   level: HeadingLevel;
   text: { heading: string; body?: string };
   ctas: Cta[];
+  image?: SectionImage;
 }
 
-const { variant, level, text, ctas } = Astro.props;
+const { variant, level, text, ctas, image } = Astro.props;
 const Heading = `h${level}`;
 ---
 <section class:list={["px-4 py-section", variant === "centered" && "text-center"]}>
@@ -18,7 +21,20 @@ const Heading = `h${level}`;
     <div>
       <Heading class="font-heading text-4xl md:text-5xl">{text.heading}</Heading>
       {text.body && <p class="mt-4 text-lg text-muted">{text.body}</p>}
+      {image && <CtaLinks ctas={ctas} align="start" />}
     </div>
-    <CtaLinks ctas={ctas} align={variant === "centered" ? "center" : "start"} />
+    {image ? (
+      <Image
+        class="h-auto w-full rounded-card shadow-card"
+        src={image.src}
+        alt={image.alt}
+        widths={[480, 960, 1440]}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        loading={level === 1 ? "eager" : "lazy"}
+        fetchpriority={level === 1 ? "high" : "auto"}
+      />
+    ) : (
+      <CtaLinks ctas={ctas} align={variant === "centered" ? "center" : "start"} />
+    )}
   </div>
 </section>

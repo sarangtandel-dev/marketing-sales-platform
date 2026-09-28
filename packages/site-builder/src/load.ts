@@ -47,5 +47,16 @@ export function loadSite(siteDir: string): { site: SiteDefinition; theme: Theme 
   }
   if (missing.length) throw new SiteDefinitionError(themeFile, missing);
 
+  // Section images must exist; they're processed by the build (resized, modern formats).
+  const imageIssues: Issue[] = [];
+  (site as SiteDefinition).pages.forEach((page, p) =>
+    page.sections.forEach((section, s) => {
+      if (section.image && !existsSync(resolve(dirname(siteFile), section.image.src))) {
+        imageIssues.push({ path: `/pages/${p}/sections/${s}/image/src`, message: `no such file: ${section.image.src}` });
+      }
+    }),
+  );
+  if (imageIssues.length) throw new SiteDefinitionError(siteFile, imageIssues);
+
   return { site: site as SiteDefinition, theme: theme as Theme };
 }

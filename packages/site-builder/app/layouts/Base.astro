@@ -3,6 +3,7 @@ import "msp:theme.css";
 import type { Page } from "../../src/definition.ts";
 import { Font } from "astro:assets";
 import { settings } from "virtual:msp/site";
+import { jsonLd, jsonLdScript } from "../../src/jsonld.ts";
 import { hreflangLinks } from "../../src/seo.ts";
 import { pageById, pagePath, site, t } from "../lib/site";
 
@@ -18,6 +19,7 @@ const title = t(page.seo.title, lang);
 const description = t(page.seo.description, lang);
 const siteName = site.meta.name && t(site.meta.name, lang);
 const ogImage = settings.ogImage && new URL(`/${settings.ogImage}`, site.meta.site_url).href;
+const structuredData = canonical ? jsonLdScript(jsonLd(site, page, lang, { logo: settings.logo && `/${settings.logo}` })) : "";
 const alternates = canonical ? hreflangLinks(page, site.meta.languages, site.meta.default_language, site.meta.site_url) : [];
 const { consent_tool: consentTool, gtm } = site.tracking;
 const consentToolSrc =
@@ -65,10 +67,16 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     {siteName && <meta property="og:site_name" content={siteName} />}
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+    {structuredData && <script is:inline type="application/ld+json" set:html={structuredData} />}
   </head>
   <body class="bg-surface text-on-surface font-body antialiased">
     <header class="border-b border-on-surface/10 px-4">
-      <nav class="mx-auto flex max-w-5xl flex-wrap gap-x-6 gap-y-2 py-4">
+      <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 py-4">
+        {settings.logo && (
+          <a href={pagePath(site.pages.find((p) => p.type === "home") ?? site.pages[0], lang)} class="mr-auto">
+            <img src={`/${settings.logo}`} alt={t(site.meta.name!, lang)} class="h-8 w-auto" />
+          </a>
+        )}
         {site.navigation.map((item) => (
           <a class="hover:text-primary" href={pagePath(pageById(item.page), lang)}>{t(item.label, lang)}</a>
         ))}

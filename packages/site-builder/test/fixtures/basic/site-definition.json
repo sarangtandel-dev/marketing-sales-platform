@@ -32,7 +32,7 @@
       "sections": [
         {
           "component": "hero",
-          "variant": "centered",
+          "variant": "split",
           "text": {
             "heading": {
               "en": "We build fixture sites"
@@ -43,7 +43,13 @@
           },
           "ctas": [
             "contact"
-          ]
+          ],
+          "image": {
+            "src": "images/hero.png",
+            "alt": {
+              "en": "A fixture team at work"
+            }
+          }
         }
       ]
     },

@@ -9,6 +9,7 @@ import Testimonials from "@msp/components/Testimonials.astro";
 import Text from "@msp/components/Text.astro";
 import type { ComponentName } from "@msp/components/catalog";
 import type { Section } from "../../src/definition.ts";
+import { images } from "virtual:msp/images";
 import { ctaById, ctaHref, formProps, pageById, pagePath, t } from "../lib/site";
 
 // Maps each catalogued component name to its implementation.
@@ -40,6 +41,10 @@ const ctas = (section.ctas ?? []).map(ctaById).map((cta) => ({
   label: t(cta.label, lang),
   href: ctaHref(cta, lang),
 }));
+const image = section.image && {
+  src: images[section.image.src],
+  alt: section.image.alt ? t(section.image.alt, lang) : "",
+};
 const items = section.items?.map((item) => ({
   text: resolve(item.text),
   href: item.page ? pagePath(pageById(item.page), lang) : undefined,
@@ -53,5 +58,6 @@ const items = section.items?.map((item) => ({
     items={items as never}
     ctas={ctas}
     form={section.form ? formProps(section.form, lang) : undefined}
+    image={image}
   />
 </div>

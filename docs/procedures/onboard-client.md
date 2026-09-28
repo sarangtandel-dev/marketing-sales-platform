@@ -2,7 +2,7 @@
 
 The steps from signed Client to live site, as run for Client #0. Most steps are done by a person (ADR-0038). Tick each one in the Client's onboarding ticket.
 
-M0 has one form Worker, for Client #0. A second Client needs the M1 decision on one Worker per Client first (see the Batch 5 ticket). Until then, stop at step 5 and build a preview only.
+M0 has one form Worker, for Client #0. A second Client needs the M1 decision on one Worker per Client first (issue 37). Until then, stop at step 5 and build a preview only.
 
 ## 1. Intake and Facts (ADR-0005, ADR-0007)
 

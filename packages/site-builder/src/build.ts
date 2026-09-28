@@ -32,7 +32,7 @@ export type BuildSettings = { turnstileSiteKey?: string; formEndpoint?: string; 
 // ponytail: no script-src/style-src policy yet. CookieYes and GTM inject scripts and inline
 // styles, and Astro's hash-based CSP would block them; the site renders no user input, so
 // the gain is small. Upgrade path: Astro security.csp with strict-dynamic, checked in a
-// browser against CookieYes, GTM and Turnstile (Batch 5 ticket).
+// browser against CookieYes, GTM and Turnstile (issue 42).
 const HEADERS = `/*
   Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'
   X-Content-Type-Options: nosniff

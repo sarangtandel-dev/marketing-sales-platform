@@ -55,7 +55,7 @@ pnpm build:site clients/client-zero/site dist/client-zero
   - a Permissions-Policy
   - HSTS
 
-  There's no script or style CSP yet: CookieYes and GTM inject both, so it needs a browser check first (a Batch 5 ticket).
+  There's no script or style CSP yet: CookieYes and GTM inject both, so it needs a browser check first (issue 42).
 - **Files in `clients/<slug>/site/public/`** are copied as they are. A `favicon.svg` or `favicon.ico` there is linked from every page.
 - **With a consent tool,** the footer needs `cookie_settings`: the label of the button that reopens the banner.
 - **axe-core's WCAG A/AA rules** run on every page of the fixture and the showcase. jsdom has no layout, so colour contrast is checked by hand.
@@ -271,7 +271,7 @@ Installed for Claude Code on the agency machine (not in the repo). They help age
 | `chrome-devtools-mcp` (usage statistics off) | Checking in a real browser that nothing loads before consent, and that the console is clean |
 | `ponytail` | The code style in `CLAUDE.md` |
 | `archify` | The diagrams in `docs/diagrams/` |
-| `cloudflare/security-audit-skill` | Run once before launch; triage its findings into `.scratch/` |
+| `security-audit` (cloudflare/security-audit-skill) | A full source audit before launch (run once on 2026-09-28); triage its findings into `.scratch/` |
 
 ## Secrets scan
 

@@ -22,3 +22,11 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - Deploy the preview form Worker (`wrangler deploy --env preview`), and set the `PREVIEW_FORM_ENDPOINT` repository variable.
 
 2026-09-27: `pnpm check:launch clients/client-zero` runs the automated half of the launch checklist and prints the manual half. See `docs/development.md` ("Launch check").
+
+2026-09-28, audit (Phase 1): the launch now also needs, from a person:
+- the production Worker set up by `docs/procedures/release-worker.md`, including DNS and Email Routing (use a subdomain if the domain's email runs elsewhere)
+- Worker secrets `HEARTBEAT_URL` (a healthchecks.io check, period 1 day, grace 3 hours) and `NTFY_URL` (a random ntfy topic the owner subscribes to)
+- the Brevo double opt-in template and thank-you page (`BREVO_DOI_TEMPLATE_ID`, `BREVO_DOI_REDIRECT_URL`)
+- GitHub settings: a `production` environment with a required reviewer, a ruleset on `live`, CodeQL default setup, secret scanning push protection, and "require actions pinned to a full-length commit SHA"
+- the accounts register filled in (`docs/procedures/accounts.md`)
+- `pnpm check:launch clients/client-zero` passing, which now also checks the Worker config

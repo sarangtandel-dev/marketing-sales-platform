@@ -21,12 +21,14 @@ const PENDING_GRACE_MINUTES = 2;
 type Row = LeadForBrevo & { delivery_attempts: number; delivery_log: string; is_test: number };
 type RawRow = Omit<Row, "fields" | "opt_ins"> & { fields: string; opt_ins: string | null };
 
-export async function attemptDelivery(env: Env, id: string, now: Date): Promise<void> {
+// `alertNow` false: the cron sends failure alerts afterwards, grouped (alertsDue).
+export async function attemptDelivery(env: Env, id: string, now: Date, alertNow = true): Promise<void> {
   const db = env.LEAD_LOG;
   const lease = plusMinutes(now, LEASE_MINUTES);
+  // The attempt is counted as it's claimed, so one that throws still counts (audit code B14).
   const claim = await db
     .prepare(
-      `UPDATE leads SET delivery_status = 'sending', next_attempt_at = ?
+      `UPDATE leads SET delivery_status = 'sending', next_attempt_at = ?, delivery_attempts = delivery_attempts + 1
        WHERE id = ? AND (delivery_status IN ('pending', 'retrying')
          OR (delivery_status = 'sending' AND next_attempt_at <= ?))`,
     )
@@ -42,6 +44,18 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
     .bind(id)
     .first<RawRow>();
   if (!raw) return;
+  // Every attempt so far threw before recording a result: give up and alert, as for any failure.
+  if (raw.delivery_attempts > MAX_ATTEMPTS) {
+    const saved = await db
+      .prepare(
+        `UPDATE leads SET delivery_status = 'failed', next_attempt_at = NULL, delivery_attempts = ?
+         WHERE id = ? AND delivery_status = 'sending' AND next_attempt_at = ?`,
+      )
+      .bind(MAX_ATTEMPTS, id, lease)
+      .run();
+    if (saved.meta.changes === 1 && alertNow) await deliverAlert(env, "failure", id, now);
+    return;
+  }
   const row: Row = { ...raw, fields: JSON.parse(raw.fields), opt_ins: JSON.parse(raw.opt_ins ?? "[]") };
 
   // No email to key on, or no Brevo account (the preview Worker): stored and alerted, not delivered.
@@ -62,7 +76,7 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
     },
     row,
   );
-  const attempts = row.delivery_attempts + 1;
+  const attempts = row.delivery_attempts;
   const log = [...JSON.parse(row.delivery_log), { at: now.toISOString(), ok: result.ok, detail: result.detail }];
 
   let status: "delivered" | "retrying" | "failed";
@@ -85,7 +99,7 @@ export async function attemptDelivery(env: Env, id: string, now: Date): Promise<
   if (saved.meta.changes !== 1) return;
 
   // A test Lead's failure is reported once, by the monitoring check itself (deliverAlert skips test Leads).
-  if (status === "failed") await deliverAlert(env, "failure", id, now);
+  if (status === "failed" && alertNow) await deliverAlert(env, "failure", id, now);
 }
 
 // Run by the cron: every Lead whose retry (or lost first attempt) is due.
@@ -98,5 +112,8 @@ export async function deliverDue(env: Env, now: Date): Promise<void> {
   )
     .bind(now.toISOString(), plusMinutes(now, -PENDING_GRACE_MINUTES))
     .all<{ id: string }>();
-  for (const { id } of results) await attemptDelivery(env, id, now);
+  // One bad row never stops the batch; its lease expires and it's tried again.
+  for (const { id } of results) {
+    await attemptDelivery(env, id, now, false).catch((err) => console.error(`delivery of ${id} failed`, err));
+  }
 }

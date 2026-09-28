@@ -62,6 +62,7 @@ export type SiteDefinition = {
   meta: {
     schema_version: 1;
     client: string;
+    name?: Text;
     site_url: string;
     theme: string;
     default_language: string;
@@ -78,8 +79,14 @@ export type SiteDefinition = {
   redirects?: { from: string; to: string }[];
 };
 
+// A web font for one type token. "fontsource" fetches an open font at build time;
+// "local" uses the Client's own files (src relative to the Theme file).
+export type ThemeFont =
+  | { family: string; provider: "fontsource"; weights?: string[]; styles?: ("normal" | "italic")[] }
+  | { family: string; provider: "local"; files: { src: string; weight: string; style: "normal" | "italic" }[] };
+
 export type Theme = Record<"colors" | "type", Record<string, string>> &
-  Partial<Record<"spacing" | "radius" | "shadows", Record<string, string>>>;
+  Partial<Record<"spacing" | "radius" | "shadows", Record<string, string>>> & { fonts?: Record<string, ThemeFont> };
 
 const loadSchema = (name: string) =>
   JSON.parse(readFileSync(new URL(`../schema/${name}`, import.meta.url), "utf8"));
@@ -111,7 +118,11 @@ function schemaIssues(errors: ErrorObject[] | null | undefined): Issue[] {
 }
 
 export function validateTheme(data: unknown): Issue[] {
-  return checkTheme(data) ? [] : schemaIssues(checkTheme.errors);
+  if (!checkTheme(data)) return schemaIssues(checkTheme.errors);
+  const theme = data as Theme;
+  return Object.keys(theme.fonts ?? {})
+    .filter((token) => !(token in theme.type))
+    .map((token) => ({ path: `/fonts/${token}`, message: `fills no type token; the Theme's type has: ${Object.keys(theme.type).join(", ")}` }));
 }
 
 export function validateSiteDefinition(data: unknown): Issue[] {

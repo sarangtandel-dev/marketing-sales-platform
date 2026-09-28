@@ -9,7 +9,10 @@
       "en"
     ],
     "version": "0.1.0",
-    "turnstile_site_key": "0x4AAAAAAAFixtureProdKey"
+    "turnstile_site_key": "0x4AAAAAAAFixtureProdKey",
+    "name": {
+      "en": "Fixture Co"
+    }
   },
   "pages": [
     {

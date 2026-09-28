@@ -10,7 +10,26 @@
     "body": "system-ui, sans-serif",
     "heading": "Georgia, serif"
   },
-  "spacing": { "section": "5rem" },
-  "radius": { "card": "0.75rem" },
-  "shadows": { "card": "0 1px 3px rgb(0 0 0 / 0.1)" }
+  "spacing": {
+    "section": "5rem"
+  },
+  "radius": {
+    "card": "0.75rem"
+  },
+  "shadows": {
+    "card": "0 1px 3px rgb(0 0 0 / 0.1)"
+  },
+  "fonts": {
+    "body": {
+      "family": "Inter",
+      "provider": "local",
+      "files": [
+        {
+          "src": "fonts/inter-latin-400-normal.woff2",
+          "weight": "400",
+          "style": "normal"
+        }
+      ]
+    }
+  }
 }

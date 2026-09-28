@@ -185,6 +185,12 @@ describe("validateSiteDefinition", () => {
     expect(validateSiteDefinition(s)).toContainEqual({ path: "/redirects/0/to", message: expect.stringContaining("pattern") });
   });
 
+  it("takes the business name in every language", () => {
+    const s = site();
+    s.meta.name = { fr: "Fixture Co" };
+    expect(validateSiteDefinition(s)).toContainEqual({ path: "/meta/name", message: expect.stringContaining('"en"') });
+  });
+
   it("only accepts consent tools we've integrated", () => {
     const s = site();
     s.tracking.consent_tool = { provider: "homegrown", id: "x" };
@@ -251,6 +257,12 @@ describe("validateSiteDefinition", () => {
 describe("validateTheme", () => {
   it("accepts a valid Theme", () => {
     expect(validateTheme(theme())).toEqual([]);
+  });
+
+  it("only takes fonts for type tokens the Theme defines", () => {
+    const t = theme();
+    t.fonts = { display: { family: "Inter", provider: "fontsource" } };
+    expect(validateTheme(t)).toContainEqual({ path: "/fonts/display", message: expect.stringContaining("type") });
   });
 
   it("requires colours and type", () => {

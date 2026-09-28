@@ -1,5 +1,6 @@
 import type { Cta, Form, Page, SiteDefinition, Text } from "../../src/definition.ts";
 import { NOT_FOUND } from "../../src/constants.ts";
+import { pagePathFor } from "../../src/seo.ts";
 import { wordingVersion } from "../../src/wording.ts";
 import { settings, site as loaded } from "virtual:msp/site";
 
@@ -8,11 +9,7 @@ export const { default_language: defaultLanguage, languages } = site.meta;
 
 export const t = (text: Text, lang: string) => text[lang];
 
-// The default language sits at the root; others go under /<lang>/ (ADR-0027).
-export function pagePath(page: Page, lang: string): string {
-  const parts = [lang === defaultLanguage ? "" : lang, page.slug[lang]].filter(Boolean);
-  return parts.length ? `/${parts.join("/")}/` : "/";
-}
+export const pagePath = (page: Page, lang: string) => pagePathFor(page, lang, defaultLanguage);
 
 export const pageById = (id: string) => site.pages.find((p) => p.id === id)!;
 

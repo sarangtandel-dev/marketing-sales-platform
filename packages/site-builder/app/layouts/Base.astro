@@ -1,7 +1,9 @@
 ---
 import "msp:theme.css";
 import type { Page } from "../../src/definition.ts";
+import { Font } from "astro:assets";
 import { settings } from "virtual:msp/site";
+import { hreflangLinks } from "../../src/seo.ts";
 import { pageById, pagePath, site, t } from "../lib/site";
 
 interface Props {
@@ -12,6 +14,11 @@ interface Props {
 
 const { page, lang, canonical = true } = Astro.props;
 const url = new URL(pagePath(page, lang), site.meta.site_url).href;
+const title = t(page.seo.title, lang);
+const description = t(page.seo.description, lang);
+const siteName = site.meta.name && t(site.meta.name, lang);
+const ogImage = settings.ogImage && new URL(`/${settings.ogImage}`, site.meta.site_url).href;
+const alternates = canonical ? hreflangLinks(page, site.meta.languages, site.meta.default_language, site.meta.site_url) : [];
 const { consent_tool: consentTool, gtm } = site.tracking;
 const consentToolSrc =
   consentTool?.provider === "cookieyes" ? `https://cdn-cookieyes.com/client_data/${consentTool.id}/script.js` : undefined;
@@ -44,9 +51,20 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     {consentToolSrc && <script is:inline id="cookieyes" src={consentToolSrc}></script>}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {settings.favicon && <link rel="icon" href={`/${settings.favicon}`} />}
-    <title>{t(page.seo.title, lang)}</title>
-    <meta name="description" content={t(page.seo.description, lang)} />
+    {settings.fonts.map((token) => <Font cssVariable={`--msp-font-${token}` as never} preload />)}
+    <title>{title}</title>
+    <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={url} />}
+    {alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <meta name="theme-color" content={settings.themeColor} />
+    <!-- Social previews (Open Graph, X/Twitter). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    {siteName && <meta property="og:site_name" content={siteName} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
   </head>
   <body class="bg-surface text-on-surface font-body antialiased">
     <header class="border-b border-on-surface/10 px-4">

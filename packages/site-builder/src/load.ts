@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   type Issue,
@@ -34,6 +34,18 @@ export function loadSite(siteDir: string): { site: SiteDefinition; theme: Theme 
   const theme = readJson(themeFile);
   const themeIssues = validateTheme(theme);
   if (themeIssues.length) throw new SiteDefinitionError(themeFile, themeIssues);
+
+  // Local font files are resolved against the Theme file, and must exist.
+  const fonts = (theme as Theme).fonts ?? {};
+  const missing: Issue[] = [];
+  for (const [token, font] of Object.entries(fonts)) {
+    if (font.provider !== "local") continue;
+    font.files.forEach((file, i) => {
+      file.src = resolve(dirname(themeFile), file.src);
+      if (!existsSync(file.src)) missing.push({ path: `/fonts/${token}/files/${i}/src`, message: `no such file: ${file.src}` });
+    });
+  }
+  if (missing.length) throw new SiteDefinitionError(themeFile, missing);
 
   return { site: site as SiteDefinition, theme: theme as Theme };
 }

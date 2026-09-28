@@ -3,8 +3,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { build } from "astro";
+import { fontProviders } from "astro/config";
 import { loadSite } from "./load.ts";
-import { themeCss } from "./theme-css.ts";
+import type { Theme } from "./definition.ts";
+import { fontVariable, themeCss } from "./theme-css.ts";
 
 const packageDir = fileURLToPath(new URL("..", import.meta.url));
 const appDir = join(packageDir, "app");
@@ -25,7 +27,32 @@ export type BuildOptions = {
 };
 
 /** @public Used by app/env.d.ts, which knip can't see. */
-export type BuildSettings = { turnstileSiteKey?: string; formEndpoint?: string; favicon?: string };
+export type BuildSettings = {
+  turnstileSiteKey?: string;
+  formEndpoint?: string;
+  favicon?: string;
+  // The social preview image in the Client's public/ folder, if any.
+  ogImage?: string;
+  fonts: string[];
+  themeColor: string;
+};
+
+// Astro's Fonts API config for the Theme's web fonts: downloaded or copied at build time and
+// served from the site itself, so Visitors never contact a font host (ADR-0020). The type
+// token's own value becomes the fallback stack.
+function fontsConfig(theme: Theme) {
+  return Object.entries(theme.fonts ?? {}).map(([token, font]) => ({
+    name: font.family,
+    cssVariable: fontVariable(token) as `--${string}`,
+    fallbacks: theme.type[token].split(",").map((f) => f.trim().replace(/^["']|["']$/g, "")),
+    ...(font.provider === "local"
+      ? {
+          provider: fontProviders.local(),
+          options: { variants: font.files.map((f) => ({ src: [f.src], weight: f.weight, style: f.style })) },
+        }
+      : { provider: fontProviders.fontsource(), weights: font.weights ?? ["400", "700"], styles: font.styles ?? ["normal"] }),
+  }));
+}
 
 // Sent with every page by Cloudflare Pages (audit M4). The CSP is header-only rules that
 // can't break a script: no framing (clickjacking), no <base> or plugin injection.
@@ -51,6 +78,9 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
     turnstileSiteKey: preview ? TURNSTILE_TEST_SITE_KEY : site.meta.turnstile_site_key,
     formEndpoint,
     favicon: ["favicon.svg", "favicon.ico"].find((f) => existsSync(join(publicDir, f))),
+    ogImage: ["og.png", "og.jpg"].find((f) => existsSync(join(publicDir, f))),
+    fonts: Object.keys(theme.fonts ?? {}),
+    themeColor: theme.colors.primary,
   };
 
   // Per-build scratch space inside the package, so Astro and Tailwind resolve from its node_modules.
@@ -66,6 +96,7 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
       root: work,
       srcDir: appDir,
       publicDir,
+      fonts: fontsConfig(theme),
       outDir: resolve(outDir),
       site: site.meta.site_url,
       logLevel: "error",

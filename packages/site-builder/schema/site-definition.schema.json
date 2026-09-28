@@ -36,6 +36,10 @@
         "client": {
           "$ref": "#/$defs/slug"
         },
+        "name": {
+          "description": "The business name Visitors see: og:site_name and the Organization in the JSON-LD.",
+          "$ref": "#/$defs/text"
+        },
         "site_url": {
           "type": "string",
           "pattern": "^https://[^/]+$"

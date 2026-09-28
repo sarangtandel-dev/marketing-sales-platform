@@ -78,6 +78,35 @@ describe("building a valid site", () => {
     expect(sitemap).not.toContain("404");
   });
 
+  it("self-hosts and preloads the Theme's fonts, with the Theme's stack as fallback", () => {
+    const home = read("index.html");
+    expect(home).toMatch(/<link[^>]*rel="preload"[^>]*as="font"[^>]*>/);
+    const css = readdirSync(out, { recursive: true, encoding: "utf8" })
+      .filter((f) => f.endsWith(".css") || f.endsWith(".html"))
+      .map((f) => read(f))
+      .join("\n");
+    expect(css).toMatch(/@font-face\s*{[^}]*Inter/);
+    expect(css).toContain("--font-body:var(--msp-font-body)");
+    expect(readdirSync(out, { recursive: true, encoding: "utf8" }).some((f) => f.endsWith(".woff2"))).toBe(true);
+    expect(css).not.toMatch(/fonts\.(googleapis|gstatic)\.com|cdn\.jsdelivr\.net|fontsource/);
+  });
+
+  it("gives every page social preview tags and the Theme's colour", () => {
+    for (const file of htmlFiles(out)) {
+      const html = read(file);
+      for (const tag of ["og:title", "og:description", "og:url", "og:type", "twitter:card"]) {
+        expect(html, `${file} ${tag}`).toMatch(new RegExp(`<meta[^>]*(property|name)="${tag}"[^>]*content="[^"]+"`));
+      }
+    }
+    const home = read("index.html");
+    expect(home).toContain('<meta property="og:site_name" content="Fixture Co"');
+    expect(home).toContain('<meta property="og:image" content="https://example.test/og.png"');
+    expect(home).toContain('<meta name="twitter:card" content="summary_large_image"');
+    expect(home).toContain('<meta property="og:url" content="https://example.test/"');
+    expect(home).toContain('<meta name="theme-color" content="#1d4ed8"');
+    expect(home).not.toContain("hreflang");
+  });
+
   it("sends security headers with every response (audit M4)", () => {
     const headers = read("_headers");
     expect(headers).toMatch(/^\/\*$/m);
@@ -279,6 +308,15 @@ describe("building an invalid site", () => {
     expect(result.stderr).toContain("/pages/0/sections/0/variant");
     expect(result.stderr).toContain("diagonal");
     expect(existsSync(join(tmp, "broken-out"))).toBe(false);
+  });
+
+  it("fails when a Theme font file is missing", () => {
+    const dir = join(tmp, "missing-font");
+    cpSync(fixture, dir, { recursive: true });
+    rmSync(join(dir, "fonts"), { recursive: true });
+    const result = build(dir, join(tmp, "missing-font-out"));
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("/fonts/body/files/0/src");
   });
 
   it("fails when the Theme is invalid", () => {

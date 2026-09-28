@@ -15,7 +15,8 @@
     "forms:manifest": "node packages/site-builder/src/manifest-cli.ts clients/client-zero/site packages/form-worker/src/forms.generated.json",
     "dev": "node tooling/dev.ts",
     "typecheck": "tsc -p packages/form-worker && tsc -p .",
-    "knip": "knip"
+    "knip": "knip",
+    "audit:site": "pnpm dlx unlighthouse-ci@0.18.1 --config-file tooling/unlighthouse.config.mjs --site"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

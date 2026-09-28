@@ -103,7 +103,9 @@ const fieldId = (name: string) => `${form.id}-${name}`;
         <input id={fieldId("website")} name="website" type="text" tabindex="-1" autocomplete="off" />
       </div>
 
-      <div class="cf-turnstile" data-sitekey={form.siteKey}></div>
+      <!-- interaction-only: the check runs unseen and shows a box only when a person must act,
+           so the form doesn't shift or wait on the widget. -->
+      <div class="cf-turnstile" data-sitekey={form.siteKey} data-appearance="interaction-only"></div>
 
       <div class="flex flex-wrap items-center gap-4">
         <button

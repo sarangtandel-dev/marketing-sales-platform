@@ -15,8 +15,11 @@ const SITE_PORT = 8788;
 // Cloudflare's published Turnstile test secret that always passes.
 const TURNSTILE_TEST_SECRET = "1x0000000000000000000000000000000AA";
 
+// No wrangler telemetry: on a slow network its upload keeps each command open for minutes.
+const env = { ...process.env, WRANGLER_SEND_METRICS: "false" };
+
 const run = (cmd: string, args: string[], cwd = process.cwd()) => {
-  const result = spawnSync(cmd, args, { cwd, stdio: "inherit" });
+  const result = spawnSync(cmd, args, { cwd, stdio: "inherit", env });
   if (result.status !== 0) process.exit(result.status ?? 1);
 };
 
@@ -39,9 +42,13 @@ const children = [
       "--var", `TURNSTILE_SECRET_KEY:${TURNSTILE_TEST_SECRET}`,
       "--var", "TURNSTILE_SKIP_HOSTNAME:true",
     ],
-    { cwd: worker, stdio: "inherit" },
+    { cwd: worker, stdio: "inherit", env },
   ),
-  spawn("pnpm", ["exec", "wrangler", "pages", "dev", out, "--port", String(SITE_PORT)], { stdio: "inherit" }),
+  // Its own debugger port: both wrangler processes default to the same one.
+  spawn("pnpm", ["exec", "wrangler", "pages", "dev", out, "--port", String(SITE_PORT), "--inspector-port", "9230"], {
+    stdio: "inherit",
+    env,
+  }),
 ];
 const stop = () => children.forEach((c) => c.kill());
 process.on("SIGINT", stop);

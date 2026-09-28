@@ -30,3 +30,4 @@ Source: `.scratch/module-1-website/spec.md` (M0), 2026-09-27
 - GitHub settings: a `production` environment with a required reviewer, a ruleset on `live`, CodeQL default setup, secret scanning push protection, and "require actions pinned to a full-length commit SHA"
 - the accounts register filled in (`docs/procedures/accounts.md`)
 - `pnpm check:launch clients/client-zero` passing, which now also checks the Worker config
+- after the security-audit fixes: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` go in the `preview` and `production` environments (production restricted to `live`), never as repository secrets, then set the variable `DEPLOY_ENABLED=true`; the preview Worker's alerts go to a QA inbox (`ALERT_TO`, `send_email`), not the owner's

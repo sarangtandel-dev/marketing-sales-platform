@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # Claude Design output becomes a per-Client Theme over one shared component library

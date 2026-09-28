@@ -1,5 +1,7 @@
 # Agency template kit
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Everything the playbook in [`docs/03-setup-playbook.md`](../docs/03-setup-playbook.md) lists as an
 agency prerequisite. Build the vendor-side masters once from these files; per client, copy and
 fill the `{{...}}` placeholders.

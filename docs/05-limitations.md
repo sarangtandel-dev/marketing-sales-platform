@@ -1,5 +1,7 @@
 # 05 — Limitations of the Cloud Approach
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Phase 0 is built to be replaced. This document says exactly where it breaks, what cannot be
 controlled, and at what numbers the cost or effort stops making sense. Every row maps to a
 module in the Phase 1 build order in [06-transition-plan.md](06-transition-plan.md).

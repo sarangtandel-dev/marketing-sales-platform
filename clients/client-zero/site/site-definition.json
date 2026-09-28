@@ -403,7 +403,7 @@
                   "en": "Draft status"
                 },
                 "body": {
-                  "en": "[TO FILL: remove this block once a qualified person has reviewed and approved this policy (ticket 34), and record the reviewer and date in the ticket.]\n\nThis policy is a draft written from how the site actually works. It must not go live unreviewed."
+                  "en": "[TO FILL: remove this block once a qualified person has reviewed and approved this policy (ticket 34), and record the reviewer and date in the ticket.]\n\nThis policy is a draft written from how the site actually works. It must not go live unreviewed.\n\n[TO FILL: for the reviewer, check against the DPDP Act and the DPDP Rules, 2025: the notice items the Rules require (an itemised description of the data and purposes, how to withdraw consent, how to exercise rights and complain to the Board), whether a consent manager is needed, breach notice to the Board and to affected people within the required time, and the grievance officer's details.]"
                 }
               }
             },
@@ -423,7 +423,7 @@
                   "en": "What we collect when you contact us"
                 },
                 "body": {
-                  "en": "When you send an enquiry through our contact form, we receive the details you type in: your name, email address, company, role, company size and your message.\n\nWith the enquiry we also record the page you sent it from (without any tracking codes in the address), the time, the language of the page, and your cookie choices. If you have accepted analytics cookies, we also record how you first and most recently found our site (for example a search engine or a campaign link), as described under \"Cookies and similar storage\"."
+                  "en": "When you send an enquiry through our contact form, we receive the details you type in: your name, email address, company, role, company size and your message.\n\nWith the enquiry we also record the page you sent it from (without any tracking codes in the address), the time, the language of the page, and your cookie choices. If you have accepted analytics cookies, we also record how you first and most recently found our site (for example a search engine or a campaign link), as described under \"Cookies and similar storage\", and your Google Analytics identifier, which links your enquiry to your earlier visits in our analytics.\n\nTo protect the form from spam and abuse, your IP address is checked by Cloudflare Turnstile and used to limit how many submissions can come from one address. We don't store it with your enquiry."
                 }
               }
             },
@@ -443,7 +443,7 @@
                   "en": "Who processes it for us"
                 },
                 "body": {
-                  "en": "Cloudflare hosts this website and runs the service that receives the form. It checks submissions for spam with Cloudflare Turnstile, keeps a short-term copy of each enquiry (the Lead Log) and sends us an email alert about it.\n\nBrevo stores enquiries as our contact records and sends our emails.\n\nCookieYes shows the cookie banner and keeps a record of your cookie choices.\n\nGoogle (Google Tag Manager and Google Analytics) measures how the site is used, and only if you accept analytics cookies.\n\nEach of them processes the data only to provide their service to us. [TO FILL: confirm each provider's data processing terms and processing locations during review.]"
+                  "en": "Cloudflare hosts this website and runs the service that receives the form. It checks submissions for spam with Cloudflare Turnstile, keeps a short-term copy of each enquiry (the Lead Log) and sends us an email alert about it. That alert, with your details, stays in our business mailbox.\n\nBrevo stores enquiries as our contact records and sends our emails.\n\nCookieYes shows the cookie banner and keeps a record of your cookie choices.\n\nGoogle (Google Tag Manager and Google Analytics) measures how the site is used, and only if you accept analytics cookies.\n\nEach of them processes the data only to provide their service to us. [TO FILL: confirm each provider's data processing terms and processing locations during review.]"
                 }
               }
             },
@@ -453,7 +453,7 @@
                   "en": "How long we keep it"
                 },
                 "body": {
-                  "en": "The short-term copy of your enquiry (the Lead Log) is deleted automatically after 90 days.\n\nIn Brevo we keep your contact record for [TO FILL: retention period decided during review], or until you ask us to delete it. Your cookie choices are kept by CookieYes for [TO FILL: CookieYes consent record retention]."
+                  "en": "The short-term copy of your enquiry (the Lead Log) is deleted automatically after 90 days. The email alert about it is kept in our mailbox for [TO FILL: how long alert emails are kept, decided during review].\n\nIn Brevo we keep your contact record for [TO FILL: retention period decided during review], or until you ask us to delete it. Your cookie choices are kept by CookieYes for [TO FILL: CookieYes consent record retention]."
                 }
               }
             },
@@ -463,7 +463,7 @@
                   "en": "Cookies and similar storage"
                 },
                 "body": {
-                  "en": "Nothing that tracks you runs until you accept it in the cookie banner, and you can change your choice at any time from the cookie settings link.\n\nIf you accept analytics cookies, Google Analytics sets its own cookies, and our site keeps a note in your browser of how you first and most recently arrived (for example \"google / organic\" or a campaign name) for 90 days. It never stores your name, email or phone number. If you also accept advertising cookies, that note can include the ad click identifier in the link you followed. Withdrawing your consent deletes the note.\n\nThe spam check (Cloudflare Turnstile) is needed to protect the form, so it runs without a cookie choice."
+                  "en": "Nothing that tracks you runs until you accept it in the cookie banner, and you can change your choice at any time from the \"Cookie settings\" link at the bottom of every page.\n\nIf you accept analytics cookies, Google Analytics sets its own cookies, and our site keeps a note in your browser of how you first and most recently arrived (for example \"google / organic\" or a campaign name) for 90 days. It never stores your name, email or phone number. If you also accept advertising cookies, that note can include the ad click identifier in the link you followed. Withdrawing your consent deletes the note.\n\nThe spam check (Cloudflare Turnstile) is needed to protect the form, so it runs without a cookie choice."
                 }
               }
             },
@@ -651,19 +651,19 @@
             {
               "value": "1-10",
               "label": {
-                "en": "1\u201310 people"
+                "en": "1–10 people"
               }
             },
             {
               "value": "11-50",
               "label": {
-                "en": "11\u201350 people"
+                "en": "11–50 people"
               }
             },
             {
               "value": "51-200",
               "label": {
-                "en": "51\u2013200 people"
+                "en": "51–200 people"
               }
             },
             {
@@ -735,7 +735,7 @@
   ],
   "footer": {
     "text": {
-      "en": "[TO FILL: \u00a9 year and legal name (Fact: business-name)]"
+      "en": "[TO FILL: © year and legal name (Fact: business-name)]"
     },
     "cookie_settings": {
       "en": "Cookie settings"

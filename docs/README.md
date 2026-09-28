@@ -1,5 +1,7 @@
 # Marketing + Sales Growth Platform
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 An agency-operated growth stack for small businesses: website, SEO, lead capture, CRM and
 marketing automation. Phase 0 rents every capability from the best free-tier tool in each slot
 and wires them at a single seam. Phase 1 replaces the tools one module at a time, starting with

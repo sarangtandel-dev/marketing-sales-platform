@@ -1,5 +1,7 @@
 # 02 — Cloud Architecture (Phase 0)
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Every client gets the same wiring. The stack is a set of rented tools joined at exactly one seam:
 the form submission. Everything downstream of that seam is driven by Make, which is the only piece
 the agency owns, and which Phase 1 replaces with the Lead Hub API.

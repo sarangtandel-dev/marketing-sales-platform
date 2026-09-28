@@ -20,7 +20,7 @@
       },
       "seo": {
         "title": {
-          "en": "Fixture Co \u2014 Home"
+          "en": "Fixture Co — Home"
         },
         "description": {
           "en": "A fixture site used by the site builder tests."
@@ -191,13 +191,13 @@
             {
               "value": "1-10",
               "label": {
-                "en": "1\u201310"
+                "en": "1–10"
               }
             },
             {
               "value": "11-50",
               "label": {
-                "en": "11\u201350"
+                "en": "11–50"
               }
             }
           ]
@@ -216,7 +216,7 @@
         "en": "Send enquiry"
       },
       "success": {
-        "en": "Thanks \u2014 we'll reply within one working day."
+        "en": "Thanks — we'll reply within one working day."
       },
       "error": {
         "en": "Sorry, that didn't send. Please try again."
@@ -251,7 +251,7 @@
   ],
   "footer": {
     "text": {
-      "en": "\u00a9 Fixture Co"
+      "en": "© Fixture Co"
     },
     "cookie_settings": {
       "en": "Cookie settings"

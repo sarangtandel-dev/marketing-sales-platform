@@ -1,5 +1,7 @@
 # 03 — Per-Client Setup Playbook
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Run this top to bottom for every new client. Each step has an owner, an estimated time, and an
 acceptance check. A step is not done until its check passes. The step estimates add up to 24-32 hours,
 so the target for an experienced operator is **3-4 working days** of agency time, with WhatsApp and

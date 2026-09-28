@@ -1,5 +1,7 @@
 # Appendix A — Naming, UTM Taxonomy, Account Ownership
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 These conventions are what make 20 clients manageable by one operator. Deviate from them and the
 Make blueprints, Looker templates and GTM container imports stop being copy-paste.
 

@@ -1,5 +1,7 @@
 # 06 — Transition Plan to the Custom Platform
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Phase 1 replaces rented tools one slot at a time, in an order chosen so each module pays for
 itself before the next one starts. The architecture is stack-independent; the framework decision
 is deferred until the triggers below fire.

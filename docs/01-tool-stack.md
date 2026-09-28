@@ -1,5 +1,7 @@
 # 01 — Phase 0 Tool Stack
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Phase 0 rents every capability. Nothing is coded. Each slot below is filled by the best free or
 near-free tool for an agency running the stack for many small client businesses, and every tool
 is chosen so it can be replaced one slot at a time in Phase 1 (see [06-transition-plan.md](06-transition-plan.md)).

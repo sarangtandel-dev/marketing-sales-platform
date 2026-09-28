@@ -1,6 +1,6 @@
 # Plan for the limit of 100 Pages projects per account
 
-Status: needs-triage
+Status: ready-for-human
 Source: ADR-0003, 2026-09-17
 
 ## Problem
@@ -16,3 +16,5 @@ Cloudflare Pages allows 100 projects per account. With one project per Client (A
 2026-09-17, milestones (ADR-0039): DESIGNED. Review at 70 Clients.
 
 2026-09-17, milestones restructured (ADR-0039 now has M0/M1/M2). This supersedes the milestone note above: **DESIGNED.** Review at 70 Clients.
+
+2026-09-28, audit: triaged. The design is settled (review at 70 Clients); what's left is a person asking Cloudflare whether the limit can be raised, before the 70th Client.

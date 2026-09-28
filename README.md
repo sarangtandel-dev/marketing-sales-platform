@@ -1,14 +1,17 @@
 # Marketing + Sales Growth Platform
 
-Agency-operated growth stack for small businesses: website, SEO, lead capture, CRM and marketing
-automation. Phase 0 rents every capability from free-tier tools joined at one seam; Phase 1 replaces
-them module by module once concrete triggers fire.
+Agency-operated growth system for small businesses: website, SEO, lead capture, CRM and marketing automation. All modules share one knowledge base per Client. Module 1, website creation, is being built now; our own agency site is Client #0 (milestone M0).
 
-- [`docs/`](docs/README.md): the design. Tool stack, architecture, per-client setup playbook, automation workflows, limitations, transition plan, naming and tracking appendices.
-- [`templates/`](templates/README.md): the agency template kit the playbook uses. Webflow snippet and hidden fields, JSON-LD, GTM container, Make scenario specs, Brevo automations and emails, Sheet headers, Looker report spec, privacy policy, client intake form.
+- [`CONTEXT.md`](CONTEXT.md): the shared language (Client, Lead, Fact, Lead Log and so on).
+- [`docs/adr/`](docs/adr/): every design decision, with its reasons.
+- [`docs/development.md`](docs/development.md): setup (`pnpm install`, `pnpm test`, `pnpm dev`), the layout, building a site, the form Worker, monitoring, the launch check and deploying.
+- [`docs/procedures/`](docs/procedures/): runbooks for releases, incidents, restores, secret rotation, breaches, data requests, onboarding a Client and the accounts register.
+- [`docs/diagrams/`](docs/diagrams/README.md): project status and process diagrams.
+- `.scratch/module-1-website/`: the M0 spec and its issues, each with a `Status:` line.
 
-Start with [`docs/README.md`](docs/README.md). To onboard a client, follow [`docs/03-setup-playbook.md`](docs/03-setup-playbook.md).
+## Legacy (Phase 0)
 
-## Module 1 code
+The original plan rented every capability from free-tier tools (Webflow, HubSpot, Make). Module 1 replaces it (ADR-0002). Those docs are kept for reference, each marked LEGACY:
 
-Module 1 (website creation) is being built in `packages/` from the design in [`CONTEXT.md`](CONTEXT.md) and [`docs/adr/`](docs/adr/). See [`docs/development.md`](docs/development.md) for setup (`pnpm install`, `pnpm test`), the layout and the secrets scan. The Phase 0 docs above are legacy (ADR-0002).
+- [`docs/README.md`](docs/README.md) and `docs/01`–`06`, with the appendices.
+- [`templates/`](templates/README.md): the Phase 0 template kit. Some parts are reused by Module 1, such as the UTM taxonomy and the event list.

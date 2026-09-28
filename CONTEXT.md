@@ -160,11 +160,31 @@ _Avoid_: Consent (reserved for Visitor privacy choices), subscription
 Our short-term record of every raw form submission, written before delivery to Brevo and deleted automatically after its retention period.
 _Avoid_: Lead database, audit sheet, CRM
 
+**Owner Alert**:
+The email (and phone push) sent to the Client's owner about each new Lead, and about any Lead that couldn't be delivered to Brevo. Sent through Email Routing, never through Brevo.
+_Avoid_: Notification, lead email
+
+**Test Lead**:
+A Lead sent with a signed monitoring header instead of a Turnstile token, stored with a test flag, never alerted, and removed after the check. The **Daily Check** sends one every day.
+_Avoid_: Fake lead, dummy submission
+
+**Forms Manifest**:
+The list of a Client's forms, their field names and opt-in wording versions, generated from the Site Definition. The form Worker accepts nothing else.
+_Avoid_: Form schema, whitelist
+
 ### Delivery
 
 **Milestone**:
 A shippable slice of version 1. M0 gets Client #0 live with minimal machinery. M1 is triggered by the first paying Client and builds the pipeline. M2 adds the remaining packs, Regions and automation for scale.
 _Avoid_: Phase (reserved for the Phase 0 rented-tool setup), release
+
+**Preview Worker**:
+The form Worker that branch previews post to: its own Lead Log, Turnstile's test secret and no Brevo key, so QA Leads never reach production or a Client's contacts.
+_Avoid_: Staging, test worker
+
+**Launch Check**:
+`pnpm check:launch`: the automated half of the launch checklist, which fails on any placeholder or unverified Fact in a Client's files or the production Worker config, and lists what a person must still check.
+_Avoid_: Go-live script, preflight
 
 ## Relationships
 

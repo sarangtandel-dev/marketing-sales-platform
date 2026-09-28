@@ -1,5 +1,7 @@
 # 04 — Automation Workflows
 
+> **LEGACY (Phase 0).** This describes the rented-tool setup (Webflow, HubSpot, Make) that Module 1 replaces (ADR-0002). Don't follow it for new work: start from [`CONTEXT.md`](../CONTEXT.md), [`docs/adr/`](../docs/adr/) and [`docs/development.md`](../docs/development.md). Kept for reference until issue 10 decides its fate.
+
 Six workflows cover what a small business actually needs in its first year. W1 to W3 are the three
 the platform exists for: instant follow-up, campaign tracking, and nurturing. W4 to W6 are the
 next three every client asks for within a month. Each is written as trigger, steps, exit conditions,

@@ -1,0 +1,23 @@
+# Weekly update PRs, grouped so there's one per ecosystem. The cooldown matches pnpm's
+# minimumReleaseAge: nothing newer than a few days is proposed (a hijacked release is
+# usually caught and pulled within that time). Actions stay pinned to commit SHAs.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      npm:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directories: ["/", "/.github/actions/*"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      actions:
+        patterns: ["*"]

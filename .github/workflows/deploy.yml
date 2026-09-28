@@ -1,64 +1,66 @@
 name: Deploy
 
-# Builds each Client whose files changed and uploads it to that Client's Pages
-# project (one project per Client, named by its slug; ADR-0003). Every branch,
-# including main, deploys as a preview: the projects' production branch is
-# `live`, which only the launch (ticket 36) deploys to. Previews are noindex.
+# Builds every Client and uploads each to its own Pages project (one project per Client,
+# named by its slug; ADR-0003). Every branch, including main, deploys as a preview: the
+# projects' production branch is `live`, which only the launch (ticket 36) deploys to.
+# Previews are noindex.
+#
+# Two jobs, so the Cloudflare token never sits next to the build: `build` runs the
+# workspace's dependencies without it; `deploy` holds it and installs only wrangler.
+# `live` must also pass the tests and every Client's launch check, and deploys through
+# the `production` environment (set a required reviewer on it in the repo settings).
 
 on:
   push:
 
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push supersedes a preview still in progress; a production deploy always finishes.
+  cancel-in-progress: ${{ github.ref_name != 'live' }}
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    env:
-      HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    outputs:
+      enabled: ${{ steps.cloudflare.outputs.enabled }}
     steps:
-      - name: Skip when Cloudflare isn't configured
-        if: env.HAS_CLOUDFLARE != 'true'
-        run: echo "::notice::CLOUDFLARE_API_TOKEN isn't set, so nothing is deployed. See docs/development.md."
-      - uses: actions/checkout@v7
-        if: env.HAS_CLOUDFLARE == 'true'
+      - name: Check Cloudflare is configured
+        id: cloudflare
+        env:
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        run: |
+          echo "enabled=$HAS_CLOUDFLARE" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_CLOUDFLARE" != "true" ]; then
+            echo "::notice::CLOUDFLARE_API_TOKEN isn't set, so nothing is deployed. See docs/development.md."
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.cloudflare.outputs.enabled == 'true'
         with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v6
-        if: env.HAS_CLOUDFLARE == 'true'
-      - uses: actions/setup-node@v7
-        if: env.HAS_CLOUDFLARE == 'true'
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.cloudflare.outputs.enabled == 'true'
+      # No dependency cache in a deploying workflow: a poisoned cache could ship.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.cloudflare.outputs.enabled == 'true'
         with:
           node-version: 24
-          cache: pnpm
-      - if: env.HAS_CLOUDFLARE == 'true'
+      - if: steps.cloudflare.outputs.enabled == 'true'
         run: pnpm install --frozen-lockfile
-      - name: Work out which Clients changed
-        id: changed
-        if: env.HAS_CLOUDFLARE == 'true'
-        env:
-          BEFORE: ${{ github.event.before }}
+      - name: Production gate (tests and every Client's launch check)
+        if: steps.cloudflare.outputs.enabled == 'true' && github.ref_name == 'live'
         run: |
-          all=$(ls clients)
-          # A new branch, or a change to shared code or the lockfile, rebuilds every Client.
-          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
-            || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null \
-            || git diff --name-only "$BEFORE" HEAD | grep -qE '^(packages/|pnpm-lock\.yaml$|\.github/workflows/deploy\.yml$)'; then
-            clients="$all"
-          else
-            clients=$(git diff --name-only "$BEFORE" HEAD | sed -n 's|^clients/\([^/]*\)/.*|\1|p' | sort -u)
-          fi
-          clients=$(printf '%s\n' "$clients" | tr '\n' ' ' | xargs)
-          echo "clients=$clients" >> "$GITHUB_OUTPUT"
-          echo "Clients to deploy: ${clients:-none}"
-      - name: Build and deploy
-        if: env.HAS_CLOUDFLARE == 'true' && steps.changed.outputs.clients != ''
+          pnpm test
+          for dir in clients/*/; do
+            [ -f "$dir/site/site-definition.json" ] || continue
+            pnpm check:launch "$dir"
+          done
+      - name: Build every Client
+        if: steps.cloudflare.outputs.enabled == 'true'
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           BRANCH: ${{ github.ref_name }}
-          CLIENTS: ${{ steps.changed.outputs.clients }}
           # The preview form Worker (wrangler.jsonc env "preview"). Unset: preview forms post
           # to an address that doesn't exist, never to the production Worker.
           PREVIEW_FORM_ENDPOINT: ${{ vars.PREVIEW_FORM_ENDPOINT || 'https://preview-form-worker-not-configured.invalid/lead' }}
@@ -70,8 +72,61 @@ jobs:
           else
             mode=(--preview --form-endpoint "$PREVIEW_FORM_ENDPOINT")
           fi
-          for client in $CLIENTS; do
-            [ -f "clients/$client/site/site-definition.json" ] || continue
-            pnpm build:site "clients/$client/site" "dist/$client" "${mode[@]}"
-            pnpm exec wrangler pages deploy "dist/$client" --project-name="$client" --branch="$BRANCH" --commit-dirty=true
+          # ponytail: every Client rebuilds on every push (cheap while there are few). Upgrade
+          # path: diff against the last successful deploy once builds get slow.
+          # One Client's broken build never stops the others; the deploy job fails at the end.
+          mkdir -p dist
+          for dir in clients/*/; do
+            client=$(basename "$dir")
+            [ -f "$dir/site/site-definition.json" ] || continue
+            pnpm build:site "$dir/site" "dist/$client" "${mode[@]}" || echo "$client" >> dist/build-failures.txt
           done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.cloudflare.outputs.enabled == 'true'
+        with:
+          name: sites
+          path: dist
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'live' && 'production' || 'preview' }}
+    steps:
+      # Records every outbound connection while the Cloudflare token is present.
+      # ponytail: audit mode; switch to egress-policy: block with an allow-list once the
+      # audit shows the endpoints wrangler needs.
+      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      # The root package only (wrangler), from the lockfile: none of the build's dependencies.
+      - run: pnpm install --frozen-lockfile --filter marketing-sales-platform
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sites
+          path: dist
+      - name: Deploy each Client
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          failed=$(cat dist/build-failures.txt 2>/dev/null | xargs)
+          for dir in dist/*/; do
+            client=$(basename "$dir")
+            pnpm exec wrangler pages deploy "$dir" --project-name="$client" --branch="$BRANCH" --commit-dirty=true \
+              || failed="$failed $client"
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::Not deployed:$failed"
+            exit 1
+          fi

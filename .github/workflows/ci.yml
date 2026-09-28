@@ -4,15 +4,21 @@ on:
   push:
   pull_request:
 
+# Every job reads the repo and nothing else. Actions are pinned to commit SHAs (a moved
+# tag can't change what runs; Dependabot proposes updates).
+permissions:
+  contents: read
+
 jobs:
   secrets:
     name: Secrets scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: ./.github/actions/install-gitleaks
+          persist-credentials: false
+      - uses: $/.github/actions/install-gitleaks
       - name: Scan full history
         run: gitleaks git --redact --no-banner .
 
@@ -20,13 +26,51 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: pnpm
       # The secrets-scan tests drive the real pre-commit hook.
-      - uses: ./.github/actions/install-gitleaks
+      - uses: $/.github/actions/install-gitleaks
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  checks:
+    name: Types, unused code, links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm knip
+      # Every Client's preview build, with each internal link and asset checked.
+      - name: Build every Client and check its links
+        run: |
+          for site in clients/*/site; do
+            client=$(basename "$(dirname "$site")")
+            pnpm build:site "$site" "dist/$client" --preview --form-endpoint https://forms.invalid/lead
+            node tooling/check-links.ts "dist/$client"
+          done
+
+  zizmor:
+    name: Workflow security (zizmor)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          # Fail the job on findings instead of uploading to code scanning.
+          advanced-security: false

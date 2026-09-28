@@ -73,7 +73,7 @@ export type SiteDefinition = {
   ctas: Cta[];
   forms: Form[];
   navigation: { page: string; label: Text }[];
-  footer: { text: Text };
+  footer: { text: Text; cookie_settings?: Text };
   tracking: { gtm?: string; ga4?: string; consent_tool?: { provider: "cookieyes"; id: string } };
   redirects?: { from: string; to: string }[];
 };
@@ -125,8 +125,21 @@ export function validateSiteDefinition(data: unknown): Issue[] {
     ...slugIssues(site),
     ...notFoundIssues(site),
     ...formFallbackIssues(site),
+    ...formPageIssues(site),
   ];
 }
+
+// One form per page: element ids, the Turnstile widget and the tracking events assume it.
+function formPageIssues(site: SiteDefinition): Issue[] {
+  return site.pages.flatMap((page, p) =>
+    page.sections.filter((s) => s.form).length > 1 ? [{ path: `/pages/${p}`, message: "has more than one form; a page takes one form" }] : [],
+  );
+}
+
+// Names the form script skips (the honeypot, Turnstile, opt-ins) or the Worker sets itself on
+// the Brevo contact: a field with one of them would silently lose the Visitor's answer.
+const RESERVED_FIELDS = new Set(["website", "lead_id", "form_id", "form_type", "lead_received_at", "page_url"]);
+const isReservedField = (name: string) => RESERVED_FIELDS.has(name) || /^(opt_in_|email_opt_in)/.test(name);
 
 function notFoundIssues(site: SiteDefinition): Issue[] {
   const count = site.pages.filter((p) => p.type === NOT_FOUND).length;
@@ -247,6 +260,12 @@ function referenceIssues(site: SiteDefinition): Issue[] {
   site.forms.forEach((form, f) => {
     need(pageIds, "page", form.privacy_page, `/forms/${f}/privacy_page`);
     form.fields.forEach((field, i) => {
+      if (isReservedField(field.name)) {
+        issues.push({ path: `/forms/${f}/fields/${i}/name`, message: `"${field.name}" is reserved: the form or the Worker would drop its value` });
+      }
+      if (form.fields.findIndex((other) => other.name === field.name) !== i) {
+        issues.push({ path: `/forms/${f}/fields/${i}/name`, message: `duplicate field name "${field.name}"` });
+      }
       if (field.type === "email" && field.name !== "email") {
         issues.push({ path: `/forms/${f}/fields/${i}/name`, message: 'an email field must be named "email"' });
       }
@@ -259,6 +278,10 @@ function referenceIssues(site: SiteDefinition): Issue[] {
   // Google tags only ever load after consent (ADR-0020), so GTM needs a consent tool.
   if (site.tracking.gtm && !site.tracking.consent_tool) {
     issues.push({ path: "/tracking", message: "needs consent_tool because gtm is set (ADR-0020)" });
+  }
+  // Withdrawing consent must be as easy as giving it: a link on every page (ADR-0020).
+  if (site.tracking.consent_tool && !site.footer.cookie_settings) {
+    issues.push({ path: "/footer", message: "needs cookie_settings (the link that reopens the consent banner) because consent_tool is set" });
   }
   if (site.forms.length && !site.meta.turnstile_site_key) {
     issues.push({ path: "/meta", message: "needs turnstile_site_key because the site has forms (ADR-0028)" });

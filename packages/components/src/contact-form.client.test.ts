@@ -71,6 +71,16 @@ describe("contact form", () => {
     expect(p.lastBody().submission_token).toBe(firstToken);
   });
 
+  it("announces success through the live region that was already on the page", async () => {
+    const p = page(ok);
+    const status = p.form.querySelector("[data-form-status]")!;
+    await p.submit();
+    await vi.waitFor(() => expect(status.textContent).toBe("Thanks"));
+    // Screen readers only announce changes to a live region that existed before the change.
+    expect(status.isConnected).toBe(true);
+    expect(p.form.querySelector("input, button")).toBeNull();
+  });
+
   it("pushes form_start once per page view", () => {
     const p = page(ok);
     const input = p.form.querySelector("#name")!;

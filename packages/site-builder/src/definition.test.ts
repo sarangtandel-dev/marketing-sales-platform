@@ -150,6 +150,35 @@ describe("validateSiteDefinition", () => {
     expect(issues).toContainEqual({ path: "/forms/0", message: expect.stringContaining("opt-in") });
   });
 
+  it.each(["opt_in_sms", "page_url", "lead_id", "email_opt_in_at"])(
+    "rejects the field name %s, which the form or the Worker would drop (audit B15)",
+    (name) => {
+      const s = site();
+      s.forms[0].fields[0].name = name;
+      expect(validateSiteDefinition(s)).toContainEqual({ path: "/forms/0/fields/0/name", message: expect.stringContaining("reserved") });
+    },
+  );
+
+  it("rejects two fields with the same name in one form", () => {
+    const s = site();
+    s.forms[0].fields[0].name = s.forms[0].fields[2].name;
+    expect(validateSiteDefinition(s)).toContainEqual({ path: "/forms/0/fields/2/name", message: expect.stringContaining("duplicate") });
+  });
+
+  it("allows at most one form per page (audit B15)", () => {
+    const s = site();
+    const page = s.pages.find((p: { sections: { form?: string }[] }) => p.sections.some((x) => x.form));
+    page.sections.push({ ...page.sections.find((x: { form?: string }) => x.form) });
+    const p = s.pages.indexOf(page);
+    expect(validateSiteDefinition(s)).toContainEqual({ path: `/pages/${p}`, message: expect.stringContaining("one form") });
+  });
+
+  it("requires a cookie settings link whenever there's a consent tool", () => {
+    const s = site();
+    delete s.footer.cookie_settings;
+    expect(validateSiteDefinition(s)).toContainEqual({ path: "/footer", message: expect.stringContaining("cookie_settings") });
+  });
+
   it("only accepts consent tools we've integrated", () => {
     const s = site();
     s.tracking.consent_tool = { provider: "homegrown", id: "x" };

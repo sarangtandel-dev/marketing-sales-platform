@@ -297,6 +297,10 @@
       "properties": {
         "text": {
           "$ref": "#/$defs/text"
+        },
+        "cookie_settings": {
+          "$ref": "#/$defs/text",
+          "description": "Label of the footer button that reopens the consent banner. Required when tracking.consent_tool is set."
         }
       }
     },

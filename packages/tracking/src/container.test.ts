@@ -49,6 +49,10 @@ describe("GTM container", () => {
       parameter: "page_location",
       parameterValue: "{{DLV - page_location}}",
     });
+    expect(settings.map((r) => Object.fromEntries(r.map.map((m) => [m.key, m.value])))).toContainEqual({
+      parameter: "page_referrer",
+      parameterValue: "{{DLV - page_referrer}}",
+    });
   });
 
   it("defines every variable its tags use", () => {

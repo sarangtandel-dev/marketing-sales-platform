@@ -1,6 +1,7 @@
 ---
 import "msp:theme.css";
 import type { Page } from "../../src/definition.ts";
+import { settings } from "virtual:msp/site";
 import { pageById, pagePath, site, t } from "../lib/site";
 
 interface Props {
@@ -42,6 +43,7 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     <script is:inline set:html={trackingConfig} />
     {consentToolSrc && <script is:inline id="cookieyes" src={consentToolSrc}></script>}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {settings.favicon && <link rel="icon" href={`/${settings.favicon}`} />}
     <title>{t(page.seo.title, lang)}</title>
     <meta name="description" content={t(page.seo.description, lang)} />
     {canonical && <link rel="canonical" href={url} />}
@@ -58,7 +60,13 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
       <slot />
     </main>
     <footer class="px-4 py-8 text-sm text-muted">
-      <div class="mx-auto max-w-5xl">{t(site.footer.text, lang)}</div>
+      <div class="mx-auto flex max-w-5xl flex-wrap gap-x-6 gap-y-2">
+        <span>{t(site.footer.text, lang)}</span>
+        {/* CookieYes reopens its banner from any element with this class (ADR-0020: withdrawing is as easy as giving). */}
+        {site.footer.cookie_settings && (
+          <button type="button" class="cky-banner-element underline hover:text-primary">{t(site.footer.cookie_settings, lang)}</button>
+        )}
+      </div>
     </footer>
     <script>
       import "@msp/tracking";

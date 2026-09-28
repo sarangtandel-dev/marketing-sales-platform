@@ -651,19 +651,19 @@
             {
               "value": "1-10",
               "label": {
-                "en": "1–10 people"
+                "en": "1\u201310 people"
               }
             },
             {
               "value": "11-50",
               "label": {
-                "en": "11–50 people"
+                "en": "11\u201350 people"
               }
             },
             {
               "value": "51-200",
               "label": {
-                "en": "51–200 people"
+                "en": "51\u2013200 people"
               }
             },
             {
@@ -735,7 +735,10 @@
   ],
   "footer": {
     "text": {
-      "en": "[TO FILL: © year and legal name (Fact: business-name)]"
+      "en": "[TO FILL: \u00a9 year and legal name (Fact: business-name)]"
+    },
+    "cookie_settings": {
+      "en": "Cookie settings"
     }
   },
   "tracking": {

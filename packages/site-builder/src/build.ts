@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
@@ -24,15 +24,32 @@ export type BuildOptions = {
   formEndpoint?: string;
 };
 
-export type BuildSettings = { turnstileSiteKey?: string; formEndpoint?: string };
+export type BuildSettings = { turnstileSiteKey?: string; formEndpoint?: string; favicon?: string };
+
+// Sent with every page by Cloudflare Pages (audit M4). The CSP is header-only rules that
+// can't break a script: no framing (clickjacking), no <base> or plugin injection.
+// ponytail: no script-src/style-src policy yet. CookieYes and GTM inject scripts and inline
+// styles, and Astro's hash-based CSP would block them; the site renders no user input, so
+// the gain is small. Upgrade path: Astro security.csp with strict-dynamic, checked in a
+// browser against CookieYes, GTM and Turnstile (Batch 5 ticket).
+const HEADERS = `/*
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000
+`;
 
 // Builds one Client's static site from its site definition directory into outDir.
 // Throws SiteDefinitionError, before anything is written, if the input is invalid.
 export async function buildSite({ siteDir, outDir, preview = false, formEndpoint }: BuildOptions) {
   const { site, theme } = loadSite(siteDir);
+  // The Client's own static files (favicon and the like) are copied as they are.
+  const publicDir = join(resolve(siteDir), "public");
   const settings: BuildSettings = {
     turnstileSiteKey: preview ? TURNSTILE_TEST_SITE_KEY : site.meta.turnstile_site_key,
     formEndpoint,
+    favicon: ["favicon.svg", "favicon.ico"].find((f) => existsSync(join(publicDir, f))),
   };
 
   // Per-build scratch space inside the package, so Astro and Tailwind resolve from its node_modules.
@@ -47,6 +64,7 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
       configFile: false,
       root: work,
       srcDir: appDir,
+      publicDir,
       outDir: resolve(outDir),
       site: site.meta.site_url,
       logLevel: "error",
@@ -68,4 +86,7 @@ export async function buildSite({ siteDir, outDir, preview = false, formEndpoint
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
+  writeFileSync(join(outDir, "_headers"), HEADERS);
+  const redirects = (site.redirects ?? []).map((r) => `${r.from} ${r.to} 301\n`).join("");
+  if (redirects) writeFileSync(join(outDir, "_redirects"), redirects);
 }

@@ -2,6 +2,8 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import axe from "axe-core";
+import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 // Seam 1: run the real build CLI on a fixture and inspect what it writes.
@@ -17,6 +19,20 @@ const htmlFiles = (dir: string): string[] =>
   readdirSync(dir, { recursive: true, encoding: "utf8" }).filter((f) => f.endsWith(".html"));
 
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+// axe-core's WCAG A/AA rules on a built page. jsdom has no layout, so colour contrast is
+// left to the Theme check (the launch checklist) and a real browser.
+async function axeViolations(html: string): Promise<string[]> {
+  const dom = new JSDOM(html, { runScripts: "outside-only" });
+  dom.window.eval(axe.source);
+  const run = (dom.window as unknown as { axe: typeof axe }).axe.run;
+  const result = await run(dom.window.document, {
+    runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"] },
+    rules: { "color-contrast": { enabled: false } },
+  });
+  dom.window.close();
+  return result.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
+}
 
 describe("building a valid site", () => {
   const out = join(tmp, "basic");
@@ -60,6 +76,39 @@ describe("building a valid site", () => {
     expect(sitemap).toContain("<loc>https://example.test/</loc>");
     expect(sitemap).toContain("<loc>https://example.test/about/</loc>");
     expect(sitemap).not.toContain("404");
+  });
+
+  it("sends security headers with every response (audit M4)", () => {
+    const headers = read("_headers");
+    expect(headers).toMatch(/^\/\*$/m);
+    for (const h of [
+      "Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+      "X-Content-Type-Options: nosniff",
+      "Referrer-Policy: strict-origin-when-cross-origin",
+      "Permissions-Policy: camera=(), microphone=(), geolocation=()",
+      "Strict-Transport-Security: max-age=31536000",
+    ]) {
+      expect(headers).toContain(h);
+    }
+  });
+
+  it("writes the definition's redirects as permanent redirects", () => {
+    expect(read("_redirects")).toBe("/old-about /about/ 301\n");
+  });
+
+  it("copies the Client's public files and links the favicon", () => {
+    expect(existsSync(join(out, "favicon.svg"))).toBe(true);
+    expect(read("index.html")).toContain('<link rel="icon" href="/favicon.svg"');
+  });
+
+  it("offers a cookie settings link in the footer on every page", () => {
+    for (const file of htmlFiles(out)) {
+      expect(read(file), file).toMatch(/<button[^>]*class="[^"]*cky-banner-element[^"]*"[^>]*>Cookie settings<\/button>/);
+    }
+  });
+
+  it("passes axe's accessibility rules on every page", async () => {
+    for (const file of htmlFiles(out)) expect(await axeViolations(read(file)), file).toEqual([]);
   });
 
   it("lets crawlers in and points them at the sitemap", () => {
@@ -199,6 +248,10 @@ describe("the component showcase", () => {
       }
     }
   }, 120_000);
+
+  it("passes axe's accessibility rules with every component on the page", async () => {
+    for (const file of htmlFiles(out)) expect(await axeViolations(readFileSync(join(out, file), "utf8")), file).toEqual([]);
+  });
 
   it("uses one h1 per page and no skipped heading levels", () => {
     for (const file of htmlFiles(out)) {

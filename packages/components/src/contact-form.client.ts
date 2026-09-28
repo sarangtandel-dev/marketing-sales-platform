@@ -68,11 +68,10 @@ export function wireContactForm(form: HTMLFormElement, win: FormWindow): void {
       win.msp?.event("generate_lead", identity);
       win.msp?.markKnownContact();
       win.turnstile?.remove(widget);
-      const done = win.document.createElement("p");
-      done.className = "text-lg";
-      done.textContent = form.dataset.success ?? "";
-      form.replaceChildren(done);
-      form.setAttribute("role", "status");
+      // Keep only the existing live region, so screen readers announce the success message.
+      form.replaceChildren(status);
+      status.className = "text-lg";
+      status.textContent = form.dataset.success ?? "";
       submissionToken = win.crypto.randomUUID();
       return;
     }

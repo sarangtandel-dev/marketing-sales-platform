@@ -104,6 +104,17 @@ export function withoutClickIds(touch: Touch): Touch {
 
 // The page URL for GA4 (ADR-0022): the path plus only UTMs that don't look personal and,
 // with advertising consent, click IDs. Everything else in the query is dropped.
+// The referrer for GA4: our own previous page redacted like page_location; another site's
+// origin only (its path and query can hold anything); empty for a direct visit.
+export function redactedReferrer(referrer: string, own: URL, withClickIds: boolean): string {
+  try {
+    const ref = new URL(referrer);
+    return ref.host === own.host ? redactedPageUrl(ref, withClickIds) : `${ref.origin}/`;
+  } catch {
+    return "";
+  }
+}
+
 export function redactedPageUrl(url: URL, withClickIds: boolean): string {
   const kept = new URLSearchParams();
   for (const [key, value] of url.searchParams) {

@@ -1,4 +1,4 @@
-import { currentTouch, directTouch, redactedPageUrl, type Touch, withoutClickIds } from "./attribution.ts";
+import { currentTouch, directTouch, redactedPageUrl, redactedReferrer, type Touch, withoutClickIds } from "./attribution.ts";
 import { type ConsentState, watchConsent } from "./consent.ts";
 import { listenForClicks, pushEvent } from "./events.ts";
 
@@ -58,8 +58,11 @@ function loadGtm(consent: ConsentState) {
   if (gtmLoaded || !id) return;
   gtmLoaded = true;
   const dataLayer = (window as unknown as { dataLayer: unknown[] }).dataLayer;
-  // GA4 reads page_location from here instead of the raw URL (see gtm/container.json).
-  dataLayer.push({ page_location: redactedPageUrl(url, consent.ads) });
+  // GA4 reads page_location and page_referrer from here instead of the raw URLs (see gtm/container.json).
+  dataLayer.push({
+    page_location: redactedPageUrl(url, consent.ads),
+    page_referrer: redactedReferrer(document.referrer, url, consent.ads),
+  });
   dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
   const script = document.createElement("script");
   script.async = true;
@@ -68,7 +71,11 @@ function loadGtm(consent: ConsentState) {
 }
 
 function forget() {
-  for (const key of Object.values(KEYS)) localStorage.removeItem(key);
+  try {
+    for (const key of Object.values(KEYS)) localStorage.removeItem(key);
+  } catch {
+    // Storage blocked: nothing could have been stored either.
+  }
 }
 
 // Without advertising consent, stored touches keep everything except their click IDs.

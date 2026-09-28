@@ -74,3 +74,26 @@ describe("dates in UTM values (review #13)", () => {
     expect(touch(p, "msp_first_touch")).not.toHaveProperty("term");
   });
 });
+
+describe("GA4 page_referrer (audit M5)", () => {
+  const referrerOf = (url: string, referrer?: string) =>
+    (
+      openPage({ url, referrer, consent: ALL, config: { gtm: "GTM-TEST1" } })
+        .dataLayer()
+        .find((e) => e && typeof e === "object" && "page_referrer" in e) as { page_referrer?: string } | undefined
+    )?.page_referrer;
+
+  it("redacts our own previous page like page_location", () => {
+    expect(referrerOf("https://site.test/b", "https://site.test/a?email=asha%40example.test&utm_source=news")).toBe(
+      "https://site.test/a?utm_source=news",
+    );
+  });
+
+  it("keeps only another site's origin", () => {
+    expect(referrerOf("https://site.test/", "https://mail.example/inbox?user=asha")).toBe("https://mail.example/");
+  });
+
+  it("is empty for a direct visit", () => {
+    expect(referrerOf("https://site.test/")).toBe("");
+  });
+});

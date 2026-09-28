@@ -1,6 +1,7 @@
 ---
 // Services. Variants: "grid" (cards) and "list" (one per row). An item can link to its page.
 import CtaLinks from "./CtaLinks.astro";
+import { iconSvg } from "./icons.ts";
 import type { Cta, HeadingLevel, Item } from "./catalog.ts";
 
 interface Props {
@@ -22,6 +23,7 @@ const ItemHeading = `h${level + 1}`;
     <ul class:list={["mt-10 grid gap-6", variant === "grid" ? "md:grid-cols-3" : "md:grid-cols-1"]}>
       {items.map((item) => (
         <li class:list={["rounded-card p-6", variant === "grid" ? "bg-surface shadow-card" : "border-b border-on-surface/10"]}>
+          {item.icon && <span class="mb-3 block text-primary" set:html={iconSvg(item.icon)} />}
           <ItemHeading class="font-heading text-xl">
             {item.href ? <a class="hover:text-primary" href={item.href}>{item.text.title}</a> : item.text.title}
           </ItemHeading>

@@ -63,7 +63,8 @@
                   "en": "Links to the about page."
                 }
               },
-              "page": "about"
+              "page": "about",
+              "icon": "rocket"
             },
             {
               "text": {
@@ -107,7 +108,8 @@
                 "body": {
                   "en": "Body 1"
                 }
-              }
+              },
+              "icon": "rocket"
             },
             {
               "text": {

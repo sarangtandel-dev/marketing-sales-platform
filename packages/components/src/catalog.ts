@@ -5,6 +5,7 @@
 //   ctas:  whether the section shows CTAs
 //   form:  whether the section shows a form
 //   image: the variants that show an optional image
+//   icons: whether items can show an icon
 
 export type CatalogEntry = {
   variants: readonly string[];
@@ -13,6 +14,7 @@ export type CatalogEntry = {
   ctas?: boolean;
   form?: boolean;
   image?: readonly string[];
+  icons?: boolean;
 };
 
 export const catalog = {
@@ -22,12 +24,14 @@ export const catalog = {
     text: { required: ["heading"], optional: ["body"] },
     items: { required: ["title", "body"] },
     ctas: true,
+    icons: true,
   },
   steps: {
     variants: ["numbered"],
     text: { required: ["heading"], optional: ["body"] },
     items: { required: ["title", "body"] },
     ctas: true,
+    icons: true,
   },
   // Testimonials need a Permission Record or a public Source before launch (ADR-0007).
   testimonials: {
@@ -50,7 +54,7 @@ export type ComponentName = keyof typeof catalog;
 
 // Shared prop shapes for the components.
 export type Cta = { id: string; type: string; label: string; href: string };
-export type Item = { text: Record<string, string>; href?: string };
+export type Item = { text: Record<string, string>; href?: string; icon?: string };
 export type HeadingLevel = 1 | 2;
 // A section image, already processed by the build (astro:assets) and with alt text resolved.
 export type SectionImage = { src: import("astro").ImageMetadata; alt: string };

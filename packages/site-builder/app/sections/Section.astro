@@ -48,6 +48,7 @@ const image = section.image && {
 const items = section.items?.map((item) => ({
   text: resolve(item.text),
   href: item.page ? pagePath(pageById(item.page), lang) : undefined,
+  icon: item.icon,
 }));
 ---
 <div data-section={section.component} data-variant={section.variant}>

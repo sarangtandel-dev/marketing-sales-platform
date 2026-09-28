@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
 import { type CatalogEntry, catalog } from "@msp/components/catalog";
+import { iconExists } from "@msp/components/icons";
 import { NOT_FOUND } from "./constants.ts";
 
 // Validation for the M0 site definition and Theme (ADR-0034, ADR-0019).
@@ -16,7 +17,7 @@ export type Section = {
   text?: Record<string, Text>;
   ctas?: string[];
   form?: string;
-  items?: { text: Record<string, Text>; page?: string }[];
+  items?: { text: Record<string, Text>; page?: string; icon?: string }[];
   image?: SectionImage;
 };
 
@@ -214,6 +215,13 @@ function componentIssues(site: SiteDefinition): Issue[] {
           issues.push(...textKeyIssues(entry.items!, item.text, `${at}/items/${i}`, `${name} items`)),
         );
       }
+      section.items?.forEach((item, i) => {
+        if (!item.icon) return;
+        if (!entry.icons) issues.push({ path: `${at}/items/${i}/icon`, message: `${name} doesn't show icons` });
+        else if (!iconExists(item.icon)) {
+          issues.push({ path: `${at}/items/${i}/icon`, message: `no Lucide icon "${item.icon}" (see lucide.dev/icons)` });
+        }
+      });
       if (section.image && !entry.image) {
         issues.push({ path: `${at}/image`, message: `${name} doesn't show an image` });
       } else if (section.image && !entry.image?.includes(section.variant)) {

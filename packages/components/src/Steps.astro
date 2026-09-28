@@ -1,6 +1,7 @@
 ---
 // How an engagement works. Variant: "numbered".
 import CtaLinks from "./CtaLinks.astro";
+import { iconSvg } from "./icons.ts";
 import type { Cta, HeadingLevel, Item } from "./catalog.ts";
 
 interface Props {
@@ -26,6 +27,7 @@ const ItemHeading = `h${level + 1}`;
             {i + 1}
           </span>
           <div>
+            {item.icon && <span class="mb-2 block text-primary" set:html={iconSvg(item.icon)} />}
             <ItemHeading class="font-heading text-xl">{item.text.title}</ItemHeading>
             <p class="mt-2 text-muted">{item.text.body}</p>
           </div>

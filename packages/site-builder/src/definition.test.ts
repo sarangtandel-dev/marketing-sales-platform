@@ -209,6 +209,20 @@ describe("validateSiteDefinition", () => {
     expect(validateSiteDefinition(s)).toEqual([]);
   });
 
+  it("only takes icons that exist, on items of components that show them", () => {
+    const s = site();
+    s.pages[0].sections.push({
+      component: "services",
+      variant: "grid",
+      text: { heading: { en: "Services" } },
+      items: [{ text: { title: { en: "A" }, body: { en: "B" } }, icon: "no-such-icon" }],
+    });
+    const at = s.pages[0].sections.length - 1;
+    expect(validateSiteDefinition(s)).toContainEqual({ path: `/pages/0/sections/${at}/items/0/icon`, message: expect.stringContaining("no-such-icon") });
+    s.pages[0].sections[at] = { component: "faq", variant: "list", text: { heading: { en: "Q" } }, items: [{ text: { question: { en: "Q" }, answer: { en: "A" } }, icon: "rocket" }] };
+    expect(validateSiteDefinition(s)).toContainEqual({ path: `/pages/0/sections/${at}/items/0/icon`, message: expect.stringContaining("doesn't show icons") });
+  });
+
   it("only accepts consent tools we've integrated", () => {
     const s = site();
     s.tracking.consent_tool = { provider: "homegrown", id: "x" };

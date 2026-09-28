@@ -294,6 +294,12 @@ describe("the component showcase", () => {
     for (const file of htmlFiles(out)) expect(await axeViolations(readFileSync(join(out, file), "utf8")), file).toEqual([]);
   });
 
+  it("inlines item icons as decorative SVG, with no icon requests at runtime", () => {
+    const home = readFileSync(join(out, "index.html"), "utf8");
+    expect(home).toMatch(/<svg [^>]*aria-hidden="true"[^>]*>/);
+    expect(home).not.toMatch(/api\.iconify\.design|unpkg|jsdelivr/);
+  });
+
   it("adds valid structured data for its services and FAQ sections", () => {
     const blocks = htmlFiles(out)
       .flatMap((f) => [...readFileSync(join(out, f), "utf8").matchAll(/<script type="application\/ld\+json">([^]*?)<\/script>/g)])

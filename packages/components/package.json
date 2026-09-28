@@ -10,6 +10,10 @@
   },
   "exports": {
     "./catalog": "./src/catalog.ts",
+    "./icons": "./src/icons.ts",
     "./*.astro": "./src/*.astro"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.137"
   }
 }

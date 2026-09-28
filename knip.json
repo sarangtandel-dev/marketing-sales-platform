@@ -3,7 +3,8 @@
   "workspaces": {
     "tooling": {
       "entry": [
-        "*.ts"
+        "*.ts",
+        "unlighthouse.config.mjs"
       ]
     },
     "packages/form-worker": {

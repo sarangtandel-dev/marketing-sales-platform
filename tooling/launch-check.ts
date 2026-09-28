@@ -5,7 +5,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseFacts, validateFacts } from "@msp/knowledge-base";
-import { type SiteDefinition, validateSiteDefinition } from "@msp/site-builder/definition";
+import { type SiteDefinition, validateSiteDefinition, validateTheme } from "@msp/site-builder/definition";
 
 const PLACEHOLDER = /TO[ _-]?FILL/i;
 // Cloudflare's published Turnstile test site keys start with 1x, 2x or 3x followed by zeros.
@@ -15,7 +15,6 @@ const MANUAL = [
   "Every claim on the site matches a Fact in facts.yaml whose status makes it publishable; High-risk Claims are publicly-verified or document-verified; no superlatives without a third-party Source (ADR-0007).",
   "Any hand-written JSON-LD follows issue 06's rules.",
   "Every image has alt text and recorded rights; no AI image shows real people, premises or work (ADR-0018).",
-  "The Theme's colour pairs pass WCAG AA contrast.",
   "A qualified person has reviewed the privacy policy (ticket 34), and the reviewer and date are recorded.",
   "A test Lead has gone end to end on the preview (scripts/send-test-lead.ts), with events and the consent banner checked.",
   "The owner alert address is verified in Email Routing, and the deployed send_email binding accepts the structured message (ticket 36).",
@@ -118,6 +117,15 @@ function checkClient(dir: string, workerFile: string): Result[] {
     check: "site definition is valid",
     detail: siteIssues.map((i) => `${i.path}: ${i.message}`).join("; "),
   });
+
+  if (existsSync(themeFile)) {
+    const themeIssues = validateTheme(readJson(themeFile));
+    results.push({
+      ok: themeIssues.length === 0,
+      check: "the Theme is valid, and its text colours pass WCAG AA contrast",
+      detail: themeIssues.map((i) => `${i.path}: ${i.message}`).join("; "),
+    });
+  }
 
   for (const [file, text] of [
     [files.site, siteText],

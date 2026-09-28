@@ -141,6 +141,17 @@ describe("launch check", () => {
     expect(result.stderr).not.toMatch(/at .*launch-check\.ts/);
   });
 
+  it("fails a Theme whose text colours don't meet WCAG AA contrast", () => {
+    const dir = client();
+    const file = join(dir, "design/theme.json");
+    const theme = JSON.parse(readFileSync(file, "utf8"));
+    theme.colors.muted = "#9ca3af";
+    writeFileSync(file, JSON.stringify(theme));
+    const result = check(dir);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("/colors/muted");
+  });
+
   it("fails on an invalid site definition", () => {
     const result = check(client((s) => (s.pages[0].sections[0].variant = "diagonal")));
     expect(result.status).toBe(1);

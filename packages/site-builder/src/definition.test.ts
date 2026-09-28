@@ -297,6 +297,22 @@ describe("validateTheme", () => {
     expect(validateTheme(t)).toContainEqual({ path: "/fonts/display", message: expect.stringContaining("type") });
   });
 
+  it("fails a Theme whose text colours don't meet WCAG AA contrast", () => {
+    const t = theme();
+    t.colors.muted = "#9ca3af"; // 2.5:1 on white
+    t.colors["on-primary"] = "#60a5fa"; // about 3:1 on the blue primary
+    const issues = validateTheme(t);
+    expect(issues).toContainEqual({ path: "/colors/muted", message: expect.stringMatching(/2\.\d:1 on surface.*4\.5:1/) });
+    expect(issues).toContainEqual({ path: "/colors/on-primary", message: expect.stringContaining("on primary") });
+    expect(validateTheme(theme())).toEqual([]);
+  });
+
+  it("requires the colour tokens the components use", () => {
+    const t = theme();
+    delete t.colors.muted;
+    expect(validateTheme(t)).toContainEqual({ path: "/colors", message: expect.stringContaining("muted") });
+  });
+
   it("requires colours and type", () => {
     const t = theme();
     delete t.colors;

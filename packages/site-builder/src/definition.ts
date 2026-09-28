@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
 import { type CatalogEntry, catalog } from "@msp/components/catalog";
 import { iconExists } from "@msp/components/icons";
+import { contrastIssues } from "./contrast.ts";
 import { NOT_FOUND } from "./constants.ts";
 
 // Validation for the M0 site definition and Theme (ADR-0034, ADR-0019).
@@ -125,9 +126,12 @@ function schemaIssues(errors: ErrorObject[] | null | undefined): Issue[] {
 export function validateTheme(data: unknown): Issue[] {
   if (!checkTheme(data)) return schemaIssues(checkTheme.errors);
   const theme = data as Theme;
-  return Object.keys(theme.fonts ?? {})
-    .filter((token) => !(token in theme.type))
-    .map((token) => ({ path: `/fonts/${token}`, message: `fills no type token; the Theme's type has: ${Object.keys(theme.type).join(", ")}` }));
+  return [
+    ...contrastIssues(theme.colors),
+    ...Object.keys(theme.fonts ?? {})
+      .filter((token) => !(token in theme.type))
+      .map((token) => ({ path: `/fonts/${token}`, message: `fills no type token; the Theme's type has: ${Object.keys(theme.type).join(", ")}` })),
+  ];
 }
 
 export function validateSiteDefinition(data: unknown): Issue[] {

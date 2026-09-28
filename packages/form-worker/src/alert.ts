@@ -161,7 +161,19 @@ export async function alertsDue(env: Env, now: Date): Promise<void> {
   }
 }
 
+// Every alert also goes to the phone as a push (ntfy), so one broken Email Routing binding
+// can't silence them all. Only the subject, never a Lead's details: the topic is outside us.
+async function push(env: Env, subject: string): Promise<void> {
+  if (!env.NTFY_URL) return;
+  await fetch(env.NTFY_URL, { method: "POST", headers: { title: subject }, body: "Details are in the owner inbox." })
+    .then((res) => {
+      if (!res.ok) console.error(`push "${subject}" failed: ${res.status}`);
+    })
+    .catch((err) => console.error(`push "${subject}" failed`, err));
+}
+
 export async function sendAlert(env: Env, subject: string, lines: string[]): Promise<boolean> {
+  await push(env, subject);
   try {
     await env.OWNER_ALERT.send({ from: env.ALERT_FROM, to: env.ALERT_TO, subject, text: lines.join("\n") });
     return true;

@@ -1,5 +1,6 @@
 {
   "client": "fixture",
+  "site_origin": "https://example.test",
   "forms": {
     "contact": {
       "form_type": "consultation_request",

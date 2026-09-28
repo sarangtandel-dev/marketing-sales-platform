@@ -4,7 +4,7 @@ import type { Env } from "./env.ts";
 import { allowedOrigin, corsHeaders, hostAllowed, json } from "./http.ts";
 import { storeLead } from "./lead-log.ts";
 import { applyManifest } from "./manifest.ts";
-import { isValidTestSignature, runDailyTestLead, TEST_SIGNATURE_HEADER } from "./monitor.ts";
+import { isValidTestSignature, runDailyChecks, TEST_SIGNATURE_HEADER } from "./monitor.ts";
 import { countSpam, purgeExpiredLeads, type SpamReason } from "./retention.ts";
 import { DAILY_CRON } from "./schedules.ts";
 import { MAX_BODY_BYTES, parseSubmission } from "./submission.ts";
@@ -25,7 +25,7 @@ export default {
     if (controller.cron === DAILY_CRON) {
       // Independent jobs: one failing never stops the other.
       await purgeExpiredLeads(env.LEAD_LOG, now).catch((err) => console.error("Lead Log purge failed", err));
-      await runDailyTestLead(env, now, handleLead);
+      await runDailyChecks(env, now, handleLead);
     } else {
       await deliverDue(env, now).catch((err) => console.error("delivery retries failed", err));
       await alertsDue(env, now);

@@ -4,8 +4,10 @@ import { wordingVersion } from "./wording.ts";
 // What the form Worker accepts for one Client (audit security M2): each form's type, its
 // field names, and the opt-in wording versions currently on the site. Anything else in a
 // submission is rejected (unknown form or type) or dropped (unknown field or opt-in version).
+// site_origin is where the forms are served; the Worker's daily check sends its test Lead from it.
 export type FormsManifest = {
   client: string;
+  site_origin: string;
   forms: Record<string, { form_type: string; fields: string[]; opt_ins: { email?: string[] } }>;
 };
 
@@ -19,5 +21,5 @@ export function formsManifest(site: SiteDefinition): FormsManifest {
       opt_ins: email.length ? { email } : {},
     };
   }
-  return { client: site.meta.client, forms };
+  return { client: site.meta.client, site_origin: new URL(site.meta.site_url).origin, forms };
 }

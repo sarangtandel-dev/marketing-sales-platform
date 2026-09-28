@@ -2,8 +2,10 @@ import manifest from "./forms.generated.json";
 import type { Submission } from "./submission.ts";
 
 // This Client's forms, generated from its site definition (`pnpm forms:manifest`).
-type Manifest = { client: string; forms: Record<string, { form_type: string; fields: string[]; opt_ins: { email?: string[] } }> };
+type Manifest = { client: string; site_origin: string; forms: Record<string, { form_type: string; fields: string[]; opt_ins: { email?: string[] } }> };
 const forms = (manifest as Manifest).forms;
+// Where this Client's forms are served; the daily check sends its test Lead from here.
+export const siteOrigin = (manifest as Manifest).site_origin;
 
 // Returns the submission trimmed to what its form really has, or null for a form this
 // Client's site doesn't have (audit security M2). Unknown fields and opt-in versions the

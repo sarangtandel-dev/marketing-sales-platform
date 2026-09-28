@@ -20,6 +20,10 @@ export type Env = {
   // Brevo double opt-in (ADR-0021): the confirmation email template and where its link lands.
   // Unset: email opt-ins stay in the Lead Log only and nothing is sent to Brevo for them.
   BREVO_DOI_TEMPLATE_ID?: string;
+  // Secrets for monitoring (audit A3): a healthchecks.io ping URL the daily check hits (its
+  // /fail URL on problems), and an ntfy topic URL that gets each alert's subject as a push.
+  HEARTBEAT_URL?: string;
+  NTFY_URL?: string;
   BREVO_DOI_REDIRECT_URL?: string;
   // Monitoring (ADR-0037): signs test Leads, and the address the daily test Lead uses.
   MONITOR_SECRET?: string;

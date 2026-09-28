@@ -38,7 +38,10 @@
     // The daily test Lead's address (ADR-0037): one we own, deleted from Brevo after each check.
     "MONITOR_TEST_EMAIL": "monitor@example.com"
   },
-  // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY, BREVO_API_KEY, MONITOR_SECRET
+  // Secrets (wrangler secret put): TURNSTILE_SECRET_KEY, BREVO_API_KEY, MONITOR_SECRET,
+  // HEARTBEAT_URL (the healthchecks.io ping URL; daily, with a few hours' grace) and
+  // NTFY_URL (a hard-to-guess ntfy topic URL for alert pushes).
+  // Optional vars: BREVO_MARKETING_LIST_ID, BREVO_DOI_TEMPLATE_ID, BREVO_DOI_REDIRECT_URL.
   // The preview Worker, for branch previews (the Deploy workflow points preview builds at it
   // through the PREVIEW_FORM_ENDPOINT repository variable). Its own Lead Log, so QA Leads
   // never mix with real ones; set its TURNSTILE_SECRET_KEY to Turnstile's test secret.

@@ -11,6 +11,7 @@ describe("forms manifest (what the form Worker accepts)", () => {
     const { site } = loadSite(join(import.meta.dirname, "../test/fixtures/basic"));
     const manifest = formsManifest(site);
     expect(manifest.client).toBe("fixture-basic");
+    expect(manifest.site_origin).toBe("https://example.test");
     expect(manifest.forms.contact).toEqual({
       form_type: "consultation_request",
       fields: ["name", "email", "company_size", "message"],

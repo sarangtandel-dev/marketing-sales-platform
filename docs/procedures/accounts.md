@@ -15,6 +15,8 @@ Every outside account the platform depends on, who owns it and who can administe
 | healthchecks.io | The daily heartbeat | Agency | [TO FILL] | [TO FILL] | [TO FILL] |
 | ntfy topic | Alert pushes (subject lines only, no personal data) | Agency | Whoever knows the topic URL | n/a | [TO FILL] |
 | Uptime monitor | Checks the site and `/health` | Agency | [TO FILL] | [TO FILL] | [TO FILL] |
+| OpenSEO (self-hosted Worker, behind Cloudflare Access) | SEO data for Claude through MCP | Agency | [TO FILL] | Access | [TO FILL] |
+| DataForSEO | Pay-per-use SEO data behind OpenSEO (billing) | Agency | [TO FILL] | [TO FILL] | [TO FILL] |
 | Password manager | Every credential above | Agency | [TO FILL] | [TO FILL] | [TO FILL] |
 
 ## Per Client (copy this table for each Client)

@@ -185,6 +185,7 @@ pnpm check:launch clients/client-zero
 - [Personal data breach](procedures/breach.md).
 - [Lead data requests](procedures/lead-data-requests.md): export or delete one person's data.
 - [Accounts register](procedures/accounts.md): who owns and administers each outside account.
+- [OpenSEO](procedures/openseo.md): set up and connect the SEO data tool.
 
 ## Deploying
 
@@ -281,6 +282,11 @@ Installed for Claude Code on the agency machine (not in the repo). They help age
 | `chrome-devtools-mcp` (usage statistics off) | Checking in a real browser that nothing loads before consent, and that the console is clean |
 | `ponytail` | The code style in `CLAUDE.md` |
 | `archify` | The diagrams in `docs/diagrams/` |
+| `frontend-design` (official plugin) | A distinct design direction for a Client's Theme and pages, instead of generic AI styling |
+| `impeccable` (pbakaus/impeccable@9d715cc) | `critique` and `audit` of the Theme and built pages; `polish` before launch. Its launcher downloads a checksum-verified engine binary on first use; its editor hooks are not installed |
+| `humanizer` (blader/humanizer@225a6f3) | Run after `copywriting`, so site copy doesn't read as AI-written |
+| Astro Docs MCP (`astro-docs`, `https://mcp.docs.astro.build/mcp`) | Current Astro 7 APIs; context7 covers Tailwind 4 |
+| OpenSEO skills (`openseo-*`, every-app/open-seo@0ffff93) and MCP | Keyword research, clustering, local SEO, competitors, site audit and reports. Setup: [openseo.md](procedures/openseo.md) |
 | `security-audit` (cloudflare/security-audit-skill) | A full source audit before launch (run once on 2026-09-28); triage its findings into `.scratch/` |
 
 ## Secrets scan

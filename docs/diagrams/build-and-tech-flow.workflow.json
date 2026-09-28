@@ -123,7 +123,7 @@
       "col": 3,
       "type": "backend",
       "label": "Test",
-      "sublabel": "Vitest · Miniflare · jsdom",
+      "sublabel": "Vitest · tsc · axe",
       "width": 116
     },
     {
@@ -132,7 +132,7 @@
       "col": 4,
       "type": "external",
       "label": "Browser check",
-      "sublabel": "wrangler dev · Playwright",
+      "sublabel": "pnpm dev · Playwright",
       "width": 116
     },
     {
@@ -150,7 +150,7 @@
       "col": 5,
       "type": "backend",
       "label": "CI",
-      "sublabel": "gitleaks · pnpm test",
+      "sublabel": "tests · types · zizmor",
       "width": 116
     },
     {
@@ -158,8 +158,8 @@
       "lane": "github",
       "col": 3,
       "type": "security",
-      "label": "Launch gate",
-      "sublabel": "live only · checks",
+      "label": "Production gate",
+      "sublabel": "tests · check:launch",
       "width": 116
     },
     {
@@ -168,7 +168,7 @@
       "col": 4,
       "type": "backend",
       "label": "Deploy workflow",
-      "sublabel": "every push · preview",
+      "sublabel": "build ▸ deploy",
       "width": 116
     },
     {
@@ -186,7 +186,7 @@
       "col": 2,
       "type": "cloud",
       "label": "Form Worker",
-      "sublabel": "wrangler deploy · D1",
+      "sublabel": "D1 · rate limit",
       "width": 116
     },
     {
@@ -195,7 +195,7 @@
       "col": 1,
       "type": "cloud",
       "label": "Run + monitor",
-      "sublabel": "crons · /health · Brevo",
+      "sublabel": "daily check · heartbeat",
       "width": 116
     },
     {
@@ -204,7 +204,7 @@
       "col": 2,
       "type": "external",
       "label": "Deploy Worker",
-      "sublabel": "wrangler · migrations",
+      "sublabel": "release-worker.md",
       "width": 116
     }
   ],
@@ -239,23 +239,23 @@
     {
       "from": "ci",
       "to": "deploy",
-      "label": "green"
+      "label": "every push"
     },
     {
       "from": "deploy",
       "to": "pages",
-      "label": "wrangler",
+      "label": "preview",
       "variant": "emphasis"
     },
     {
-      "from": "pages",
+      "from": "deploy",
       "to": "gate",
-      "label": "review"
+      "label": "live"
     },
     {
       "from": "gate",
-      "to": "deploy",
-      "label": "approve",
+      "to": "pages",
+      "label": "approved",
       "variant": "security"
     },
     {
@@ -278,27 +278,28 @@
       "dot": "emerald",
       "title": "Tech stack",
       "items": [
-        "TypeScript · Node 24 · pnpm · Astro 7 · Tailwind 4 · Ajv · YAML",
-        "Cloudflare Workers · D1 · Turnstile · Email Routing · Pages",
-        "Vitest · Miniflare 4 · esbuild · jsdom · GitHub Actions · gitleaks",
-        "Brevo · CookieYes · GTM/GA4 · wrangler · Archify diagrams"
+        "TypeScript 7 · Node 24 · pnpm 12 · Astro 7 · Tailwind 4 · Ajv · YAML",
+        "Cloudflare Workers · D1 · Turnstile · Email Routing · Pages · rate limit",
+        "Vitest · Miniflare 4 · jsdom · axe-core · knip · gitleaks · zizmor",
+        "Brevo · CookieYes · GTM/GA4 · healthchecks.io · ntfy · Dependabot"
       ]
     },
     {
       "dot": "cyan",
       "title": "Commands",
       "items": [
-        "pnpm build:site <site> <out> [--preview] · pnpm test",
-        "pnpm check:launch clients/<slug>",
-        "wrangler dev · deploy [--env preview] · d1 migrations apply"
+        "pnpm dev · pnpm test · pnpm typecheck · pnpm knip",
+        "pnpm build:site <site> <out> [--preview] · pnpm forms:manifest",
+        "pnpm check:launch clients/<slug> · wrangler deploy --env=\"\""
       ]
     },
     {
       "dot": "amber",
       "title": "Set up once (not done yet)",
       "items": [
-        "Cloudflare token, account ID, Pages project, preview Worker",
-        "Brevo attributes + key · CookieYes, GTM, GA4 IDs"
+        "Cloudflare token, Pages project, prod + preview Workers, DNS",
+        "Brevo attributes, DOI, key · CookieYes, GTM, GA4 · heartbeat, ntfy",
+        "GitHub: production reviewer, live ruleset, CodeQL, SHA policy"
       ]
     }
   ]

@@ -14,7 +14,7 @@ The `.json` file next to each diagram is its source. Edit the JSON and regenerat
 | [module-1-pipeline](module-1-pipeline.html) | workflow | The website-creation pipeline for a Client, and which steps are manual or automated | ADR-0005, 0007, 0035, 0037, 0038, 0039 |
 | [issue-lifecycle](issue-lifecycle.html) | lifecycle | How an issue moves through the triage statuses | `docs/agents/triage-labels.md`, `docs/agents/issue-tracker.md` |
 
-Last generated: 2026-09-27.
+Last generated: 2026-09-28.
 
 ## Keeping them current
 

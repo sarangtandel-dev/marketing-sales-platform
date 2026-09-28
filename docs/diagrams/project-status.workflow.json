@@ -74,9 +74,9 @@
       "lane": "done",
       "col": 2,
       "type": "backend",
-      "label": "Launch prep",
-      "sublabel": "pages · privacy · check",
-      "tag": "c296b71",
+      "label": "Prep + audit",
+      "sublabel": "hardening · runbooks",
+      "tag": "2026-09-28",
       "width": 112
     },
     {
@@ -85,7 +85,7 @@
       "col": 3,
       "type": "frontend",
       "label": "Human work",
-      "sublabel": "30 · 33 · 34 · 21",
+      "sublabel": "30 · 33 · 34 · 36 setup",
       "tag": "next",
       "width": 112
     },
@@ -193,15 +193,16 @@
       "dot": "emerald",
       "title": "Built and prepared",
       "items": [
-        "Agent tickets 20, 22–29, 31, 32, 35 done · independent review fixes · 202 tests",
-        "Launch prep: Client #0 pages with TO FILL placeholders, privacy draft, pnpm check:launch"
+        "M0 agent tickets 20, 22–29, 31, 32, 35 done · review fixes · launch prep",
+        "Audit Phase 1 (2026-09-28): Worker, site build, CI/CD, runbooks · 255 tests"
       ]
     },
     {
       "dot": "amber",
-      "title": "Issues by status (36)",
+      "title": "Issues by status (49)",
       "items": [
-        "Done 23 · Human 7: 12, 17, 21, 30, 33, 34, 36 · Agent 5: 06, 09, 10, 16 (M1/M2), 18 (needs our domain) · Triage 1: 15"
+        "Done 23 · Human 13: 12, 15, 17, 21, 30, 33, 34, 36 (M0) · 37, 39, 45, 46, 49 (later)",
+        "Agent 13: 18 (needs our domain) · 06, 09, 10, 16, 38, 40–44, 47 (M1) · 48 (M2)"
       ]
     }
   ]

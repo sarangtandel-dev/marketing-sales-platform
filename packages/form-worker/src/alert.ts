@@ -21,7 +21,10 @@ const COLUMNS = {
 
 type AlertRow = Omit<LeadForBrevo, "opt_ins"> & { delivery_log: string };
 
-const fieldLines = (fields: Record<string, string>) => Object.entries(fields).map(([k, v]) => `${k}: ${v}`);
+// A multi-line answer is indented under its field, so it can't pass for one of our own lines
+// ("Lead ID: …") in the email.
+const fieldLines = (fields: Record<string, string>) =>
+  Object.entries(fields).map(([k, v]) => `${k}: ${v.replace(/\r\n?|\n/g, "\n    ")}`);
 // Control characters never reach an email subject or line (audit security M2).
 const clean = (s: string) => s.replace(/[\u0000-\u001f\u007f]/g, " ");
 
@@ -172,7 +175,9 @@ async function push(env: Env, subject: string): Promise<void> {
     .catch((err) => console.error(`push "${subject}" failed`, err));
 }
 
-export async function sendAlert(env: Env, subject: string, lines: string[]): Promise<boolean> {
+export async function sendAlert(env: Env, title: string, lines: string[]): Promise<boolean> {
+  // The preview Worker sets a prefix, so its QA alerts can't pass for real enquiries.
+  const subject = env.ALERT_SUBJECT_PREFIX ? `${env.ALERT_SUBJECT_PREFIX} ${title}` : title;
   await push(env, subject);
   try {
     await env.OWNER_ALERT.send({ from: env.ALERT_FROM, to: env.ALERT_TO, subject, text: lines.join("\n") });

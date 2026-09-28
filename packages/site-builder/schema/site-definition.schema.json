@@ -350,11 +350,11 @@
         "properties": {
           "from": {
             "type": "string",
-            "pattern": "^/"
+            "pattern": "^/(?!/)\\S*$"
           },
           "to": {
             "type": "string",
-            "pattern": "^/"
+            "pattern": "^/(?!/)\\S*$"
           }
         }
       }

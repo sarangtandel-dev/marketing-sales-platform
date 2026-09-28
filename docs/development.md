@@ -113,6 +113,7 @@ Before the first real Lead:
   - Temporary failures are retried for about 14.5 hours.
   - An alert that fails to send is retried by the cron, up to 5 times.
   - Failures found in one cron run arrive as a single digest email.
+- **Known limitation, double opt-in:** anyone can type a stranger's email and tick the opt-in, which sends that person one confirmation email from the Client. They're only subscribed if they click it. The per-IP rate limit and Turnstile bound this.
 - **Known limitation (M0):** a second enquiry from the same email updates only the Lead details on the existing contact. Its message and other fields are in the Lead Log (90 days) and the owner's alert, not in Brevo. Keeping one Brevo record per Lead (an event, note or deal keyed by lead ID) belongs with Module 2's CRM work (ADR-0036).
 
 ## Monitoring (ADR-0037)
@@ -206,22 +207,31 @@ Every branch, `main` included, deploys as a **preview**. Previews are noindex, a
 **One-time setup, done by a person:**
 
 1. In Cloudflare, create an API token with the **Cloudflare Pages: Edit** permission only, scoped to our account.
-2. Add two GitHub repository secrets: `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` (from the Cloudflare dashboard).
+2. Create two GitHub environments, `preview` and `production`:
+   - `production` is restricted to the `live` branch and has a required reviewer
+   - give each the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (from the Cloudflare dashboard)
+   - never add them as repository secrets: only the deploy job, inside an environment, can read them
+   - then set the repository variable `DEPLOY_ENABLED` to `true`
 3. Create each Client's Pages project once, with `live` as its production branch:
    ```bash
    pnpm exec wrangler pages project create client-zero --production-branch live
    ```
 4. In the GitHub repo settings:
-   - add a `production` environment with a required reviewer
    - add a branch ruleset on `live` (pull requests only, CI must pass)
    - turn on CodeQL default setup, secret scanning with push protection, and "require actions to be pinned to a full-length commit SHA"
 
-Until the secrets exist, the workflow deploys nothing and says so in the run.
+Until `DEPLOY_ENABLED` is `true`, the workflow deploys nothing and says so in the run.
+
+- **Branches only:** the workflow only runs for branches. A tag named `live` never takes the production path.
+- **The artifact decides nothing:** the deploy job takes the list of Clients from its own checkout. It stops on anything else in the build artifact, or on any `_worker.js` or `functions/` (the sites are static).
+- **Known limit (issue 50):** a Pages token can't be limited to preview branches, so anyone who can push to the repo could publish production through a preview run. That's fine while every writer is also the production reviewer.
 
 **Previews never touch production (ADR-0028):**
 - Every branch except `live` builds with `--preview`, so its forms use Turnstile's test key.
 - Preview forms post to the **preview form Worker**, set in the repository variable `PREVIEW_FORM_ENDPOINT`. See [release-worker.md](procedures/release-worker.md#the-preview-worker).
-- The preview Worker has no Brevo key: QA Leads are stored and alerted, never delivered. It's rate limited, and it skips the Turnstile hostname check, because Turnstile's test secret reports example.com.
+- **The preview Worker has no Brevo key:** QA Leads are stored and alerted, never delivered.
+- **Its alerts are marked:** they start with `[PREVIEW]` and go to a QA inbox, never the owner's, and it has no ntfy topic. Anyone can post to it, because it only has Turnstile's test secret.
+- **It's rate limited,** and it skips the Turnstile hostname check, because Turnstile's test secret reports example.com.
 - If the variable isn't set, preview forms post to an address that doesn't exist, never to production.
 
 **CI** (every push and pull request): tests, the secrets scan, the type-check, knip, a preview build of every Client with its internal links checked, and zizmor on the workflows.

@@ -11,3 +11,7 @@ dist/
 .wrangler/
 .build/
 .playwright-mcp/
+
+# Local secrets (wrangler dev reads .dev.vars)
+.dev.vars*
+.env*

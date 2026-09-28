@@ -9,7 +9,7 @@ Rotate a secret at once if it may have leaked, when someone with access leaves, 
 | `MONITOR_SECRET` | Worker secret, and whoever runs `send-test-lead.ts` | `openssl rand -hex 32`, then `wrangler secret put MONITOR_SECRET --env=""`. |
 | `HEARTBEAT_URL` | Worker secret | healthchecks.io → the check → regenerate the ping URL, then `wrangler secret put HEARTBEAT_URL --env=""`. |
 | `NTFY_URL` | Worker secret, and the ntfy app on the owner's phone | Pick a new random topic, `wrangler secret put NTFY_URL --env=""`, and subscribe to the new topic in the app. |
-| `CLOUDFLARE_API_TOKEN` | GitHub repository secret | Cloudflare → My Profile → API Tokens → Roll, then update the GitHub secret. Keep it **Pages: Edit** only. |
+| `CLOUDFLARE_API_TOKEN` | The GitHub `preview` and `production` environments' secrets | Cloudflare → My Profile → API Tokens → Roll, then update both environments' secrets. Keep it **Pages: Edit** only. |
 
 Afterwards:
 

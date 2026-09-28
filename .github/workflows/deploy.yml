@@ -9,9 +9,18 @@ name: Deploy
 # workspace's dependencies without it; `deploy` holds it and installs only wrangler.
 # `live` must also pass the tests and every Client's launch check, and deploys through
 # the `production` environment (set a required reviewer on it in the repo settings).
+#
+# The Cloudflare token lives only in the `preview` and `production` environments' secrets,
+# never as a repository secret. Restrict `production` to the `live` branch. The variable
+# DEPLOY_ENABLED=true switches deploys on.
+# ponytail: a Pages token can't be limited to preview branches, so anyone with write access
+# to the repo could still publish production through a preview run. Fine while every writer
+# is also the reviewer; upgrade path: a separate Cloudflare account for previews.
 
 on:
   push:
+    # Branches only: a tag named `live` must never take the production path.
+    branches: ["**"]
 
 permissions:
   contents: read
@@ -19,7 +28,7 @@ permissions:
 concurrency:
   group: deploy-${{ github.ref }}
   # A newer push supersedes a preview still in progress; a production deploy always finishes.
-  cancel-in-progress: ${{ github.ref_name != 'live' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/live' }}
 
 jobs:
   build:
@@ -27,14 +36,14 @@ jobs:
     outputs:
       enabled: ${{ steps.cloudflare.outputs.enabled }}
     steps:
-      - name: Check Cloudflare is configured
+      - name: Check deploys are switched on
         id: cloudflare
         env:
-          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          DEPLOY_ENABLED: ${{ vars.DEPLOY_ENABLED == 'true' }}
         run: |
-          echo "enabled=$HAS_CLOUDFLARE" >> "$GITHUB_OUTPUT"
-          if [ "$HAS_CLOUDFLARE" != "true" ]; then
-            echo "::notice::CLOUDFLARE_API_TOKEN isn't set, so nothing is deployed. See docs/development.md."
+          echo "enabled=$DEPLOY_ENABLED" >> "$GITHUB_OUTPUT"
+          if [ "$DEPLOY_ENABLED" != "true" ]; then
+            echo "::notice::The DEPLOY_ENABLED variable isn't true, so nothing is deployed. See docs/development.md."
           fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.cloudflare.outputs.enabled == 'true'
@@ -50,7 +59,7 @@ jobs:
       - if: steps.cloudflare.outputs.enabled == 'true'
         run: pnpm install --frozen-lockfile
       - name: Production gate (tests and every Client's launch check)
-        if: steps.cloudflare.outputs.enabled == 'true' && github.ref_name == 'live'
+        if: steps.cloudflare.outputs.enabled == 'true' && github.ref == 'refs/heads/live'
         run: |
           pnpm test
           for dir in clients/*/; do
@@ -60,14 +69,14 @@ jobs:
       - name: Build every Client
         if: steps.cloudflare.outputs.enabled == 'true'
         env:
-          BRANCH: ${{ github.ref_name }}
+          IS_LIVE: ${{ github.ref == 'refs/heads/live' }}
           # The preview form Worker (wrangler.jsonc env "preview"). Unset: preview forms post
           # to an address that doesn't exist, never to the production Worker.
           PREVIEW_FORM_ENDPOINT: ${{ vars.PREVIEW_FORM_ENDPOINT || 'https://preview-form-worker-not-configured.invalid/lead' }}
         run: |
           # Only the production branch builds for production. Every other branch is a preview:
           # Turnstile's test key and the preview Worker, so QA Leads never reach production (ADR-0028).
-          if [ "$BRANCH" = "live" ]; then
+          if [ "$IS_LIVE" = "true" ]; then
             mode=()
           else
             mode=(--preview --form-endpoint "$PREVIEW_FORM_ENDPOINT")
@@ -93,7 +102,7 @@ jobs:
     needs: build
     if: needs.build.outputs.enabled == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'live' && 'production' || 'preview' }}
+    environment: ${{ github.ref == 'refs/heads/live' && 'production' || 'preview' }}
     steps:
       # Records every outbound connection while the Cloudflare token is present.
       # ponytail: audit mode; switch to egress-policy: block with an allow-list once the
@@ -120,10 +129,24 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           BRANCH: ${{ github.ref_name }}
         run: |
+          # The artifact comes from a job that ran third-party build code, so it decides nothing:
+          # the Clients come from this job's own checkout, and anything else in the artifact,
+          # or any server-side code (Pages Functions), stops the deploy.
+          clients=()
+          for d in clients/*/; do [ -f "$d/site/site-definition.json" ] && clients+=("$(basename "$d")"); done
+          for entry in dist/*; do
+            name=$(basename "$entry")
+            [ "$name" = "build-failures.txt" ] && continue
+            printf '%s\n' "${clients[@]}" | grep -qx "$name" || { echo "::error::Unexpected artifact entry: $name"; exit 1; }
+          done
+          if find dist -mindepth 2 -maxdepth 2 \( -name _worker.js -o -name functions \) | grep -q .; then
+            echo "::error::A build contains _worker.js or functions/; static sites only"
+            exit 1
+          fi
           failed=$(cat dist/build-failures.txt 2>/dev/null | xargs)
-          for dir in dist/*/; do
-            client=$(basename "$dir")
-            pnpm exec wrangler pages deploy "$dir" --project-name="$client" --branch="$BRANCH" --commit-dirty=true \
+          for client in "${clients[@]}"; do
+            [ -d "dist/$client" ] || continue
+            pnpm exec wrangler pages deploy "dist/$client" --project-name="$client" --branch="$BRANCH" --commit-dirty=true \
               || failed="$failed $client"
           done
           if [ -n "$failed" ]; then

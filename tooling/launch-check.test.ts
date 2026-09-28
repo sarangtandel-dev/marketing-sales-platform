@@ -117,6 +117,8 @@ describe("launch check", () => {
     ["an example send_email destination", (w: typeof WORKER) => (w.send_email[0].destination_address = "owner@example.com"), "destination_address"],
     ["another Client's slug", (w: typeof WORKER) => (w.vars.CLIENT_SLUG = "client-zero"), "CLIENT_SLUG"],
     ["an allow-list without the site", (w: typeof WORKER) => (w.vars.ALLOWED_ORIGINS = "https://fixture.pages.dev"), "ALLOWED_ORIGINS"],
+    ["a preview-only setting", (w: typeof WORKER) => Object.assign(w.vars, { TURNSTILE_SKIP_HOSTNAME: "true" }), "TURNSTILE_SKIP_HOSTNAME"],
+    ["the preview alert prefix", (w: typeof WORKER) => Object.assign(w.vars, { ALERT_SUBJECT_PREFIX: "[PREVIEW]" }), "ALERT_SUBJECT_PREFIX"],
   ])("fails on the Worker config's %s", (_, edit, named) => {
     const result = check(client(), worker(edit));
     expect(result.status).toBe(1);

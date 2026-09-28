@@ -179,6 +179,12 @@ describe("validateSiteDefinition", () => {
     expect(validateSiteDefinition(s)).toContainEqual({ path: "/footer", message: expect.stringContaining("cookie_settings") });
   });
 
+  it.each(["//evil.test/x", "/a\n/b /c 301", "/a b"])("rejects the redirect target %j (audit follow-up)", (to) => {
+    const s = site();
+    s.redirects = [{ from: "/old", to }];
+    expect(validateSiteDefinition(s)).toContainEqual({ path: "/redirects/0/to", message: expect.stringContaining("pattern") });
+  });
+
   it("only accepts consent tools we've integrated", () => {
     const s = site();
     s.tracking.consent_tool = { provider: "homegrown", id: "x" };

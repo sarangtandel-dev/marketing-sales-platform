@@ -59,15 +59,18 @@
           "migrations_dir": "migrations"
         }
       ],
-      "send_email": [{ "name": "OWNER_ALERT", "destination_address": "owner@example.com" }],
+      "send_email": [{ "name": "OWNER_ALERT", "destination_address": "qa@example.com" }],
       // No BREVO_API_KEY here: QA Leads are stored and alerted, never delivered (audit security H1).
       "vars": {
         "CLIENT_SLUG": "client-zero",
         // Turnstile's test secret reports example.com for every token, so the check is off here only.
         "TURNSTILE_SKIP_HOSTNAME": "true",
+        // Anyone can post to the preview (it has only Turnstile's test secret), so its alerts
+        // are marked and go to a QA inbox, never the owner's; and it has no NTFY_URL.
+        "ALERT_SUBJECT_PREFIX": "[PREVIEW]",
         "ALLOWED_ORIGINS": "https://client-zero.pages.dev,https://*.client-zero.pages.dev",
         "ALERT_FROM": "alerts@example.com",
-        "ALERT_TO": "owner@example.com",
+        "ALERT_TO": "qa@example.com",
         "MONITOR_TEST_EMAIL": "monitor@example.com"
       }
     }

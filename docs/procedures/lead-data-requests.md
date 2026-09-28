@@ -13,6 +13,7 @@ Confirm it's really them before sending or deleting anything: reply to the addre
 | Brevo | The contact, its attributes, list membership and double opt-in record | Until deleted |
 | Owner alert mailbox | The "New enquiry" email (and any "not delivered" email) with every field | As the mailbox keeps it |
 | GA4 | Visits linked to their GA client ID, if they accepted analytics | GA4's retention setting |
+| Workers Logs | Error details from failed deliveries can quote their email (from Brevo's error text) | A few days (Workers Logs retention), then gone |
 | CookieYes | Their consent choices, keyed by a random consent ID, not by name or email | CookieYes's log retention |
 
 ## 1. Find their Leads

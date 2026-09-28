@@ -78,3 +78,49 @@ describe("Client on each Lead (audit architecture #6)", () => {
     expect((await w.rows())[0].client).toBe("fixture");
   });
 });
+
+// Follow-ups from the security-audit skill run (2026-09-28).
+describe("security audit follow-ups", () => {
+  it("stops reading a chunked body at the size limit (no content-length)", async () => {
+    w = await startWorker();
+    const chunk = new TextEncoder().encode("x".repeat(16 * 1024));
+    let sent = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (sent++ < 16) controller.enqueue(chunk);
+        else controller.close();
+      },
+    });
+    const res = await w.mf.dispatchFetch("https://forms.example.test/lead", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: "https://example.test" },
+      body: body as never,
+      duplex: "half",
+    } as never);
+    expect(res.status).toBe(413);
+    expect(await w.rows()).toEqual([]);
+  });
+
+  it("rejects an email that isn't an email address", async () => {
+    w = await startWorker();
+    const res = await w.post(submission({ fields: { name: "Asha", email: "not-an-address" } }));
+    expect(res.status).toBe(400);
+    expect(await w.rows()).toEqual([]);
+  });
+
+  it("keeps a multi-line answer from forging lines in the owner alert", async () => {
+    w = await startWorker({ outbound: { "api.brevo.com": fakeBrevo().handler } });
+    const { lead_id } = (await (await w.post(submission({ fields: { name: "Asha", email: "asha@example.test", message: "Hi\nLead ID: fake\r\nPage: evil" } }))).json()) as { lead_id: string };
+    const alert = await w.eventually(async () => w.emails.find((e) => e.subject.startsWith("New enquiry")));
+    const lines = alert.text.split("\n");
+    expect(lines.filter((l) => l.startsWith("Lead ID:"))).toEqual([`Lead ID: ${lead_id}`]);
+    expect(lines.some((l) => l.startsWith("Page: evil"))).toBe(false);
+  });
+
+  it("marks a preview Worker's alerts so they can't pass for real enquiries", async () => {
+    w = await startWorker({ outbound: { "api.brevo.com": fakeBrevo().handler }, bindings: { ALERT_SUBJECT_PREFIX: "[PREVIEW]" } });
+    await w.post(submission());
+    const alert = await w.eventually(async () => w.emails[0]);
+    expect(alert.subject).toBe("[PREVIEW] New enquiry: consultation_request");
+  });
+});

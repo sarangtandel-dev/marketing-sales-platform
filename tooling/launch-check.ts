@@ -79,6 +79,13 @@ function checkWorker(file: string, site: SiteDefinition): Result[] {
     check: "the Worker's CLIENT_SLUG is this Client",
     detail: `CLIENT_SLUG is ${vars.CLIENT_SLUG ?? "missing"}, the Client is ${site.meta.client}`,
   });
+  // Settings that belong to the preview Worker only (audit follow-up).
+  const previewOnly = ["TURNSTILE_SKIP_HOSTNAME", "ALERT_SUBJECT_PREFIX"].filter((name) => name in vars);
+  results.push({
+    ok: previewOnly.length === 0,
+    check: "the production Worker has no preview-only settings",
+    detail: previewOnly.join(", "),
+  });
   const origin = new URL(site.meta.site_url).origin;
   const origins = (vars.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim());
   results.push({

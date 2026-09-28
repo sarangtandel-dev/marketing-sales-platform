@@ -23,6 +23,8 @@ export type Env = {
   // Secrets for monitoring (audit A3): a healthchecks.io ping URL the daily check hits (its
   // /fail URL on problems), and an ntfy topic URL that gets each alert's subject as a push.
   HEARTBEAT_URL?: string;
+  // Prepended to every alert subject; the preview Worker sets "[PREVIEW]".
+  ALERT_SUBJECT_PREFIX?: string;
   NTFY_URL?: string;
   BREVO_DOI_REDIRECT_URL?: string;
   // Monitoring (ADR-0037): signs test Leads, and the address the daily test Lead uses.

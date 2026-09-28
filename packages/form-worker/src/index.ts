@@ -33,6 +33,32 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 
+// The body as text, or null past MAX_BODY_BYTES. Read in chunks and stopped at the limit,
+// because a chunked request has no content-length to check first.
+async function readCapped(request: Request): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let at = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, at);
+    at += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 // Only waitUntil is used, so the daily check can run it with its own collector.
 async function handleLead(request: Request, env: Env, ctx: Pick<ExecutionContext, "waitUntil">): Promise<Response> {
   const origin = allowedOrigin(request, env.ALLOWED_ORIGINS);
@@ -52,8 +78,9 @@ async function handleLead(request: Request, env: Env, ctx: Pick<ExecutionContext
     return json({ ok: false, error: "too_large" }, 413, cors);
   }
 
-  const raw = await request.text();
-  const parsed = new TextEncoder().encode(raw).length <= MAX_BODY_BYTES ? parseSubmission(raw) : null;
+  const raw = await readCapped(request);
+  if (raw === null) return json({ ok: false, error: "too_large" }, 413, cors);
+  const parsed = parseSubmission(raw);
   if (!parsed) return json({ ok: false, error: "invalid" }, 400, cors);
 
   // A monitoring request signed with MONITOR_SECRET replaces the Turnstile check.

@@ -109,4 +109,6 @@ pnpm exec wrangler rollback <version-id> --env=""
   - `TURNSTILE_SECRET_KEY` is Turnstile's test secret `1x0000000000000000000000000000000AA`
   - `MONITOR_SECRET` for the manual test script
   - **never a `BREVO_API_KEY`:** QA Leads are stored and alerted, never delivered
+  - **never an `NTFY_URL`:** anyone can post to the preview, so its alerts must not reach the owner's phone
+- Its `ALERT_TO` and `send_email` destination are a QA inbox, not the owner's. Its alerts start with `[PREVIEW]` (`ALERT_SUBJECT_PREFIX`). The launch check fails if that prefix, or the skipped hostname check, ever reaches the production config.
 - Point the repository variable `PREVIEW_FORM_ENDPOINT` at `https://msp-form-worker-preview.<account>.workers.dev/lead`.

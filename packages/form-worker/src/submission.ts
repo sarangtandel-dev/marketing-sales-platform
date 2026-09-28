@@ -39,6 +39,8 @@ const MAX_FIELD_LENGTH = 5000;
 
 const isString = (v: unknown, max = 200): v is string => typeof v === "string" && v.length <= max;
 const TOKEN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// The shape the browser's type="email" already enforces; Brevo keys contacts on it.
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Returns the submission, or null if it's malformed.
 export function parseSubmission(raw: string): Submission | null {
@@ -75,6 +77,8 @@ export function parseSubmission(raw: string): Submission | null {
   const entries = Object.entries(fields);
   if (entries.length > MAX_FIELDS) return null;
   if (!entries.every(([k, v]) => isString(k, 100) && isString(v, MAX_FIELD_LENGTH))) return null;
+  const email = (fields as Record<string, string>).email;
+  if (email !== undefined && !EMAIL.test(email)) return null;
 
   if (!Array.isArray(opt_ins) || opt_ins.length > 5) return null;
   const optIns: OptIn[] = [];

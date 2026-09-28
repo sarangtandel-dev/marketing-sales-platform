@@ -15,6 +15,7 @@ How to work on the Module 1 code. The design lives in `CONTEXT.md` and `docs/adr
 | `pnpm typecheck` | TypeScript: the Worker on Workers types, everything else on DOM and Node types |
 | `pnpm knip` | Unused files, dependencies and exports. CI fails on any |
 | `pnpm check:launch clients/<slug>` | The automated launch checks (below) |
+| `pnpm audit:site <url>` | Lighthouse on every page of a site (`pnpm dev` or production); fails below performance 90, accessibility 100, best practices 95, SEO 100 |
 | `pnpm forms:manifest` | Regenerates the forms manifest the Worker accepts, after any change to Client #0's forms |
 
 **Supply chain:**
@@ -58,6 +59,22 @@ pnpm build:site clients/client-zero/site dist/client-zero
   There's no script or style CSP yet: CookieYes and GTM inject both, so it needs a browser check first (issue 42).
 - **Files in `clients/<slug>/site/public/`** are copied as they are. A `favicon.svg` or `favicon.ico` there is linked from every page.
 - **With a consent tool,** the footer needs `cookie_settings`: the label of the button that reopens the banner.
+- **Fonts:**
+  - A Theme can give a type token a web font in `fonts`: `"fontsource"` for open fonts, `"local"` for a Client's own licensed files.
+  - Fonts are self-hosted and preloaded, and the type token's stack becomes the fallback.
+  - Visitors never contact a font host.
+- **Contrast:** the build fails if the Theme's text colours miss WCAG AA (4.5:1) on the pairs the components use.
+- **Social and SEO head:** every page gets Open Graph and X/Twitter tags, `theme-color` and, on multi-language sites, `hreflang`.
+  - `meta.name` is the business name.
+  - `public/og.png` is the preview image.
+- **Structured data (issue 06, M0 scope):**
+  - Organization on the home page, Service per services item, FAQPage per FAQ section, word for word from the site definition.
+  - Nothing is guessed: no address, phone, hours, LocalBusiness or reviews.
+- **Logo and images:**
+  - `public/logo.svg` shows in the header, and needs `meta.name` as its alt text.
+  - A split `hero` can take an `image` (`src` relative to the site folder, plus `alt` text or `decorative: true`), resized to WebP by astro:assets.
+- **Icons:** `services` and `steps` items take an optional Lucide `icon` name, inlined as SVG at build time.
+- **Mobile header:** the navigation wraps on small screens. There's no menu button: at 375px Client #0's links fit, and a `<details>` menu is the plan if a Client's navigation gets long.
 - **axe-core's WCAG A/AA rules** run on every page of the fixture and the showcase. jsdom has no layout, so colour contrast is checked by hand.
 
 ## Running the form Worker locally
@@ -269,6 +286,17 @@ These were chosen at build time (ticket 20), against the criteria in the M0 spec
   - **Dependabot.**
   - **Link checking is ours,** in `tooling/check-links.ts`. lychee can't take one root directory per Client in one run.
   - **Native platform features where they cover it:** the Workers rate-limit binding, Workers Logs, D1 Time Travel, Pages `_headers`/`_redirects`, healthchecks.io and ntfy through one `fetch` each.
+
+## Website commands (repo skills, `.claude/skills/`)
+
+The manual-run versions of the pipeline steps in ADR-0037. Each writes the file that step's contract names.
+
+| Command | Step | Writes |
+|---|---|---|
+| `/site-seo-plan <slug>` | 3, SEO part (OpenSEO) | `clients/<slug>/brief/seo-targets.md` |
+| `/site-copy <slug>` | 4, copy from publishable Facts only | the site definition's text |
+| `/site-theme <slug> <handoff>` | 5, Claude Design to Theme | `clients/<slug>/design/theme.json` |
+| `/site-review <slug>` | 7, QA before Gate 2 | `clients/<slug>/qa/<date>-review.md` |
 
 ## Agent tools
 

@@ -12,3 +12,10 @@ The component library is text only. Dental and home-services Clients (ADR-0031, 
 Add catalogued components with Section Variants: an image-with-text section and a gallery (with alt text required and media rights from ADR-0018), a logo in the header, and a map that loads only after consent or as a static image with a link. Use `astro:assets` for image sizes and formats. Covered by the showcase and the axe test.
 
 **M1**, before quoting the first dental or home-services Client.
+
+2026-09-28, website tools, done for Client #0:
+- the header logo (`public/logo.svg`, alt text from `meta.name`)
+- an optional image on the split hero (astro:assets, alt text or `decorative: true`, the build fails on a missing file)
+- item icons (Lucide, inlined)
+
+Still for M1: the image-with-text section, the gallery and the consent-aware map.

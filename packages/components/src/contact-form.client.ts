@@ -11,7 +11,8 @@ type Msp = {
   event(name: string, params: Record<string, unknown>): void;
   consent(): { analytics: boolean; ads: boolean };
 };
-type FormWindow = Window & { msp?: Msp; turnstile?: Turnstile };
+// FormData comes from the window too, so the form is read in its own realm (jsdom in tests).
+type FormWindow = Window & Pick<typeof globalThis, "FormData"> & { msp?: Msp; turnstile?: Turnstile };
 
 const SKIPPED = (name: string) => name === "website" || name === "cf-turnstile-response" || name.startsWith("opt_in_");
 

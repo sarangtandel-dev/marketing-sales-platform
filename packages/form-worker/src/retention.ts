@@ -1,6 +1,6 @@
 // Lead Log retention (ADR-0013): entries, including their delivery results, are deleted
 // after 90 days. Brevo, owned by the Client, remains the lasting record.
-export const RETENTION_DAYS = 90;
+const RETENTION_DAYS = 90;
 
 export async function purgeExpiredLeads(db: D1Database, now: Date): Promise<void> {
   const cutoff = new Date(now.getTime() - RETENTION_DAYS * 86_400_000).toISOString();

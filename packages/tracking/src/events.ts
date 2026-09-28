@@ -8,7 +8,7 @@ export const EVENTS = {
   generate_lead: ["form_id", "form_type"],
 } as const;
 
-export type EventName = keyof typeof EVENTS;
+type EventName = keyof typeof EVENTS;
 
 type DataLayer = { push: (item: unknown) => void };
 
@@ -24,7 +24,7 @@ export function pushEvent(dataLayer: DataLayer, name: string, params: Record<str
 }
 
 // The channel a link contacts the business through, or null if it isn't a contact link.
-export function contactChannel(href: string): "call" | "email" | "sms" | "whatsapp" | null {
+function contactChannel(href: string): "call" | "email" | "sms" | "whatsapp" | null {
   const h = href.trim().toLowerCase();
   if (h.startsWith("tel:")) return "call";
   if (h.startsWith("mailto:")) return "email";

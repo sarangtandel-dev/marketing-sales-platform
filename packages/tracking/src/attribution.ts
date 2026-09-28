@@ -27,7 +27,7 @@ function looksLikePhone(v: string): boolean {
   }
   return false;
 }
-export const looksPersonal = (v: string) => EMAIL.test(v) || looksLikePhone(v);
+const looksPersonal = (v: string) => EMAIL.test(v) || looksLikePhone(v);
 
 // "www.google.co.in" → "google"; "t.co" stays "t.co" because it's listed whole.
 function siteName(host: string): string {

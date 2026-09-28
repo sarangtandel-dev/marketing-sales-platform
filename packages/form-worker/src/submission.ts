@@ -16,10 +16,10 @@ export type Submission = {
 };
 
 // A Marketing Opt-in the Visitor ticked. M0 offers email only (ADR-0021).
-export type OptIn = { channel: "email"; version: string };
+type OptIn = { channel: "email"; version: string };
 
 // Sent by the tracking script only when the Visitor gave consent (ADR-0022).
-export type Attribution = { first_touch: unknown; last_touch: unknown; ga_client_id: string | null };
+type Attribution = { first_touch: unknown; last_touch: unknown; ga_client_id: string | null };
 const MAX_ATTRIBUTION_BYTES = 4096;
 
 function parseAttribution(value: unknown): Attribution | null | undefined {

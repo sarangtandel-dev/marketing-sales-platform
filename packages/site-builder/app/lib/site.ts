@@ -56,4 +56,3 @@ export function formProps(id: string, lang: string) {
   };
 }
 
-export type FormProps = ReturnType<typeof formProps>;

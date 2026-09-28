@@ -12,7 +12,7 @@ import { plusMinutes } from "./schedules.ts";
 
 // Wait after attempt n before attempt n+1. Six attempts over about 14.5 hours.
 const BACKOFF_MINUTES = [1, 5, 30, 120, 720];
-export const MAX_ATTEMPTS = BACKOFF_MINUTES.length + 1;
+const MAX_ATTEMPTS = BACKOFF_MINUTES.length + 1;
 const LEASE_MINUTES = 10;
 // A pending Lead this old has lost its first attempt (the Worker was stopped mid-way).
 const PENDING_GRACE_MINUTES = 2;

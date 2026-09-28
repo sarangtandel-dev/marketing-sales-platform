@@ -47,7 +47,7 @@ function leadAttributes(lead: LeadForBrevo): Record<string, string> {
   };
 }
 
-export function contactCreate(lead: LeadForBrevo) {
+function contactCreate(lead: LeadForBrevo) {
   const { email, ...rest } = lead.fields;
   const attributes: Record<string, string> = {};
   for (const [name, value] of Object.entries(rest)) {

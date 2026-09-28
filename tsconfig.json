@@ -1,0 +1,10 @@
+{
+  // Everything but the form Worker, which runs on Workers types (packages/form-worker/tsconfig.json).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "types": ["node"]
+  },
+  "include": ["packages/*/src", "packages/*/test", "packages/site-builder/app", "tooling", "vitest.config.ts"],
+  "exclude": ["packages/form-worker", "**/node_modules", "**/.build"]
+}

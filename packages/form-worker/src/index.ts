@@ -33,7 +33,8 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 
-async function handleLead(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+// Only waitUntil is used, so the daily check can run it with its own collector.
+async function handleLead(request: Request, env: Env, ctx: Pick<ExecutionContext, "waitUntil">): Promise<Response> {
   const origin = allowedOrigin(request, env.ALLOWED_ORIGINS);
   if (origin === false) return json({ ok: false, error: "forbidden" }, 403);
   const cors = corsHeaders(origin);

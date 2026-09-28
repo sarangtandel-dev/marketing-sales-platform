@@ -1,12 +1,11 @@
 {
+  // The Worker itself, on Workers types only. Its tests run in Node against the bundled
+  // Worker (Miniflare), so they're checked here too, with Node's types added.
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es2022",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
+    "lib": ["es2023"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

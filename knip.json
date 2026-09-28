@@ -1,0 +1,37 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "tooling": {
+      "entry": [
+        "*.ts"
+      ]
+    },
+    "packages/form-worker": {
+      "entry": [
+        "scripts/*.ts"
+      ]
+    },
+    "packages/site-builder": {
+      "entry": [
+        "app/pages/**/*.{astro,ts}"
+      ],
+      "ignoreDependencies": [
+        "tailwindcss",
+        "@msp/tracking",
+        "msp"
+      ]
+    },
+    "packages/components": {
+      "ignoreDependencies": [
+        "astro"
+      ]
+    }
+  },
+  "ignore": [
+    ".agents/**",
+    "templates/**"
+  ],
+  "ignoreBinaries": [
+    "gitleaks"
+  ]
+}

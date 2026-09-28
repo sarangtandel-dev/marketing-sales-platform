@@ -14,7 +14,7 @@ const SITE_MODULE = "virtual:msp/site";
 
 // Cloudflare's published Turnstile test site key that always passes (ADR-0028: never
 // use a production widget outside production).
-export const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
+const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
 
 export type BuildOptions = {
   siteDir: string;
@@ -24,6 +24,7 @@ export type BuildOptions = {
   formEndpoint?: string;
 };
 
+/** @public Used by app/env.d.ts, which knip can't see. */
 export type BuildSettings = { turnstileSiteKey?: string; formEndpoint?: string; favicon?: string };
 
 // Sent with every page by Cloudflare Pages (audit M4). The CSP is header-only rules that

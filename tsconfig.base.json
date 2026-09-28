@@ -1,0 +1,13 @@
+{
+  // Shared compiler settings. Type-checking only: Node, Vite and esbuild run the .ts files.
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  }
+}

@@ -1,3 +1,13 @@
 packages:
   - "packages/*"
   - "tooling"
+
+# Supply chain (audit, Batch 3): a version must be a day old before it can be installed,
+# which blocks most hijacked releases; and no dependency may pull a package from a git
+# repo or a URL instead of the registry.
+minimumReleaseAge: 1440
+blockExoticSubdeps: true
+# Only these may run install scripts (they fetch their native binaries).
+allowBuilds:
+  esbuild: true
+  workerd: true

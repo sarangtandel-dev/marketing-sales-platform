@@ -56,7 +56,7 @@ export async function isValidTestSignature(header: string, body: string, secret:
   return sameText(parts.v1, await hmac(secret, `${t}.${body}`));
 }
 
-type LeadHandler = (request: Request, env: Env, ctx: ExecutionContext) => Promise<Response>;
+type LeadHandler = (request: Request, env: Env, ctx: Pick<ExecutionContext, "waitUntil">) => Promise<Response>;
 
 // Rejections in a day above which real Visitors may be being refused (a broken widget or key).
 // ponytail: one fixed threshold; make it per Client once traffic differs a lot between them.
@@ -112,7 +112,7 @@ async function testLeadProblems(env: Env, handle: LeadHandler): Promise<string[]
   }
   const body = testLeadBody(env.MONITOR_TEST_EMAIL, "daily");
   const pending: Promise<unknown>[] = [];
-  const ctx = { waitUntil: (p: Promise<unknown>) => pending.push(p), passThroughOnException() {} } as ExecutionContext;
+  const ctx = { waitUntil: (p: Promise<unknown>) => void pending.push(p) };
   const request = new Request("https://monitor.internal/lead", {
     method: "POST",
     // Signed at send time, not the cron's scheduled time, so a late cron run still passes.

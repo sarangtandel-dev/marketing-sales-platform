@@ -9,7 +9,7 @@ import { Miniflare } from "miniflare";
 const root = join(import.meta.dirname, "..");
 
 // Must match wrangler.jsonc, and be one the pinned Miniflare runtime supports.
-export const COMPATIBILITY_DATE = "2026-08-01";
+const COMPATIBILITY_DATE = "2026-08-01";
 
 let bundle: Promise<string> | undefined;
 function bundleWorker(): Promise<string> {
@@ -33,14 +33,14 @@ function bundleWorker(): Promise<string> {
   return bundle;
 }
 
-export const TURNSTILE_PASS = "turnstile-pass";
-export const MONITOR_SECRET = "monitor-test-secret";
+const TURNSTILE_PASS = "turnstile-pass";
+const MONITOR_SECRET = "monitor-test-secret";
 
 export type Outbound = (request: Request) => Promise<Response> | Response;
 
 // Turnstile's siteverify: TURNSTILE_PASS succeeds for example.test; "turnstile-pass@<host>"
 // succeeds as if solved on <host>; anything else fails. A wrong secret reports it.
-export const fakeTurnstile: Outbound = async (request) => {
+const fakeTurnstile: Outbound = async (request) => {
   const body = await request.formData();
   const token = String(body.get("response"));
   if (body.get("secret") !== "test-secret") {
@@ -64,7 +64,7 @@ export default function (env) {
   };
 }`;
 
-export type SentEmail = { from: string; to: string; subject: string; text: string };
+type SentEmail = { from: string; to: string; subject: string; text: string };
 
 export type Harness = {
   mf: Miniflare;

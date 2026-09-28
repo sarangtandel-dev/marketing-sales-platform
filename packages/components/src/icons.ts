@@ -3,8 +3,13 @@ import { icons } from "@iconify-json/lucide";
 // Item icons: one set (Lucide, ISC), inlined as SVG at build time, so there are no icon
 // requests or scripts at runtime. The SVG is decorative: the item's title says what it is.
 // ponytail: one icon set. Add another only when a Client needs it.
+// Own keys only: "constructor" and friends aren't icons.
 const resolveName = (name: string): string | undefined =>
-  name in icons.icons ? name : icons.aliases?.[name]?.parent;
+  Object.hasOwn(icons.icons, name)
+    ? name
+    : icons.aliases && Object.hasOwn(icons.aliases, name)
+      ? icons.aliases[name].parent
+      : undefined;
 
 export const iconExists = (name: string) => resolveName(name) !== undefined;
 

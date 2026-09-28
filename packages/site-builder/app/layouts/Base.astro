@@ -4,7 +4,8 @@ import type { Page } from "../../src/definition.ts";
 import { Font } from "astro:assets";
 import { settings } from "virtual:msp/site";
 import { jsonLd, jsonLdScript } from "../../src/jsonld.ts";
-import { hreflangLinks } from "../../src/seo.ts";
+import { homePathFor, hreflangLinks } from "../../src/seo.ts";
+import { fontVariable } from "../../src/theme-css.ts";
 import { pageById, pagePath, site, t } from "../lib/site";
 
 interface Props {
@@ -53,7 +54,7 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     {consentToolSrc && <script is:inline id="cookieyes" src={consentToolSrc}></script>}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {settings.favicon && <link rel="icon" href={`/${settings.favicon}`} />}
-    {settings.fonts.map((token) => <Font cssVariable={`--msp-font-${token}` as never} preload />)}
+    {settings.fonts.map((token) => <Font cssVariable={fontVariable(token) as never} preload />)}
     <title>{title}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={url} />}
@@ -73,7 +74,7 @@ const trackingConfig = `window.mspConfig = ${JSON.stringify({ gtm: gtm ?? null }
     <header class="border-b border-on-surface/10 px-4">
       <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 py-4">
         {settings.logo && (
-          <a href={pagePath(site.pages.find((p) => p.type === "home") ?? site.pages[0], lang)} class="mr-auto">
+          <a href={homePathFor(lang, site.meta.default_language)} class="mr-auto">
             <img src={`/${settings.logo}`} alt={t(site.meta.name!, lang)} class="h-8 w-auto" />
           </a>
         )}

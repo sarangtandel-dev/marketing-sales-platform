@@ -13,6 +13,7 @@ describe("icons (one set: Lucide, inlined at build time)", () => {
   it("knows which names exist", () => {
     expect(iconExists("rocket")).toBe(true);
     expect(iconExists("no-such-icon")).toBe(false);
+    expect(iconExists("constructor")).toBe(false);
     expect(iconSvg("no-such-icon")).toBeUndefined();
   });
 });

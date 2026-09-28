@@ -1,6 +1,6 @@
 import type { FAQPage, Organization, Service, WithContext } from "schema-dts";
 import type { Page, SiteDefinition } from "./definition.ts";
-import { pagePathFor } from "./seo.ts";
+import { homePathFor, pagePathFor } from "./seo.ts";
 
 // Structured data (issue 06). It says only what the site definition publishes, word for
 // word, and leaves out whatever it doesn't: no address, phone, profiles, prices or hours are
@@ -18,7 +18,7 @@ export function jsonLd(
   const orgId = `${siteUrl}/#organization`;
   const graph: Node[] = [];
 
-  if (name && pagePathFor(page, lang, defaultLanguage) === (lang === defaultLanguage ? "/" : `/${lang}/`)) {
+  if (name && pagePathFor(page, lang, defaultLanguage) === homePathFor(lang, defaultLanguage)) {
     graph.push({
       "@type": "Organization",
       "@id": orgId,

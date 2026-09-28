@@ -307,6 +307,12 @@ describe("validateTheme", () => {
     expect(validateTheme(theme())).toEqual([]);
   });
 
+  it("reports a colour it can't read instead of crashing", () => {
+    const t = theme();
+    t.colors.muted = "var(--x)";
+    expect(validateTheme(t)).toContainEqual({ path: "/colors/muted", message: expect.stringContaining("colour") });
+  });
+
   it("requires the colour tokens the components use", () => {
     const t = theme();
     delete t.colors.muted;

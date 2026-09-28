@@ -6,6 +6,9 @@ export function pagePathFor(page: Page, lang: string, defaultLanguage: string): 
   return parts.length ? `/${parts.join("/")}/` : "/";
 }
 
+// The home page's path for a language: the site root, or /<lang>/.
+export const homePathFor = (lang: string, defaultLanguage: string) => (lang === defaultLanguage ? "/" : `/${lang}/`);
+
 // hreflang alternates for a page on a multi-language site, with x-default on the default
 // language (ADR-0027). A single-language site needs none.
 export function hreflangLinks(page: Page, languages: string[], defaultLanguage: string, siteUrl: string) {

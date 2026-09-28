@@ -14,6 +14,17 @@ const AA = 4.5;
 export function contrastIssues(colors: Theme["colors"]): Issue[] {
   const missing = [...new Set(PAIRS.flat())].filter((token) => !colors[token]);
   if (missing.length) return [{ path: "/colors", message: `needs the colour tokens the components use: ${missing.join(", ")}` }];
+  const unreadable = [...new Set(PAIRS.flat())].filter((token) => {
+    try {
+      new Color(colors[token]);
+      return false;
+    } catch {
+      return true;
+    }
+  });
+  if (unreadable.length) {
+    return unreadable.map((token) => ({ path: `/colors/${token}`, message: `"${colors[token]}" isn't a CSS colour the contrast check can read` }));
+  }
   return PAIRS.flatMap(([text, background]) => {
     const ratio = new Color(colors[text]).contrast(new Color(colors[background]), "WCAG21");
     return ratio >= AA

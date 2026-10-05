@@ -23,6 +23,6 @@
     "knip": "^6.38.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.2",
-    "wrangler": "^4.141.0"
+    "wrangler": "^4.143.0"
   }
 }

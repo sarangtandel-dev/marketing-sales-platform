@@ -19,10 +19,10 @@
     "audit:site": "pnpm dlx unlighthouse-ci@0.18.1 --config-file tooling/unlighthouse.config.mjs --site"
   },
   "devDependencies": {
-    "@types/node": "^26.6.3",
-    "knip": "^6.38.0",
+    "@types/node": "^26.6.4",
+    "knip": "^6.40.0",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.2",
-    "wrangler": "^4.141.0"
+    "vitest": "^5.0.3",
+    "wrangler": "^4.148.0"
   }
 }
